@@ -1,0 +1,10 @@
+{
+  "description": "Create an interactive and functional portfolio to showcase your work, designed for professionals seeking to enhance their online presence and attract clients.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
