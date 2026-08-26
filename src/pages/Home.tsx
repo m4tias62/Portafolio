@@ -1,100 +1,103 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import imgPresentation from '@/imports/Prototipo/556ea8de7896ac0e95b5d5e013e9d3d3dd50db21.png';
 import ProgressBar from '@/components/ProgressBar';
+import TrenzaDoradaOverture from '@/components/TrenzaDoradaOverture';
 
 type HomeProps = {
   onProjectClick: (id: number) => void;
   scrollTo?: string;
 };
 
-const projects = [
+type Project = {
+  id: number;
+  title: string;
+  year: string;
+  category: string;
+  description: string;
+  available: boolean;
+};
+
+const projects: Project[] = [
   {
     id: 1,
     title: 'Sistema MIU',
     year: '2024',
     category: 'Diseño generativo',
     description: 'Exploración del sistema MIU de Hofstadter aplicado a tipografía generativa.',
+    available: true,
   },
   {
     id: 2,
-    title: 'Cartografía Sonora',
-    year: '2023',
-    category: 'Visualización de datos',
-    description: 'Mapeo visual de paisajes sonoros urbanos en Santiago de Chile.',
+    title: 'Edubig',
+    year: '2025',
+    category: 'Product design',
+    description: 'Plataforma de decisión escolar para familias de la comuna de Pudahuel.',
+    available: false,
   },
   {
     id: 3,
-    title: 'Memoria Viva',
-    year: '2023',
-    category: 'Identidad',
-    description: 'Sistema de identidad para archivo de memoria histórica.',
+    title: 'Tribu Impulsa',
+    year: '2025',
+    category: 'Product design',
+    description: 'Plataforma chilena de emprendimiento y networking.',
+    available: false,
   },
   {
     id: 4,
-    title: 'Umbral',
-    year: '2022',
-    category: 'Tipografía',
-    description: 'Familia tipográfica variable diseñada para entornos de alta legibilidad.',
-  },
-  {
-    id: 5,
-    title: 'Atlas de Ruido',
-    year: '2022',
-    category: 'Editorial',
-    description: 'Publicación que cartografía la contaminación acústica en zonas metropolitanas.',
+    title: 'Vivit — Accesibilidad',
+    year: '2025',
+    category: 'Investigación UX',
+    description: 'Benchmark consolidado de mejores prácticas en extensiones de accesibilidad web.',
+    available: false,
   },
 ];
 
-function MiuDisplay() {
-  return (
-    <div className="flex flex-col items-center justify-center gap-8 py-20 w-full">
-      <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[32px] text-[#0f0f0e] leading-normal">
-        MI
-      </p>
-      <div className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[16px] text-[#3a3a38] text-center leading-relaxed">
-        <p className="whitespace-pre">MII{'         '}MIU</p>
-        <p className="whitespace-pre">​</p>
-        <p className="whitespace-pre">MIIII{'    '}MIUIU{'    '}MIIU</p>
-        <p className="whitespace-pre">​</p>
-        <p className="whitespace-pre">MUIIU{'  '}MIIIIII{'  '}MIIUIIU{'  '}MIIIU</p>
-      </div>
-      <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[24px] text-[#8a8a85] leading-normal">
-        MU
-      </p>
-      <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] text-[#8a8a85] leading-[1.5]">
-        [Placeholder: sistema MIU generado en p5.js — MU permanece afuera del árbol]
-      </p>
-    </div>
-  );
-}
 
-function ProjectCard({ project, onClick }: { project: typeof projects[0]; onClick: () => void }) {
+function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
+  const disabled = !project.available;
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-start shrink-0 cursor-pointer group text-left"
+      disabled={disabled}
+      aria-disabled={disabled}
+      className={`flex flex-col items-start shrink-0 group text-left ${
+        disabled ? 'cursor-default' : 'cursor-pointer'
+      }`}
       style={{ width: 520 }}
     >
       <div
-        className="w-full bg-[#d9d9d9] relative overflow-hidden"
+        className={`w-full relative overflow-hidden ${
+          disabled ? 'bg-[#f2f1ec] border border-[#dcdbd5]' : 'bg-[#ebeae4]'
+        }`}
         style={{ height: 420 }}
       >
-        <div className="absolute inset-0 border-2 border-[#0f0f0e] opacity-0 group-hover:opacity-100 transition-opacity" />
+        {!disabled && (
+          <div className="absolute inset-0 border-2 border-[#0f0f0e] opacity-0 group-hover:opacity-100 transition-opacity" />
+        )}
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] text-[#8a8a85]">
-            {project.title}
+            {disabled ? 'En preparación' : project.title}
           </span>
         </div>
       </div>
       <div className="pt-3">
-        <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
+        <p className={`font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.43px] leading-[1.47] uppercase ${
+          disabled ? 'text-[#b6b5b0]' : 'text-[#8a8a85]'
+        }`}>
           {project.category} — {project.year}
         </p>
         <p
-          className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[20px] text-[#0f0f0e] leading-[1.2] tracking-[-0.2px] mt-1"
+          className={`font-['IBM_Plex_Sans:Regular',sans-serif] text-[20px] leading-[1.2] tracking-[-0.2px] mt-1 ${
+            disabled ? 'text-[#8a8a85]' : 'text-[#0f0f0e]'
+          }`}
           style={{ fontVariationSettings: '"wdth" 100' }}
         >
           {project.title}
+        </p>
+        <p className={`font-['IBM_Plex_Sans:Regular',sans-serif] text-[14px] leading-[1.5] mt-1 max-w-[420px] ${
+          disabled ? 'text-[#8a8a85]' : 'text-[#3a3a38]'
+        }`}>
+          {project.description}
         </p>
       </div>
     </button>
@@ -126,6 +129,80 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
     return () => el.removeEventListener('scroll', handleCarouselScroll);
   }, [handleCarouselScroll]);
 
+  // Smooth wheel-to-horizontal + drag-to-scroll (fluido, sin saltos)
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+
+    // -- Wheel con inercia (rueda de mouse vertical → scroll horizontal) --
+    let target = el.scrollLeft;
+    let rafId: number | null = null;
+
+    const stepToTarget = () => {
+      const diff = target - el.scrollLeft;
+      if (Math.abs(diff) < 0.5) {
+        el.scrollLeft = target;
+        rafId = null;
+        return;
+      }
+      el.scrollLeft += diff * 0.18; // damping: valores más bajos = más suave
+      rafId = requestAnimationFrame(stepToTarget);
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      // Trackpad horizontal (dos dedos hacia el lado) ya funciona nativo — dejarlo pasar.
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      // Rueda vertical: interceptar y traducir a horizontal con inercia.
+      e.preventDefault();
+      const max = el.scrollWidth - el.clientWidth;
+      target = Math.max(0, Math.min(max, target + e.deltaY));
+      if (rafId === null) rafId = requestAnimationFrame(stepToTarget);
+    };
+
+    // -- Drag para arrastrar el carrusel con el mouse --
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartScroll = 0;
+
+    const onPointerDown = (e: PointerEvent) => {
+      // Solo botón izquierdo, y no capturar clicks sobre las cards navegables
+      if (e.button !== 0) return;
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartScroll = el.scrollLeft;
+      target = el.scrollLeft;
+      el.style.cursor = 'grabbing';
+      el.setPointerCapture(e.pointerId);
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (!isDragging) return;
+      const dx = e.clientX - dragStartX;
+      el.scrollLeft = dragStartScroll - dx;
+      target = el.scrollLeft;
+    };
+    const onPointerUp = (e: PointerEvent) => {
+      if (!isDragging) return;
+      isDragging = false;
+      el.style.cursor = '';
+      el.releasePointerCapture(e.pointerId);
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerUp);
+    el.addEventListener('pointercancel', onPointerUp);
+
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('pointerdown', onPointerDown);
+      el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerup', onPointerUp);
+      el.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, []);
+
   // Seek: click on progress bar scrolls the carousel
   function handleSeek(ratio: number) {
     const el = carouselRef.current;
@@ -154,8 +231,8 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
     <div className="bg-[#fafaf7] min-h-screen">
       {/* Hero */}
       <section className="px-[80px] pb-2">
-        <div className="bg-[#fafaf7] border border-[#ebeae4] relative" style={{ minHeight: 460 }}>
-          <MiuDisplay />
+        <div className="bg-[#fafaf7] border border-[#ebeae4] relative" style={{ minHeight: 460, height: 460 }}>
+          <TrenzaDoradaOverture />
         </div>
       </section>
 
@@ -175,14 +252,16 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
           </div>
           <div
             ref={carouselRef}
-            className="flex gap-[96px] overflow-x-auto pb-4"
+            className="flex gap-[96px] overflow-x-auto pb-4 select-none cursor-grab"
             style={{ scrollbarWidth: 'none' }}
           >
             {projects.map(p => (
               <ProjectCard
                 key={p.id}
                 project={p}
-                onClick={() => onProjectClick(p.id)}
+                onClick={() => {
+                  if (p.available) onProjectClick(p.id);
+                }}
               />
             ))}
           </div>
