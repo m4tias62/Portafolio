@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import imgPresentation from '@/imports/Prototipo/556ea8de7896ac0e95b5d5e013e9d3d3dd50db21.png';
 import ProgressBar from '@/components/ProgressBar';
-import TrenzaDoradaOverture from '@/components/TrenzaDoradaOverture';
+import CKHeroOverture from '@/components/CKHeroOverture';
+import SocialLinks from '@/components/SocialLinksButtons';
 
 type HomeProps = {
   onProjectClick: (id: number) => void;
@@ -232,7 +233,7 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
       {/* Hero */}
       <section className="px-[80px] pb-2">
         <div className="bg-[#fafaf7] border border-[#ebeae4] relative" style={{ minHeight: 460, height: 460 }}>
-          <TrenzaDoradaOverture />
+          <CKHeroOverture />
         </div>
       </section>
 
@@ -369,14 +370,12 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#1e1e1e] px-[80px] py-[64px]">
-        <div className="flex items-center justify-between">
-          <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[14px] text-[#8a8a85] leading-[1.5]">
-            Matías Cáceres — Diseñador
+      <footer className="bg-[#fafaf7] border-t border-[#dcdbd5] px-[80px] py-[48px]">
+        <div className="flex items-center justify-between gap-[24px] flex-wrap">
+          <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
+            Matías Cáceres · Santiago de Chile · {new Date().getFullYear()}
           </p>
-          <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] text-[#8a8a85] leading-[1.5]">
-            Santiago de Chile · {new Date().getFullYear()}
-          </p>
+          <SocialLinks />
         </div>
       </footer>
     </div>
