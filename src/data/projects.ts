@@ -55,14 +55,6 @@ import sitemapTree from '@/assets/sitemap-ine/sitemap-tree.jpg';
 import sitemapBenchmark from '@/assets/sitemap-ine/benchmark.png';
 import sitemapMockup from '@/assets/sitemap-ine/mockup.png';
 
-// Edubig (Product design · UX-UI, 2025). Imágenes del case study — las
-// personas oficiales viven dentro de la figura interactiva EdubigPersonas.
-import edubigBocetos from '@/imports/edubig/bocetos.png';
-import edubigConstruccion from '@/imports/edubig/logo-construccion.jpg';
-import edubigFicha1 from '@/imports/edubig/ficha-1.png';
-import edubigFicha2 from '@/imports/edubig/ficha-2.png';
-import edubigMockup from '@/imports/edubig/home-mockup.png';
-
 import type { CategoryId } from '@/data/categories';
 
 export type StageVariant = 'photo' | 'quote';
@@ -72,14 +64,7 @@ export type StageVariant = 'photo' | 'quote';
  * Cuando está seteada, tiene prioridad sobre `image` y se renderiza un
  * componente React (ej. un gráfico SVG editorial) en el hueco de la figura.
  */
-export type FigureKey =
-  | 'mda-data-bar'
-  | 'edubig-sources'
-  | 'edubig-process'
-  | 'edubig-chain'
-  | 'edubig-personas'
-  | 'edubig-colorrails'
-  | 'edubig-decisions';
+export type FigureKey = 'mda-data-bar';
 
 export type Stage = {
   id: number;
@@ -548,118 +533,10 @@ export const projects: Project[] = [
     category: 'Product design',
     categoryId: 'ux-ui',
     description:
-      'Plataforma abierta de datos escolares que traduce cinco fuentes oficiales en una decisión clara para las familias, sin caer en el ranking crudo.',
-    available: true,
-    thumbnail: edubigMockup,
+      'Plataforma de decisión escolar para familias de la comuna de Pudahuel.',
+    available: false,
     headerLabel: 'Proyecto 06',
-    stages: [
-      {
-        id: 1,
-        label: 'Etapa 1 — Contexto',
-        text:
-          'Elegir colegio en Chile obliga a una familia a cruzar, como mínimo, cinco portales oficiales que no se conectan entre sí — Mineduc, SIMCE, IDPS, Supereduc, DEMRE — y a interpretar rankings que correlacionan más con nivel socioeconómico que con calidad pedagógica. La familia termina haciendo de integrador manual.',
-        figureKey: 'edubig-sources',
-      },
-      {
-        id: 2,
-        label: 'Etapa 2 — Método',
-        text:
-          'El caso no avanza en línea recta: sigue un proceso de Design Thinking iterativo. Empatizar con las familias, definir el problema real, idear el sistema, prototipar y testear — volviendo sobre cada etapa. Hoy Edubig está de vuelta en Definir e Idear, rehaciendo su dataset base para pasar de una comuna a todo el país.',
-        figureKey: 'edubig-process',
-      },
-      {
-        id: 3,
-        label: 'Etapa 3 — Investigación',
-        text:
-          'Las personas de Edubig no son inventadas: cada afirmación es trazable a una fuente pública (BID, Agencia de Calidad n=590.601, estudio de comprensión SIMCE, benchmark internacional). Tres personas comparten un mismo dato leído a tres profundidades — de la etiqueta legible a la metodología. Diseñar para «el usuario promedio» sería diseñar para nadie.',
-        figureKey: 'edubig-personas',
-      },
-      {
-        id: 4,
-        label: 'Etapa 4 — Concepto',
-        text:
-          'La traducción es el verbo rector, anclada en el isomorfismo de Hofstadter: un puente fiel a los dos lados sin aplanar ninguno. El dato frío e imparcial se traduce en cuidado y seguridad para la familia. De ahí se deriva el principio anti-ranking: una traducción fiel lo es de los dos lados.',
-        figureKey: 'edubig-chain',
-      },
-      {
-        id: 5,
-        label: 'Etapa 5 — Del concepto al logotipo',
-        text:
-          'Si el sistema traduce, la marca también. La exploración fue del dato frío al dato cálido, pasando por el gesto de un toggle switch — el interruptor que enciende la traducción — hasta llegar a las dos cápsulas del isologo.',
-        image: edubigBocetos,
-        imageCaption:
-          'Bocetos de exploración: del dato frío al dato cálido, del switch ON/OFF a las dos cápsulas del logo.',
-        figureAspect: 1.26,
-      },
-      {
-        id: 6,
-        label: 'Etapa 6 — Construcción del logotipo',
-        text:
-          'La retícula del toggle define las dos cápsulas del isologo: 011 en tipografía pixel sobre azul frío (el dato) y eB en serif sobre coral cálido (la traducción). El objeto de interfaz se vuelve marca — el logotipo nace del mismo concepto que el producto, no de un ejercicio aparte.',
-        image: edubigConstruccion,
-        imageCaption: 'Construcción formal del isologo a partir del gesto del toggle.',
-        figureAspect: 2.11,
-      },
-      {
-        id: 7,
-        label: 'Etapa 7 — Ingeniería de datos',
-        text:
-          'El pipeline y el motor de scoring son infraestructura. Dirijo la colaboración: la primera propuesta y estructura del dataset son mías; Israel Rubilar (analista de datos) se integra tras ver el primer MVP, y la colaboración real empieza ahora, en la ampliación de Pudahuel a todo Chile. Claude es un compañero de proyecto que acelera la implementación bajo mi criterio de producto.',
-        video: '/edubig-proceso-datos.mp4',
-        imageCaption: 'Proceso real de limpieza y unificación de fuentes, en co-work con IA.',
-        figureAspect: 16 / 9,
-      },
-      {
-        id: 8,
-        label: 'Etapa 8 — El sistema de datos, visible',
-        text:
-          'La visualización no decora las conclusiones: las sostiene. Cada colegio se lee contra el promedio de sus similares (mismo GSE), con una escala universal de ±56 puntos y una banda de referencia. Pantallazo real de la ficha en el MVP.',
-        image: edubigFicha1,
-        imageCaption: 'Ficha de colegio — brecha contra colegios del mismo grupo socioeconómico.',
-        figureAspect: 0.505,
-      },
-      {
-        id: 9,
-        label: 'Etapa 9 — Trayectoria y comparación',
-        text:
-          'La ficha compara hasta tres colegios lado a lado: universidades de destino y áreas de carrera, con series de color que identifican cada establecimiento sin emitir juicio. La familia entra con nombres y sale con distinciones claras.',
-        image: edubigFicha2,
-        imageCaption: 'Ficha de colegio — universidades de destino y áreas de carrera comparadas.',
-        figureAspect: 0.491,
-      },
-      {
-        id: 10,
-        label: 'Etapa 10 — Sistema de color',
-        text:
-          'Todo el color pertenece a uno de tres carriles que nunca se mezclan: identidad (frío↔cálido), semáforo (solo donde el signo del dato es la información) y data-viz (categorías de serie, no valoración). Contraste verificado numéricamente (WCAG 2.2 AA); el color nunca comunica solo.',
-        figureKey: 'edubig-colorrails',
-      },
-      {
-        id: 11,
-        label: 'Etapa 11 — El producto en uso',
-        text:
-          'El producto es que una madre entienda cinco dimensiones sin ser experta en política educativa. El Test de Calce lo resuelve con patrones contra el sesgo de deseabilidad social: auto-advance, nota de legitimación y reencuadre lingüístico. Recorrido real, de la Q1 a la shortlist.',
-        video: '/edubig-navegacion-mvp.mp4',
-        imageCaption: 'Recorrido del Test de Calce en el prototipo del MVP.',
-        figureAspect: 0.49,
-      },
-      {
-        id: 12,
-        label: 'Etapa 12 — Decisiones de diseño',
-        text:
-          'Cada decisión se desprende de la exploración y la definición del concepto: un rechazo explícito, una elección y un trade-off asumido. La postura documentada — anti-ranking, comparación contra pares, motor determinístico — vale más que las pantallas pulidas.',
-        figureKey: 'edubig-decisions',
-      },
-      {
-        id: 13,
-        label: 'Etapa 13 — Estado y roadmap',
-        text:
-          'MVP de Pudahuel validado end-to-end. El gap honesto: falta testing con familias reales, la próxima etapa del ciclo. El roadmap inmediato es cerrar el schema nacional con Israel, migrar el frontend al universo de 7.168 colegios y testear con cinco a ocho familias. Design Thinking es iterativo: este es el ciclo en el que estoy hoy.',
-        image: edubigMockup,
-        imageCaption: 'Home de Edubig — punto de entrada al Test de Calce y a la exploración.',
-        figureAspect: 0.504,
-      },
-    ],
+    stages: [],
   },
   {
     id: 4,

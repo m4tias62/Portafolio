@@ -2,12 +2,6 @@ import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 
 import ProgressBar from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 import MdaDataBar from '@/components/figures/MdaDataBar';
-import EdubigSources from '@/components/figures/EdubigSources';
-import EdubigProcess from '@/components/figures/EdubigProcess';
-import EdubigChain from '@/components/figures/EdubigChain';
-import EdubigPersonas from '@/components/figures/EdubigPersonas';
-import EdubigColorRails from '@/components/figures/EdubigColorRails';
-import EdubigDecisions from '@/components/figures/EdubigDecisions';
 import { getProjectById, type FigureKey, type Stage } from '@/data/projects';
 
 type ProjectDetailProps = {
@@ -84,12 +78,6 @@ function isUltraWideStage(stage: Stage): boolean {
  */
 const FIGURE_REGISTRY: Record<FigureKey, ComponentType> = {
   'mda-data-bar': MdaDataBar,
-  'edubig-sources': EdubigSources,
-  'edubig-process': EdubigProcess,
-  'edubig-chain': EdubigChain,
-  'edubig-personas': EdubigPersonas,
-  'edubig-colorrails': EdubigColorRails,
-  'edubig-decisions': EdubigDecisions,
 };
 
 /** Pie de foto — SIEMPRE ceñido al ancho de la caja de figura que lo contiene
