@@ -2,10 +2,13 @@
  * SocialLinksButtons
  * ------------------
  * Botón social 32×32 con 4 estados del design system de Matías:
- *   Default        — bg #0A0A0A, ícono blanco.
+ *   Default        — bg #FFFFFF, ícono #0A0A0A.
  *   Hover          — bg #E1E1E1, ícono #0A0A0A.
  *   Pressed        — bg #FFFF00, ícono #0A0A0A.
- *   Focus-visible  — bg #FFFF00, ícono #0A0A0A, ring #0A0A0A separado 2px.
+ *   Focus-visible  — bg #FFFF00, ícono #0A0A0A, ring #0A0A0A separado.
+ *
+ * Diseñado para vivir sobre el footer oscuro — el fondo blanco del default
+ * contrasta contra el bg del footer (#0F0F0E).
  *
  * Los íconos son SVG inline (color por currentColor) — sin dependencias
  * externas ni requests a servidores. Fuente: paths oficiales simple-icons.
@@ -28,16 +31,16 @@ function SocialButton({ href, label, children }: SocialButtonProps) {
         // base
         'inline-flex items-center justify-center',
         'size-[32px] shrink-0',
-        'bg-[#0A0A0A] text-white',
+        'bg-white text-[#0A0A0A]',
         'transition-colors duration-150',
         // hover
-        'hover:bg-[#E1E1E1] hover:text-[#0A0A0A]',
+        'hover:bg-[#E1E1E1]',
         // pressed / active
-        'active:bg-[#FFFF00] active:text-[#0A0A0A]',
-        // focus-visible (con ring negro separado)
+        'active:bg-[#FFFF00]',
+        // focus-visible (bg amarillo + ring negro separado del color del footer)
         'outline-none',
-        'focus-visible:bg-[#FFFF00] focus-visible:text-[#0A0A0A]',
-        'focus-visible:ring-2 focus-visible:ring-[#0A0A0A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fafaf7]',
+        'focus-visible:bg-[#FFFF00]',
+        'focus-visible:ring-2 focus-visible:ring-[#0A0A0A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0F0F0E]',
       ].join(' ')}
     >
       {children}

@@ -36,10 +36,10 @@ type Params = {
 
 const DEFAULTS: Params = {
   seed: 12345,
-  marginTop: 0.22,
-  marginBottom: 0.22,
-  marginLeft: 0.08,
-  marginRight: 0.08,
+  marginTop: 0.08,
+  marginBottom: 0.08,
+  marginLeft: 0.04,
+  marginRight: 0.04,
   anchorInterval: [55, 130],
   arcInterval: [45, 105],
   convergenceInterval: [420, 780],

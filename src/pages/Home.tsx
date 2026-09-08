@@ -3,109 +3,68 @@ import imgPresentation from '@/imports/Prototipo/556ea8de7896ac0e95b5d5e013e9d3d
 import ProgressBar from '@/components/ProgressBar';
 import CKHeroOverture from '@/components/CKHeroOverture';
 import SocialLinks from '@/components/SocialLinksButtons';
+import { categories, type Category, type CategoryId } from '@/data/categories';
 
 type HomeProps = {
-  onProjectClick: (id: number) => void;
+  onCategoryClick: (id: CategoryId) => void;
   scrollTo?: string;
 };
 
-type Project = {
-  id: number;
-  title: string;
-  year: string;
-  category: string;
-  description: string;
-  available: boolean;
-};
-
-const projects: Project[] = [
-  {
-    id: 1,
-    title: 'Sistema MIU',
-    year: '2024',
-    category: 'Diseño generativo',
-    description: 'Exploración del sistema MIU de Hofstadter aplicado a tipografía generativa.',
-    available: true,
-  },
-  {
-    id: 2,
-    title: 'Edubig',
-    year: '2025',
-    category: 'Product design',
-    description: 'Plataforma de decisión escolar para familias de la comuna de Pudahuel.',
-    available: false,
-  },
-  {
-    id: 3,
-    title: 'Tribu Impulsa',
-    year: '2025',
-    category: 'Product design',
-    description: 'Plataforma chilena de emprendimiento y networking.',
-    available: false,
-  },
-  {
-    id: 4,
-    title: 'Vivit — Accesibilidad',
-    year: '2025',
-    category: 'Investigación UX',
-    description: 'Benchmark consolidado de mejores prácticas en extensiones de accesibilidad web.',
-    available: false,
-  },
-];
-
-
-function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
-  const disabled = !project.available;
+/**
+ * Card de categoría del carrusel del Home. El Home ya no muestra proyectos
+ * sueltos: muestra una card grande por categoría (UX-UI, Datos, Editorial),
+ * y al entrar se abre la CategoryPage con el carrusel de proyectos de esa
+ * categoría. La card lleva un círculo geométrico en el color de acento de la
+ * categoría — mismo lenguaje del sistema — y la misma interactividad hover
+ * (micro-escala + sombra + borde) que las cards de proyecto.
+ */
+function CategoryCard({ category, onClick }: { category: Category; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
-      aria-disabled={disabled}
-      className={`flex flex-col items-start shrink-0 group text-left ${
-        disabled ? 'cursor-default' : 'cursor-pointer'
-      }`}
-      style={{ width: 520 }}
+      className="flex flex-col items-start shrink-0 group text-left cursor-pointer"
+      style={{ width: 560 }}
     >
       <div
-        className={`w-full relative overflow-hidden ${
-          disabled ? 'bg-[#f2f1ec] border border-[#dcdbd5]' : 'bg-[#ebeae4]'
-        }`}
-        style={{ height: 420 }}
+        className="w-full relative overflow-hidden bg-[#ebeae4] border border-[#dcdbd5] transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]"
+        style={{ height: 460 }}
       >
-        {!disabled && (
-          <div className="absolute inset-0 border-2 border-[#0f0f0e] opacity-0 group-hover:opacity-100 transition-opacity" />
-        )}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] text-[#8a8a85]">
-            {disabled ? 'En preparación' : project.title}
-          </span>
+          <svg width="240" height="240" viewBox="0 0 240 240" aria-hidden="true">
+            <circle cx="120" cy="120" r="106" fill="none" stroke={category.accentColor} strokeWidth="1.25" />
+            <circle
+              cx="120"
+              cy="120"
+              r="52"
+              fill={category.accentColor}
+              className="transition-transform duration-500 ease-out group-hover:scale-110"
+              style={{ transformOrigin: '120px 120px' }}
+            />
+          </svg>
         </div>
+        <span className="absolute left-5 top-5 font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.43px] leading-[1.47] uppercase text-[#8a8a85]">
+          {category.labelShort}
+        </span>
       </div>
       <div className="pt-3">
-        <p className={`font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.43px] leading-[1.47] uppercase ${
-          disabled ? 'text-[#b6b5b0]' : 'text-[#8a8a85]'
-        }`}>
-          {project.category} — {project.year}
+        <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.43px] leading-[1.47] uppercase text-[#8a8a85]">
+          Categoría
         </p>
         <p
-          className={`font-['IBM_Plex_Sans:Regular',sans-serif] text-[20px] leading-[1.2] tracking-[-0.2px] mt-1 ${
-            disabled ? 'text-[#8a8a85]' : 'text-[#0f0f0e]'
-          }`}
+          className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[24px] leading-[1.2] tracking-[-0.24px] mt-1 text-[#0f0f0e]"
           style={{ fontVariationSettings: '"wdth" 100' }}
         >
-          {project.title}
+          {category.label}
         </p>
-        <p className={`font-['IBM_Plex_Sans:Regular',sans-serif] text-[14px] leading-[1.5] mt-1 max-w-[420px] ${
-          disabled ? 'text-[#8a8a85]' : 'text-[#3a3a38]'
-        }`}>
-          {project.description}
+        <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[14px] leading-[1.5] mt-1 max-w-[460px] text-[#3a3a38]">
+          {category.description}
         </p>
       </div>
     </button>
   );
 }
 
-export default function Home({ onProjectClick, scrollTo }: HomeProps) {
+export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [contactData, setContactData] = useState({ nombre: '', correo: '', mensaje: '' });
   const [sent, setSent] = useState(false);
@@ -115,7 +74,6 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
   const aboutRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
 
-  // Track horizontal scroll of the carousel
   const handleCarouselScroll = useCallback(() => {
     const el = carouselRef.current;
     if (!el) return;
@@ -130,12 +88,13 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
     return () => el.removeEventListener('scroll', handleCarouselScroll);
   }, [handleCarouselScroll]);
 
-  // Smooth wheel-to-horizontal + drag-to-scroll (fluido, sin saltos)
+  // Wheel vertical → scroll horizontal con inercia + drag-to-scroll con umbral
+  // (5px) para no romper los clicks de las cards. Misma solución del carrusel
+  // de CategoryPage — un solo comportamiento en todo el sitio.
   useEffect(() => {
     const el = carouselRef.current;
     if (!el) return;
 
-    // -- Wheel con inercia (rueda de mouse vertical → scroll horizontal) --
     let target = el.scrollLeft;
     let rafId: number | null = null;
 
@@ -146,73 +105,90 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
         rafId = null;
         return;
       }
-      el.scrollLeft += diff * 0.18; // damping: valores más bajos = más suave
+      el.scrollLeft += diff * 0.18;
       rafId = requestAnimationFrame(stepToTarget);
     };
 
     const onWheel = (e: WheelEvent) => {
-      // Trackpad horizontal (dos dedos hacia el lado) ya funciona nativo — dejarlo pasar.
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      // Rueda vertical: interceptar y traducir a horizontal con inercia.
       e.preventDefault();
       const max = el.scrollWidth - el.clientWidth;
       target = Math.max(0, Math.min(max, target + e.deltaY));
       if (rafId === null) rafId = requestAnimationFrame(stepToTarget);
     };
 
-    // -- Drag para arrastrar el carrusel con el mouse --
+    const DRAG_THRESHOLD = 5;
+    let pressed = false;
     let isDragging = false;
-    let dragStartX = 0;
-    let dragStartScroll = 0;
+    let pressStartX = 0;
+    let pressStartScroll = 0;
+    let capturedPointerId: number | null = null;
 
     const onPointerDown = (e: PointerEvent) => {
-      // Solo botón izquierdo, y no capturar clicks sobre las cards navegables
       if (e.button !== 0) return;
-      isDragging = true;
-      dragStartX = e.clientX;
-      dragStartScroll = el.scrollLeft;
+      pressed = true;
+      isDragging = false;
+      pressStartX = e.clientX;
+      pressStartScroll = el.scrollLeft;
       target = el.scrollLeft;
-      el.style.cursor = 'grabbing';
-      el.setPointerCapture(e.pointerId);
+      capturedPointerId = e.pointerId;
     };
     const onPointerMove = (e: PointerEvent) => {
-      if (!isDragging) return;
-      const dx = e.clientX - dragStartX;
-      el.scrollLeft = dragStartScroll - dx;
+      if (!pressed) return;
+      const dx = e.clientX - pressStartX;
+      if (!isDragging && Math.abs(dx) < DRAG_THRESHOLD) return;
+      if (!isDragging) {
+        isDragging = true;
+        el.style.cursor = 'grabbing';
+        try {
+          el.setPointerCapture(e.pointerId);
+        } catch {
+          /* noop */
+        }
+      }
+      el.scrollLeft = pressStartScroll - dx;
       target = el.scrollLeft;
     };
-    const onPointerUp = (e: PointerEvent) => {
-      if (!isDragging) return;
+    const endPress = () => {
+      if (!pressed) return;
+      pressed = false;
+      if (isDragging) {
+        el.style.cursor = '';
+        if (capturedPointerId !== null) {
+          try {
+            el.releasePointerCapture(capturedPointerId);
+          } catch {
+            /* noop */
+          }
+        }
+      }
       isDragging = false;
-      el.style.cursor = '';
-      el.releasePointerCapture(e.pointerId);
+      capturedPointerId = null;
     };
 
     el.addEventListener('wheel', onWheel, { passive: false });
     el.addEventListener('pointerdown', onPointerDown);
     el.addEventListener('pointermove', onPointerMove);
-    el.addEventListener('pointerup', onPointerUp);
-    el.addEventListener('pointercancel', onPointerUp);
+    el.addEventListener('pointerup', endPress);
+    el.addEventListener('pointercancel', endPress);
 
     return () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       el.removeEventListener('wheel', onWheel);
       el.removeEventListener('pointerdown', onPointerDown);
       el.removeEventListener('pointermove', onPointerMove);
-      el.removeEventListener('pointerup', onPointerUp);
-      el.removeEventListener('pointercancel', onPointerUp);
+      el.removeEventListener('pointerup', endPress);
+      el.removeEventListener('pointercancel', endPress);
     };
   }, []);
 
-  // Seek: click on progress bar scrolls the carousel
-  function handleSeek(ratio: number) {
+  function handleSeek(ratio: number, dragging: boolean = false) {
     const el = carouselRef.current;
     if (!el) return;
     const max = el.scrollWidth - el.clientWidth;
-    el.scrollTo({ left: ratio * max, behavior: 'smooth' });
+    el.scrollTo({ left: ratio * max, behavior: dragging ? 'auto' : 'smooth' });
   }
 
-  // Section scroll-to from nav
   useEffect(() => {
     if (!scrollTo) return;
     const refs: Record<string, React.RefObject<HTMLDivElement | null>> = {
@@ -237,7 +213,7 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
         </div>
       </section>
 
-      {/* Projects */}
+      {/* Proyectos — carrusel de categorías */}
       <section ref={projectsRef} id="projects" className="px-[80px] py-[48px] border-t border-b border-[#8a8a85]">
         <div className="pb-[24px]">
           <p
@@ -256,14 +232,8 @@ export default function Home({ onProjectClick, scrollTo }: HomeProps) {
             className="flex gap-[96px] overflow-x-auto pb-4 select-none cursor-grab"
             style={{ scrollbarWidth: 'none' }}
           >
-            {projects.map(p => (
-              <ProjectCard
-                key={p.id}
-                project={p}
-                onClick={() => {
-                  if (p.available) onProjectClick(p.id);
-                }}
-              />
+            {categories.map(c => (
+              <CategoryCard key={c.id} category={c} onClick={() => onCategoryClick(c.id)} />
             ))}
           </div>
         </div>
