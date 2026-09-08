@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import ProgressBar from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
+import EdubigCaseStudy from '@/pages/EdubigCaseStudy';
 import MdaDataBar from '@/components/figures/MdaDataBar';
 import { getProjectById, type FigureKey, type Stage } from '@/data/projects';
 
@@ -274,6 +275,10 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
       const targetTop = el.offsetTop + ratio * scrollable;
       window.scrollTo({ top: targetTop, behavior: dragging ? 'auto' : 'smooth' });
     }
+  }
+
+  if (project && project.slug === 'edubig') {
+    return <EdubigCaseStudy onBack={onBack} />;
   }
 
   if (!project) {

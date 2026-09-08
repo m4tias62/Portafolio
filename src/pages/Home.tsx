@@ -53,6 +53,7 @@ function CategoryCard({
 
   return (
     <button
+      data-slide
       onClick={onClick}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
@@ -62,15 +63,15 @@ function CategoryCard({
           ? 'transition-[transform,box-shadow,border-color] duration-500 ease-out hover:scale-[1.02] hover:shadow-[0_18px_60px_rgba(0,0,0,0.13)] hover:border-[#8a8a85] focus-visible:shadow-[0_18px_60px_rgba(0,0,0,0.13)]'
           : ''
       } ${narrow ? 'w-full h-[78vh]' : ''}`}
-      style={narrow ? undefined : { width: 'min(840px, 70vw)', height: 'min(68vh, 560px)' }}
+      style={narrow ? undefined : { width: 'min(760px, 64vw)', height: 'min(62vh, 520px)' }}
     >
       <div className="absolute right-0 top-0 bottom-0 w-[62%] flex items-center justify-center pointer-events-none">
         <div
           ref={discRef}
           className="rounded-full transition-transform duration-500 ease-out"
           style={{
-            width: 'min(42vh, 336px)',
-            height: 'min(42vh, 336px)',
+            width: 'min(38vh, 300px)',
+            height: 'min(38vh, 300px)',
             background: category.accentColor,
           }}
         />
@@ -130,8 +131,7 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
     const c = el.scrollLeft + el.clientWidth / 2;
     let best = 0;
     let bd = Infinity;
-    Array.from(el.children).forEach((ch, i) => {
-      const s = ch as HTMLElement;
+    Array.from(el.querySelectorAll<HTMLElement>(':scope > [data-slide]')).forEach((s, i) => {
       const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - c);
       if (d < bd) {
         bd = d;
@@ -154,8 +154,11 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
     // Móvil: scroll vertical nativo. goTo hace scrollIntoView; sin motor.
     if (narrow) {
       goToRef.current = (idx: number) => {
-        const ch = el.children[Math.max(0, idx)] as HTMLElement | undefined;
-        ch?.scrollIntoView({ behavior: reducedRef.current ? 'auto' : 'smooth', block: 'start' });
+        const slides = el.querySelectorAll<HTMLElement>(':scope > [data-slide]');
+        slides[Math.max(0, Math.min(slides.length - 1, idx))]?.scrollIntoView({
+          behavior: reducedRef.current ? 'auto' : 'smooth',
+          block: 'start',
+        });
       };
       seekRef.current = () => {};
       return;
@@ -187,10 +190,9 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
     };
 
     const centers = () =>
-      Array.from(el.children).map((ch) => {
-        const s = ch as HTMLElement;
-        return s.offsetLeft + s.offsetWidth / 2 - el.clientWidth / 2;
-      });
+      Array.from(el.querySelectorAll<HTMLElement>(':scope > [data-slide]')).map(
+        (s) => s.offsetLeft + s.offsetWidth / 2 - el.clientWidth / 2,
+      );
     const nearest = (x: number) => {
       const cs = centers();
       let best = cs[0];
@@ -401,6 +403,7 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
         {/* 0 · HERO — viz p5 a pantalla completa, sin marco */}
         <section
           aria-roledescription="slide"
+          data-slide
           aria-label="Inicio"
           className={`relative shrink-0 overflow-hidden bg-[#fafaf7] ${
             narrow ? 'w-full h-[70vh] min-h-[420px]' : 'w-full h-full'
@@ -416,10 +419,11 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
             }}
           >
             <h1
-              className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.14] tracking-[-0.5px] text-balance"
-              style={{ fontSize: 'clamp(26px, 3.4vw, 44px)', maxWidth: 'min(42ch, 74vw)' }}
+              className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.15] tracking-[-0.5px]"
+              style={{ fontSize: 'clamp(24px, 2.9vw, 40px)', maxWidth: 'min(46ch, 92vw)' }}
             >
-              Diseño en la intersección del criterio, la restricción y la curiosidad
+              <span className="block">Diseño en la intersección del criterio,</span>
+              <span className="block">la restricción y la curiosidad</span>
             </h1>
             <blockquote className="pl-[22px] border-l-2 border-[#0f0f0e] max-w-[44ch]">
               <p
@@ -448,11 +452,12 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
         {/* 4 · SOBRE MÍ */}
         <section
           aria-roledescription="slide"
+          data-slide
           aria-label="Sobre mí"
           className={`relative shrink-0 self-center bg-[#fafaf7] border border-[#ebeae4] overflow-hidden ${
             narrow ? 'w-full' : ''
           }`}
-          style={narrow ? undefined : { width: 'min(900px, 72vw)', height: 'min(68vh, 560px)' }}
+          style={narrow ? undefined : { width: 'min(820px, 66vw)', height: 'min(62vh, 520px)' }}
         >
           <div
             className="absolute inset-0 flex flex-col justify-center gap-[22px] overflow-y-auto max-[820px]:static"
@@ -508,11 +513,12 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
         {/* 5 · CONTACTO */}
         <section
           aria-roledescription="slide"
+          data-slide
           aria-label="Contacto"
           className={`relative shrink-0 self-center bg-[#fafaf7] border border-[#ebeae4] overflow-hidden ${
             narrow ? 'w-full' : ''
           }`}
-          style={narrow ? undefined : { width: 'min(900px, 72vw)', height: 'min(68vh, 560px)' }}
+          style={narrow ? undefined : { width: 'min(820px, 66vw)', height: 'min(62vh, 520px)' }}
         >
           <div
             className="absolute inset-0 flex flex-col justify-center gap-[24px] overflow-y-auto max-[820px]:static"
@@ -580,9 +586,17 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
             <SocialLinks />
           </div>
         </section>
+
+        {/* Espaciador final: permite centrar el ultimo slide (Contacto) */}
+        {!narrow && (
+          <div
+            aria-hidden="true"
+            className="shrink-0"
+            style={{ width: 'calc((100vw - min(820px, 66vw)) / 2)' }}
+          />
+        )}
       </div>
     </div>
   );
 }
 
-// sentinel-abc123
