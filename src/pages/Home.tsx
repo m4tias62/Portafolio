@@ -57,18 +57,20 @@ function CategoryCard({
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       aria-label={`Ver proyectos de ${category.label}`}
-      className={`group relative shrink-0 text-left cursor-pointer bg-white border border-[#dcdbd5] overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] ${
-        narrow ? 'w-full h-[78vh]' : 'h-full'
-      }`}
-      style={narrow ? undefined : { width: 'min(1040px, 86vw)' }}
+      className={`group relative shrink-0 self-center text-left cursor-pointer bg-white border border-[#dcdbd5] overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] ${
+        !narrow && !reduced
+          ? 'transition-[transform,box-shadow,border-color] duration-500 ease-out hover:scale-[1.02] hover:shadow-[0_18px_60px_rgba(0,0,0,0.13)] hover:border-[#8a8a85] focus-visible:shadow-[0_18px_60px_rgba(0,0,0,0.13)]'
+          : ''
+      } ${narrow ? 'w-full h-[78vh]' : ''}`}
+      style={narrow ? undefined : { width: 'min(840px, 70vw)', height: 'min(68vh, 560px)' }}
     >
       <div className="absolute right-0 top-0 bottom-0 w-[62%] flex items-center justify-center pointer-events-none">
         <div
           ref={discRef}
           className="rounded-full transition-transform duration-500 ease-out"
           style={{
-            width: 'min(52vh, 420px)',
-            height: 'min(52vh, 420px)',
+            width: 'min(42vh, 336px)',
+            height: 'min(42vh, 336px)',
             background: category.accentColor,
           }}
         />
@@ -410,12 +412,12 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
             style={{
               padding: 'clamp(28px, 4.5vw, 72px)',
               background:
-                'linear-gradient(90deg, #fafaf7 0%, rgba(250,250,247,0.86) 42%, rgba(250,250,247,0) 72%)',
+                'linear-gradient(90deg, rgba(250,250,247,0.94) 0%, rgba(250,250,247,0.66) 34%, rgba(250,250,247,0.12) 56%, rgba(250,250,247,0) 66%)',
             }}
           >
             <h1
-              className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.18] tracking-[-0.5px] max-w-[15ch] text-balance"
-              style={{ fontSize: 'clamp(26px, 3.4vw, 44px)' }}
+              className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.14] tracking-[-0.5px] text-balance"
+              style={{ fontSize: 'clamp(26px, 3.4vw, 44px)', maxWidth: 'min(42ch, 74vw)' }}
             >
               Diseño en la intersección del criterio, la restricción y la curiosidad
             </h1>
@@ -447,10 +449,10 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
         <section
           aria-roledescription="slide"
           aria-label="Sobre mí"
-          className={`relative shrink-0 bg-[#fafaf7] border border-[#ebeae4] overflow-hidden ${
-            narrow ? 'w-full' : 'h-full'
+          className={`relative shrink-0 self-center bg-[#fafaf7] border border-[#ebeae4] overflow-hidden ${
+            narrow ? 'w-full' : ''
           }`}
-          style={narrow ? undefined : { width: 'min(1040px, 86vw)' }}
+          style={narrow ? undefined : { width: 'min(900px, 72vw)', height: 'min(68vh, 560px)' }}
         >
           <div
             className="absolute inset-0 flex flex-col justify-center gap-[22px] overflow-y-auto max-[820px]:static"
@@ -507,10 +509,10 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
         <section
           aria-roledescription="slide"
           aria-label="Contacto"
-          className={`relative shrink-0 bg-[#fafaf7] border border-[#ebeae4] overflow-hidden ${
-            narrow ? 'w-full' : 'h-full'
+          className={`relative shrink-0 self-center bg-[#fafaf7] border border-[#ebeae4] overflow-hidden ${
+            narrow ? 'w-full' : ''
           }`}
-          style={narrow ? undefined : { width: 'min(1040px, 86vw)' }}
+          style={narrow ? undefined : { width: 'min(900px, 72vw)', height: 'min(68vh, 560px)' }}
         >
           <div
             className="absolute inset-0 flex flex-col justify-center gap-[24px] overflow-y-auto max-[820px]:static"
@@ -582,3 +584,5 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
     </div>
   );
 }
+
+// sentinel-abc123
