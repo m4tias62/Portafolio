@@ -350,6 +350,24 @@ export const projects: Project[] = [
   },
 
   // ────────────────────────────────────────────────────────────────────────
+  // Edubig — Product design. Case study dedicado (EdubigCaseStudy).
+  // ────────────────────────────────────────────────────────────────────────
+  {
+    id: 3,
+    slug: 'edubig',
+    title: 'Edubig',
+    year: '2026',
+    category: 'Product design',
+    categoryId: 'ux-ui',
+    description:
+      'Plataforma de decisión escolar para familias de la comuna de Pudahuel.',
+    available: true,
+    thumbnail: edubigThumb,
+    headerLabel: 'Proyecto 06',
+    stages: [],
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
   // 04 · Sitemap INE — Rediseño de arquitectura de información del portal del
   //      Censo 2024 del Instituto Nacional de Estadísticas (Globallys · 2025).
   //      Primer proyecto UX-UI real del portafolio. La propuesta se implementó
@@ -527,20 +545,6 @@ export const projects: Project[] = [
   // ────────────────────────────────────────────────────────────────────────
   // Placeholders — próximos case studies (visibles como "En preparación")
   // ────────────────────────────────────────────────────────────────────────
-  {
-    id: 3,
-    slug: 'edubig',
-    title: 'Edubig',
-    year: '2025',
-    category: 'Product design',
-    categoryId: 'ux-ui',
-    description:
-      'Plataforma de decisión escolar para familias de la comuna de Pudahuel.',
-    available: true,
-    thumbnail: edubigThumb,
-    headerLabel: 'Proyecto 06',
-    stages: [],
-  },
   {
     id: 4,
     slug: 'tribu-impulsa',

@@ -40,6 +40,8 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
   const [on, setOn] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
+  const video1Ref = useRef<HTMLVideoElement>(null);
+  const video2Ref = useRef<HTMLVideoElement>(null);
 
   // Mismo motor de progreso/scroll que ProjectDetail — navegador consistente.
   useEffect(() => {
@@ -53,6 +55,24 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Autoplay al entrar en viewport (silenciado, requisito de los navegadores).
+  useEffect(() => {
+    const vids = [video1Ref.current, video2Ref.current].filter(Boolean) as HTMLVideoElement[];
+    if (!vids.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          const v = e.target as HTMLVideoElement;
+          if (e.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        });
+      },
+      { threshold: 0.5 },
+    );
+    vids.forEach((v) => io.observe(v));
+    return () => io.disconnect();
   }, []);
 
   function handleSeek(ratio: number, dragging = false) {
@@ -87,7 +107,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
 
         {/* Header — mismo formato que los demás detalles de proyecto */}
         <header className="eb-flow eb-header">
-          <p className="eyebrow">Proyecto 06 · Product Design · Data-viz · 2025</p>
+          <p className="eyebrow">Proyecto 06 · Product Design · Data-viz · 2026</p>
           <h1>Edubig</h1>
           <p className="lead">Un sistema que se traduce en cuidado.</p>
           <p className="prose">
@@ -174,9 +194,15 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
 
           <p className="pv-lead">Tres personas, un mismo dato leído a tres profundidades. Recórrelas →</p>
           <div className="pv">
-            <div className="pv-frame">
+            <button
+              type="button"
+              className="pv-frame"
+              onClick={next}
+              aria-label={`${persona.name} — ${persona.role}. Clic para ver las otras ${PERSONAS.length - 1} personas`}
+            >
               <img src={persona.img} alt={`Persona: ${persona.name} — ${persona.role}`} />
-            </div>
+              <span className="pv-hint" aria-hidden="true">+{PERSONAS.length - 1} · ver las otras personas →</span>
+            </button>
             <div className="pv-controls">
               <div className="pv-dots">
                 {PERSONAS.map((p, i) => (
@@ -265,8 +291,8 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
         {/* DECISIONES */}
         <section className="eb-flow sec">
           <p className="eyebrow">Decisiones de diseño</p>
-          <h2>Tres decisiones que un reclutador va a preguntar</h2>
-          <p className="prose">Cada una es un rechazo explícito, una elección y un trade-off asumido. La postura documentada vale más que las pantallas pulidas.</p>
+          <h2>Tres decisiones de diseño</h2>
+          <p className="prose">Cada una es un rechazo explícito, una elección y un trade-off asumido.</p>
           {[
             { k: '01', t: 'Anti-ranking como postura', no: 'El ranking absoluto. Simplifica calidad a un número que correlaciona con NSE; genera ansiedad y distorsiona la decisión.', yes: 'Fit contextual multidimensional: cada colegio se compara solo contra su grupo GSE, en cinco dimensiones separadas (SIMCE + IDPS).', tr: 'Más fricción cognitiva. Se compensa con disclosure progresivo: primero el insight legible, luego el gráfico, después la metodología.' },
             { k: '02', t: 'Comparar contra pares, no contra el sistema', no: 'Escalas absolutas nacionales, que castigan a los establecimientos vulnerables por su contexto y no por su desempeño real.', yes: 'Gráfico de brecha vs. GSE similar, con escala universal de ±56 puntos (rango real del universo). La lectura vuelve honesta.', tr: 'Grupos de referencia pequeños se vuelven volátiles: se resuelve con una advertencia visible, no ocultando el dato.' },
@@ -287,7 +313,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
           <h2>De cuatro fuentes oficiales a un JSON maestro</h2>
           <p className="prose">El pipeline y el motor de scoring son infraestructura. Los construí dirigiendo a Claude como par técnico: yo defino el esquema y las reglas, la IA acelera la ejecución. Cada paso queda trazado.</p>
           <figure className="fig">
-            <div className="eb-videoframe wide"><video src="/edubig-proceso-datos.mp4" controls playsInline preload="metadata" /></div>
+            <div className="eb-videoframe wide"><video ref={video1Ref} src="/edubig-proceso-datos.mp4" muted controls playsInline preload="metadata" /></div>
             <figcaption className="figcap">Video 01 · Ingeniería de datos — proceso de limpieza y unificación de fuentes, mostrando el co-work con IA.</figcaption>
           </figure>
           <div className="pipe">
@@ -344,12 +370,13 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
         {/* EL PRODUCTO EN USO */}
         <section className="eb-flow sec">
           <p className="eyebrow">El producto en uso</p>
-          <h2>Test de Calce y ficha de colegio</h2>
-          <p className="prose">El producto es que una madre entienda cinco dimensiones sin ser experta en política educativa. Dos superficies lo resuelven: el quiz de fit y la ficha con disclosure progresivo.</p>
+          <h2>Test de Calce, ficha y comparación de colegios</h2>
+          <p className="prose">El producto es que una madre entienda cinco dimensiones sin ser experta en política educativa. El Test de Calce y la ficha del colegio ya funcionan sobre datos reales; la comparación de colegios lado a lado está diseñada pero aún sin sustento de datos — es el siguiente paso del ciclo.</p>
+          {/* Flujo real del MVP — video + los patrones que lo sostienen */}
           <div className="use-grid">
             <figure className="fig">
-              <div className="eb-videoframe tall"><video src="/edubig-navegacion-mvp.mp4" autoPlay muted loop playsInline preload="metadata" /></div>
-              <figcaption className="figcap">Video 02 · Recorrido — el Test de Calce en uso, de la Q1 a la shortlist.</figcaption>
+              <div className="mk-box"><video ref={video2Ref} className="mk-media" src="/edubig-navegacion-mvp.mp4" autoPlay muted loop playsInline preload="metadata" /></div>
+              <figcaption className="figcap">Video 02 · Recorrido del MVP — el Test de Calce y la ficha del colegio en uso, sobre datos reales.</figcaption>
             </figure>
             <div className="patterns">
               <span className="label">Patrones contra el sesgo de deseabilidad social</span>
@@ -359,10 +386,20 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               <h3>Ficha · disclosure progresivo</h3><p>Cuatro módulos en orden fijo (Seguridad → Bienestar → Académico → Trayectoria U.) para hacer comparable cada colegio.</p>
             </div>
           </div>
-          <div className="eb-fichas">
-            <img className="eb-phone" src={ficha1} alt="Ficha de colegio de Edubig — resumen y trayectoria" />
-            <img className="eb-phone" src={ficha2} alt="Ficha de colegio de Edubig — comparación y universidades de destino" />
+
+          {/* Comparar colegios — prototipo (sin datos aún), las dos pantallas en un mismo lienzo */}
+          <div className="proto-head">
+            <h3>Comparar colegios</h3>
+            <span className="mk-tag">Prototipo · datos en proceso</span>
           </div>
+          <p className="prose" style={{ marginTop: 4 }}>La comparación lado a lado está diseñada pero aún sin sustento de datos — es el siguiente paso del ciclo.</p>
+          <figure className="fig" style={{ marginTop: 18 }}>
+            <div className="proto-box">
+              <img src={ficha1} alt="Comparar colegios (prototipo, sin datos reales aún) — dimensiones lado a lado y trayectoria" />
+              <img src={ficha2} alt="Comparar colegios (prototipo, sin datos reales aún) — universidades de destino y áreas de carrera" />
+            </div>
+            <figcaption className="figcap">Dimensiones lado a lado · trayectoria universitaria y áreas de carrera de destino.</figcaption>
+          </figure>
         </section>
 
         {/* ESTADO */}
@@ -433,7 +470,7 @@ const CSS = `
 .eb .label{font-family:var(--eb-mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--eb-faint);}
 .eb .figcap{font-family:var(--eb-mono);font-size:11.5px;letter-spacing:.03em;color:var(--eb-faint);margin-top:12px;line-height:1.5;max-width:66ch;}
 .eb .fig{margin:0;}
-.eb .frame{border:1px solid var(--eb-medium);border-width:1px 4px 4px 1px;border-radius:3px;background:var(--eb-surface);overflow:hidden;}
+.eb .frame{border:1px solid var(--eb-medium);border-width:1px 4px 4px 1px;border-radius:3px;background:#fff;overflow:hidden;}
 .eb .frame img{display:block;width:100%;height:auto;}
 
 /* mockups de teléfono: los PNG ya traen su marco → sin caja, transparentes, mismo alto */
@@ -441,11 +478,23 @@ const CSS = `
 .eb .eb-cover{margin-top:26px;border:1px solid var(--eb-border);border-radius:6px;overflow:hidden;}
 .eb .eb-cover img{display:block;width:100%;height:auto;}
 .eb .cover-meta{flex:1;min-width:300px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;}
-.eb .cover-meta>div{background:var(--eb-bg);padding:16px 18px;}
+.eb .cover-meta>div{background:#fff;padding:16px 18px;}
 .eb .cover-meta .label{margin-bottom:7px;display:block;}
 .eb .cover-meta .val{font-family:var(--eb-sans);font-size:14.5px;line-height:1.35;color:var(--eb-strong);}
-.eb .eb-fichas{display:flex;gap:36px;justify-content:flex-start;align-items:flex-start;flex-wrap:wrap;margin-top:24px;}
-.eb .eb-fichas .eb-phone{max-height:640px;}
+.eb .patterns-block{margin-top:16px;}
+.eb .patterns-block>.label{display:block;margin-bottom:14px;}
+.eb .patterns-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 30px;}
+.eb .patterns-grid h3{margin:0 0 4px;}
+.eb .patterns-grid p{margin:0;font-size:14px;}
+.eb .eb-mockups{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:26px;align-items:start;}
+.eb .mk{margin:0;}
+.eb .mk-box{background:#fff;border:1px solid var(--eb-border);border-radius:16px;padding:14px;aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.eb .mk-media{width:100%;height:100%;object-fit:contain;display:block;border-radius:8px;}
+.eb .mk-tag{display:inline-block;font-family:var(--eb-mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--eb-advert);border:1px solid var(--eb-advert);border-radius:100px;padding:2px 9px;margin-right:8px;vertical-align:1px;}
+.eb .proto-head{display:flex;align-items:center;gap:12px;margin-top:44px;}
+.eb .proto-head h3{margin:0;}
+.eb .proto-box{background:#fff;border:1px solid var(--eb-border);border-radius:18px;padding:28px 26px;display:flex;gap:34px;justify-content:center;align-items:center;flex-wrap:wrap;}
+.eb .proto-box img{height:auto;max-height:600px;width:auto;max-width:46%;display:block;border-radius:8px;}
 
 /* videos */
 .eb .eb-videoframe{overflow:hidden;background:var(--eb-surface);}
@@ -454,14 +503,16 @@ const CSS = `
 .eb .eb-videoframe.tall{width:260px;aspect-ratio:9/16;border-radius:30px;border:1px solid var(--eb-border);background:var(--eb-surface);flex:none;}
 .eb .eb-videoframe.tall video{width:100%;height:100%;object-fit:cover;display:block;}
 
-.eb .callout{border-left:3px solid var(--eb-accent);background:var(--eb-surface);padding:16px 20px;border-radius:0 3px 3px 0;margin-top:20px;max-width:var(--eb-max);}
-.eb .callout p{margin:0;font-size:15.5px;}
-.eb .callout.warm{border-left-color:var(--eb-rdbu-09);}
+.eb .callout{border:none;background:none;border-radius:0;padding:16px 0 0;margin-top:30px;max-width:var(--eb-max);display:grid;grid-template-columns:120px 1fr;gap:26px;border-top:1px solid var(--eb-border);}
+.eb .callout::before{content:"Nota";font-family:var(--eb-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--eb-faint);padding-top:3px;}
+.eb .callout.warm::before{content:"Advertencia";color:var(--eb-advert);}
+.eb .callout p{margin:0;font-size:14.5px;line-height:1.62;color:var(--eb-medium);}
+.eb .callout p strong{color:var(--eb-strong);}
 .eb .tldr{display:grid;gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:14px;}
-.eb .tldr>div{background:var(--eb-bg);padding:22px 24px;display:grid;grid-template-columns:38px 1fr;gap:16px;align-items:start;}
+.eb .tldr>div{background:#fff;padding:22px 24px;display:grid;grid-template-columns:38px 1fr;gap:16px;align-items:start;}
 .eb .tldr .n{font-family:var(--eb-mono);font-size:13px;color:var(--eb-faint);padding-top:3px;}
 .eb .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:14px;}
-.eb .mini{border:1px solid var(--eb-border);border-radius:3px;padding:20px 22px;background:var(--eb-bg);}
+.eb .mini{border:1px solid var(--eb-border);border-radius:3px;padding:20px 22px;background:#fff;}
 .eb .mini.warm-mini{border-left:3px solid var(--eb-rdbu-09);}
 .eb .mini .label{display:block;margin-bottom:12px;}
 .eb ul.ticks,.eb ul.checklist{list-style:none;padding:0;margin:0;}
@@ -469,28 +520,32 @@ const CSS = `
 .eb ul.ticks li::before{content:"";position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:50%;background:var(--eb-accent);}
 .eb ul.checklist li::before{content:"";position:absolute;left:0;top:3px;width:14px;height:14px;border:1.5px solid var(--eb-exito);border-radius:3px;background:linear-gradient(45deg,transparent 45%,var(--eb-exito) 45%,var(--eb-exito) 55%,transparent 55%),linear-gradient(-45deg,transparent 45%,var(--eb-exito) 45%,var(--eb-exito) 55%,transparent 55%);}
 .eb .sources{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px;}
-.eb .source{border:1px solid var(--eb-border);border-radius:3px;padding:14px 12px;background:var(--eb-bg);}
+.eb .source{border:1px solid var(--eb-border);border-radius:3px;padding:14px 12px;background:#fff;}
 .eb .source .nm{font-family:var(--eb-mono);font-size:14px;color:var(--eb-strong);margin-bottom:5px;}
 .eb .source .sub{font-family:var(--eb-sans);font-size:12px;line-height:1.35;color:var(--eb-faint);}
 .eb .evid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:14px;}
-.eb .evid>div{background:var(--eb-bg);padding:18px 20px;}
+.eb .evid>div{background:#fff;padding:18px 20px;}
 .eb .evid .es{font-family:var(--eb-mono);font-size:13.5px;color:var(--eb-strong);margin-bottom:4px;}
 .eb .evid .en{font-family:var(--eb-mono);font-size:11px;color:var(--eb-faint);margin-bottom:8px;}
 .eb .evid .ed{font-family:var(--eb-sans);font-size:13.5px;line-height:1.45;color:var(--eb-medium);}
 .eb .pv-lead{font-family:var(--eb-mono);font-size:13px;color:var(--eb-accent-deep);margin:22px 0 0;}
 .eb .pv{margin-top:12px;}
-.eb .pv-frame{border:1px solid var(--eb-border);border-radius:4px;overflow:hidden;background:#fff;}
-.eb .pv-frame img{display:block;width:100%;height:auto;}
+.eb .pv-frame{position:relative;display:block;width:100%;padding:0;border:1px solid var(--eb-border);border-radius:4px;overflow:hidden;background:#fff;cursor:pointer;}
+.eb .pv-frame img{display:block;width:100%;height:auto;transition:transform .5s ease;}
+.eb .pv-frame:hover img,.eb .pv-frame:focus-visible img{transform:scale(1.015);}
+.eb .pv-frame:focus-visible{outline:2px solid var(--eb-strong);outline-offset:2px;}
+.eb .pv-hint{position:absolute;right:14px;bottom:14px;background:rgba(15,15,14,.88);color:#fff;padding:8px 15px;border-radius:100px;font-family:var(--eb-mono);font-size:12px;letter-spacing:.02em;opacity:0;transform:translateY(8px);transition:opacity .3s ease,transform .3s ease;pointer-events:none;}
+.eb .pv-frame:hover .pv-hint,.eb .pv-frame:focus-visible .pv-hint{opacity:1;transform:translateY(0);}
 .eb .pv-controls{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:12px;flex-wrap:wrap;}
 .eb .pv-dots{display:flex;gap:8px;align-items:center;}
 .eb .pv-dot{width:9px;height:9px;border-radius:50%;background:var(--eb-border);border:1px solid var(--eb-border);padding:0;cursor:pointer;}
 .eb .pv-dot.active{background:var(--eb-accent);border-color:var(--eb-accent);}
 .eb .pv-name{font-family:var(--eb-mono);font-size:12px;color:var(--eb-faint);margin-left:4px;}
 .eb .pv-nav{display:flex;gap:8px;}
-.eb .pv-btn{font-family:var(--eb-mono);font-size:15px;line-height:1;border:1px solid var(--eb-medium);border-width:1px 3px 3px 1px;background:var(--eb-bg);border-radius:2px;padding:7px 13px;cursor:pointer;color:var(--eb-medium);}
+.eb .pv-btn{font-family:var(--eb-mono);font-size:15px;line-height:1;border:1px solid var(--eb-medium);border-width:1px 3px 3px 1px;background:#fff;border-radius:2px;padding:7px 13px;cursor:pointer;color:var(--eb-medium);}
 .eb .pv-btn:hover{color:var(--eb-strong);}
 .eb .pains{display:grid;margin-top:14px;border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;}
-.eb .pain{display:grid;grid-template-columns:34px 1fr;gap:16px;padding:15px 20px;border-top:1px solid var(--eb-border-soft);background:var(--eb-bg);}
+.eb .pain{display:grid;grid-template-columns:34px 1fr;gap:16px;padding:15px 20px;border-top:1px solid var(--eb-border-soft);background:#fff;}
 .eb .pain:first-child{border-top:none;}
 .eb .pain .pn{font-family:var(--eb-mono);font-size:12px;color:var(--eb-faint);padding-top:2px;}
 .eb .pain .ph{font-family:var(--eb-mono);font-size:14px;color:var(--eb-strong);}
@@ -511,7 +566,7 @@ const CSS = `
 .eb .palette{display:flex;border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:18px;}
 .eb .palette .p{flex:1;height:40px;}
 .eb .logo-beats{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:stretch;margin-top:14px;}
-.eb .toggle-demo{border:1px solid var(--eb-border);border-radius:4px;background:var(--eb-surface);padding:30px 26px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.eb .toggle-demo{border:1px solid var(--eb-border);border-radius:4px;background:#fff;padding:30px 26px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .eb .toggle-demo .label{margin-bottom:18px;}
 .eb .tg{border:none;background:none;padding:0;cursor:pointer;display:inline-block;line-height:0;}
 .eb .tg-track{display:block;width:134px;height:62px;border-radius:100px;position:relative;background:linear-gradient(90deg,#2166ac,#67a9cf);box-shadow:inset 0 1px 3px rgba(0,0,0,.18);transition:background .45s ease;}
@@ -526,7 +581,7 @@ const CSS = `
 .eb .promise .dot{width:9px;height:9px;border-radius:50%;background:var(--eb-accent);margin-bottom:14px;}
 .eb .promise .tag{font-family:var(--eb-mono);font-size:10.5px;letter-spacing:.08em;color:var(--eb-faint);text-transform:uppercase;margin-top:12px;display:block;}
 .eb .decision{border:1px solid var(--eb-border);border-radius:4px;overflow:hidden;margin-top:20px;}
-.eb .decision .dhead{padding:16px 20px;background:var(--eb-surface);border-bottom:1px solid var(--eb-border);}
+.eb .decision .dhead{padding:16px 20px;background:#fff;border-bottom:1px solid var(--eb-border);}
 .eb .decision .dhead .label{color:var(--eb-accent-deep);}
 .eb .decision .dhead h3{margin:6px 0 0;}
 .eb .decision .drow{display:grid;grid-template-columns:120px 1fr;gap:18px;padding:16px 20px;border-top:1px solid var(--eb-border-soft);}
@@ -537,12 +592,12 @@ const CSS = `
 .eb .rk.trade{color:var(--eb-advert);}
 .eb .decision .rv{font-family:var(--eb-sans);font-size:15px;line-height:1.5;color:var(--eb-medium);}
 .eb .pipe{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:14px;margin-top:20px;}
-.eb .pipe .node{border:1px solid var(--eb-border);border-radius:3px;padding:16px;text-align:center;background:var(--eb-bg);}
+.eb .pipe .node{border:1px solid var(--eb-border);border-radius:3px;padding:16px;text-align:center;background:#fff;}
 .eb .pipe .node .nt{font-family:var(--eb-mono);font-size:13px;color:var(--eb-strong);margin-bottom:4px;}
 .eb .pipe .node .nd{font-family:var(--eb-sans);font-size:11.5px;color:var(--eb-faint);line-height:1.35;}
 .eb .pipe .node.hi{border-color:var(--eb-accent);background:rgba(95,143,95,.06);}
 .eb .pipe .arw{font-family:var(--eb-mono);color:var(--eb-faint);font-size:18px;text-align:center;}
-.eb .brecha{border:1px solid var(--eb-border);border-radius:4px;padding:22px;margin-top:14px;background:var(--eb-bg);}
+.eb .brecha{border:1px solid var(--eb-border);border-radius:4px;padding:22px;margin-top:14px;background:#fff;}
 .eb .brecha-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
 .eb .brecha-rows{display:flex;flex-direction:column;gap:14px;}
 .eb .brow{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center;}
@@ -560,7 +615,7 @@ const CSS = `
 .eb .dotlg{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:middle;}
 .eb .dotlg.pos{background:var(--eb-exito);}
 .eb .dotlg.neg{background:var(--eb-advert);}
-.eb .rails{border:1px solid var(--eb-border);border-radius:4px;padding:4px 20px;margin-top:14px;background:var(--eb-bg);}
+.eb .rails{border:1px solid var(--eb-border);border-radius:4px;padding:4px 20px;margin-top:14px;background:#fff;}
 .eb .rail{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:18px 0;border-top:1px solid var(--eb-border-soft);align-items:center;}
 .eb .rail:first-child{border-top:none;}
 .eb .rail .rlab .label{display:block;margin-bottom:3px;}
@@ -580,10 +635,13 @@ const CSS = `
 .eb .rmi:first-child{border-top:none;}
 .eb .rmi .rmn{font-family:var(--eb-mono);font-size:13px;color:var(--eb-accent-deep);padding-top:2px;}
 .eb .learns{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:14px;}
-.eb .learns>div{background:var(--eb-bg);padding:22px;}
+.eb .learns>div{background:#fff;padding:22px;}
 .eb .eb-end{margin-top:48px;padding-top:24px;border-top:1px solid var(--eb-border-soft);}
 @media(max-width:820px){
-  .eb .cover-meta,.eb .grid2,.eb .logo-beats,.eb .use-grid,.eb .evid,.eb .promise-grid,.eb .learns{grid-template-columns:1fr;}
+  .eb .cover-meta,.eb .grid2,.eb .logo-beats,.eb .use-grid,.eb .evid,.eb .promise-grid,.eb .learns,.eb .patterns-grid{grid-template-columns:1fr;}
+  .eb .callout{grid-template-columns:1fr;gap:8px;}
+  .eb .proto-box img{max-width:100%;max-height:70vh;}
+  .eb .eb-mockups{grid-template-columns:1fr;max-width:300px;margin-left:auto;margin-right:auto;}
   .eb .sources{grid-template-columns:repeat(2,1fr);}
   .eb .chain3,.eb .pipe{grid-template-columns:1fr;}
   .eb .pipe .arw{transform:rotate(90deg);}
@@ -592,5 +650,5 @@ const CSS = `
   .eb .rail{grid-template-columns:1fr;gap:10px;}
   .eb .eb-hero{gap:24px;}
 }
-@media(prefers-reduced-motion:reduce){.eb .tg-track,.eb .tg-knob{transition:none;}}
+@media(prefers-reduced-motion:reduce){.eb .tg-track,.eb .tg-knob,.eb .pv-frame img,.eb .pv-hint{transition:none;}}
 `;

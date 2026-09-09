@@ -2,7 +2,6 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import imgPresentation from '@/imports/Prototipo/556ea8de7896ac0e95b5d5e013e9d3d3dd50db21.png';
 import ProgressBar from '@/components/ProgressBar';
 import CKHeroOverture from '@/components/CKHeroOverture';
-import SocialLinks from '@/components/SocialLinksButtons';
 import { categories, type Category, type CategoryId } from '@/data/categories';
 
 type HomeProps = {
@@ -16,6 +15,19 @@ const SLIDE_INDEX: Record<string, number> = { projects: 1, about: 4, contact: 5 
 
 const LINKEDIN_URL = 'https://www.linkedin.com/in/matias-caceres-maureira-9b6051259/';
 const CV_URL = '/cv-matias-caceres.pdf';
+const EMAIL = 'matias.caceres4@mail.udp.cl';
+
+function fallbackCopy(text: string) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'absolute';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch { /* noop */ }
+  document.body.removeChild(ta);
+}
 
 /**
  * CategoryCard — una card por categoría dentro del carrusel.
@@ -101,6 +113,22 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
   const [progress, setProgress] = useState(0);
   const [narrow, setNarrow] = useState(false);
   const [reduced, setReduced] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<number | null>(null);
+
+  const copyEmail = useCallback(() => {
+    const done = () => {
+      setCopied(true);
+      if (copiedTimer.current) window.clearTimeout(copiedTimer.current);
+      copiedTimer.current = window.setTimeout(() => setCopied(false), 2000);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(EMAIL).then(done).catch(() => { fallbackCopy(EMAIL); done(); });
+    } else {
+      fallbackCopy(EMAIL);
+      done();
+    }
+  }, []);
 
   const reducedRef = useRef(false);
   const goToRef = useRef<(i: number) => void>(() => {});
@@ -528,21 +556,26 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
               className="max-w-[640px] bg-[#f2f1ec]"
               style={{ borderWidth: '2px 4px 4px 2px', borderStyle: 'solid', borderColor: '#3a3a38' }}
             >
-              <a
-                href="mailto:matiascmaureira3@gmail.com"
-                className="grid items-center px-[22px] py-[18px] border-b border-[#dcdbd5] no-underline text-[#0f0f0e] hover:bg-[#eceae3] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-inset"
-                style={{ gridTemplateColumns: '120px 1fr 40px' }}
+              <button
+                type="button"
+                onClick={copyEmail}
+                className="w-full grid items-center px-[22px] py-[18px] border-b border-[#dcdbd5] bg-transparent text-left cursor-pointer text-[#0f0f0e] hover:bg-[#eceae3] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-inset"
+                style={{ gridTemplateColumns: '120px 1fr auto' }}
+                aria-label={copied ? 'Correo copiado al portapapeles' : `Copiar correo ${EMAIL}`}
               >
                 <span className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[12px] tracking-[1.2px] uppercase text-[#3a3a38]">
                   Email
                 </span>
                 <span className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#0f0f0e] break-all">
-                  matiascmaureira3@gmail.com
+                  {EMAIL}
                 </span>
-                <span className="justify-self-end font-['IBM_Plex_Mono:Regular',sans-serif] text-[18px]" aria-hidden="true">
-                  →
+                <span
+                  className={`justify-self-end inline-flex items-center gap-[6px] font-['IBM_Plex_Mono:Medium',sans-serif] text-[12px] tracking-[1px] uppercase transition-colors ${copied ? 'text-[#1fbf75]' : 'text-[#3a3a38]'}`}
+                  aria-hidden="true"
+                >
+                  {copied ? '✓ Copiado' : 'Copiar'}
                 </span>
-              </a>
+              </button>
               <a
                 href={LINKEDIN_URL}
                 target="_blank"
@@ -577,7 +610,9 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
                 </span>
               </a>
             </div>
-            <SocialLinks />
+            <p className="sr-only" role="status" aria-live="polite">
+              {copied ? 'Correo copiado al portapapeles' : ''}
+            </p>
           </div>
         </section>
 
