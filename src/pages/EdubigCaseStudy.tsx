@@ -531,17 +531,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
           </div>
         </section>
 
-        {/* APRENDIZAJES */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Aprendizajes</p>
-          <h2>Lo que me llevo de Edubig</h2>
-          <div className="learns">
-            <div><h3>La postura es diseño</h3><p>Rechazar el ranking fue la decisión más difícil de defender y la que más me enseñó a argumentar. Los trade-offs documentados valen más que las pantallas pulidas.</p></div>
-            <div><h3>Datos como medio, no fin</h3><p>El pipeline y el motor son infraestructura. El producto es que una madre entienda cinco dimensiones sin ser experta en política educativa.</p></div>
-            <div><h3>Dirigir equipo colaborativo</h3><p>Israel aporta rigor de datos, Claude acelera implementación, yo tomo cada decisión de producto. El red flag no es delegar — es delegar el criterio.</p></div>
-          </div>
-          <div className="eb-end"><span className="label">Edubig · Case study · Matías Cáceres · 2026</span></div>
-        </section>
+        <div className="eb-flow eb-end"><span className="label">Edubig · Case study · Matías Cáceres · 2026</span></div>
       </div>
     </div>
   );
@@ -569,7 +559,9 @@ const CSS = `
 .eb strong{color:var(--eb-strong);font-weight:600;}
 .eb em{font-style:italic;}
 .eb .label{font-family:var(--eb-mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--eb-faint);}
-.eb .figcap{font-family:var(--eb-mono);font-size:11.5px;letter-spacing:.03em;color:var(--eb-faint);margin-top:12px;line-height:1.5;max-width:66ch;}
+.eb .figcap{font-family:var(--eb-mono);font-size:11.5px;letter-spacing:.03em;color:var(--eb-faint);margin-top:14px;line-height:1.5;max-width:66ch;}
+.eb .brecha .figcap{margin-top:22px;}
+.eb .dv-block .figcap{margin-top:18px;}
 .eb .fig{margin:0;}
 .eb .frame{border:1px solid var(--eb-medium);border-width:1px 4px 4px 1px;border-radius:3px;background:#fff;overflow:hidden;}
 .eb .frame img{display:block;width:100%;height:auto;}
@@ -667,13 +659,13 @@ const CSS = `
 .eb .palette{display:flex;border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:18px;}
 .eb .palette .p{flex:1;height:40px;}
 .eb .logo-beats{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:stretch;margin-top:14px;}
-.eb .toggle-demo{border:1px solid var(--eb-border);border-radius:4px;background:#fff;padding:30px 26px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.eb .toggle-demo{border:none;background:none;padding:8px 0;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .eb .toggle-demo .label{margin-bottom:18px;}
 .eb .tg{border:none;background:none;padding:0;cursor:pointer;display:inline-block;line-height:0;}
-.eb .tg-track{display:block;width:134px;height:62px;border-radius:100px;position:relative;background:linear-gradient(90deg,#2166ac,#67a9cf);box-shadow:inset 0 1px 3px rgba(0,0,0,.18);transition:background .45s ease;}
+.eb .tg-track{display:block;width:172px;height:78px;border-radius:100px;position:relative;background:linear-gradient(90deg,#2166ac,#67a9cf);box-shadow:inset 0 1px 3px rgba(0,0,0,.18);transition:background .45s ease;}
 .eb .tg.is-on .tg-track{background:linear-gradient(90deg,#2166ac,#d1e5f0 42%,#fddbc7 58%,#d6604d);}
-.eb .tg-knob{position:absolute;top:5px;left:5px;width:52px;height:52px;border-radius:50%;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-family:var(--eb-mono);font-weight:600;font-size:12px;color:var(--eb-rdbu-02);transition:left .45s cubic-bezier(.6,.2,.1,1),color .45s ease;}
-.eb .tg.is-on .tg-knob{left:77px;color:var(--eb-rdbu-09);}
+.eb .tg-knob{position:absolute;top:6px;left:6px;width:66px;height:66px;border-radius:50%;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-family:var(--eb-mono);font-weight:600;font-size:14px;color:var(--eb-rdbu-02);transition:left .45s cubic-bezier(.6,.2,.1,1),color .45s ease;}
+.eb .tg.is-on .tg-knob{left:100px;color:var(--eb-rdbu-09);}
 .eb .tg-state{font-family:var(--eb-mono);font-size:12px;letter-spacing:.09em;text-transform:uppercase;margin-top:18px;color:var(--eb-rdbu-02);}
 .eb .tg-state.on{color:var(--eb-rdbu-09);}
 .eb .promises{position:relative;margin-top:14px;}
@@ -712,7 +704,7 @@ const CSS = `
 .eb .bval{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--eb-mono);font-size:12px;font-variant-numeric:tabular-nums;}
 .eb .bval.pos{color:var(--eb-data-pos);}
 .eb .bval.neg{color:var(--eb-data-neg);}
-.eb .brecha-scale{display:flex;justify-content:space-between;margin-top:12px;padding-left:166px;font-family:var(--eb-mono);font-size:10px;color:var(--eb-faint);}
+.eb .brecha-scale{display:flex;justify-content:space-between;margin-top:18px;padding-left:166px;font-family:var(--eb-mono);font-size:10px;color:var(--eb-faint);}
 .eb .dotlg{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:middle;}
 .eb .dotlg.pos{background:var(--eb-data-pos);}
 .eb .dotlg.neg{background:var(--eb-data-neg);}
@@ -772,7 +764,7 @@ const CSS = `
 .eb .dv-wfill.similares{background:var(--eb-data-neutral);}
 .eb .dv-wfill.nacional{background:transparent;box-shadow:inset 0 0 0 1.5px var(--eb-faint);}
 .eb .dv-wv{font-family:var(--eb-mono);font-size:12px;color:var(--eb-medium);text-align:right;font-variant-numeric:tabular-nums;}
-.eb .dv-welllegend{display:flex;gap:22px;margin-top:16px;flex-wrap:wrap;}
+.eb .dv-welllegend{display:flex;gap:22px;margin-top:20px;flex-wrap:wrap;}
 .eb .dv-welllegend .lg{font-family:var(--eb-mono);font-size:11px;color:var(--eb-faint);display:flex;align-items:center;gap:6px;}
 .eb .dv-welllegend .lg::before{content:"";width:11px;height:11px;border-radius:2px;}
 .eb .dv-welllegend .lg.colegio::before{background:var(--eb-data-pos);}
