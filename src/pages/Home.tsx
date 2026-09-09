@@ -454,7 +454,7 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
           aria-roledescription="slide"
           data-slide
           aria-label="Sobre mí"
-          className={`relative shrink-0 self-center bg-[#fafaf7] border border-[#ebeae4] overflow-hidden ${
+          className={`relative shrink-0 self-center bg-[#fafaf7] overflow-hidden ${
             narrow ? 'w-full' : ''
           }`}
           style={narrow ? undefined : { width: 'min(820px, 66vw)', height: 'min(62vh, 520px)' }}
@@ -463,36 +463,30 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
             className="absolute inset-0 flex flex-col justify-center gap-[22px] overflow-y-auto max-[820px]:static"
             style={{ padding: 'clamp(28px, 4vw, 56px)' }}
           >
-            <div>
-              <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
-                Sobre mí
-              </p>
-              <h2
-                className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.1] tracking-[-0.4px] mt-1"
-                style={{ fontSize: 'clamp(26px, 3vw, 36px)' }}
-              >
-                Matías Cáceres
-              </h2>
-            </div>
-            <div className="flex gap-[clamp(28px,5vw,72px)] items-center flex-wrap">
-              <div className="shrink-0" style={{ width: 200 }}>
+            <div className="flex gap-[clamp(28px,5vw,64px)] items-start flex-wrap">
+              <div className="shrink-0" style={{ width: 260 }}>
+                <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
+                  Sobre mí
+                </p>
+                <h2
+                  className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.05] tracking-[-0.4px] mt-2 mb-4"
+                  style={{ fontSize: 'clamp(24px, 2.4vw, 30px)' }}
+                >
+                  Matías Cáceres
+                </h2>
                 <div className="relative" style={{ aspectRatio: '540/560' }}>
                   <img
                     alt="Matías Cáceres"
                     src={imgPresentation}
                     className="w-full h-full object-cover object-bottom"
-                    style={{
-                      borderWidth: '2px 4px 4px 2px',
-                      borderStyle: 'solid',
-                      borderColor: '#000',
-                    }}
+                    style={{ borderWidth: '2px 4px 4px 2px', borderStyle: 'solid', borderColor: '#000' }}
                   />
                 </div>
                 <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-black tracking-[1.2px] leading-[1.5] mt-3">
                   Diseñador · Universidad Diego Portales · Santiago de Chile
                 </p>
               </div>
-              <blockquote className="pl-[22px] border-l-2 border-[#0f0f0e] flex-1 min-w-[260px] max-w-[42ch]">
+              <blockquote className="pl-[22px] border-l-2 border-[#0f0f0e] flex-1 min-w-[260px] max-w-[42ch] self-center">
                 <p
                   className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#0f0f0e] leading-[1.55] text-balance"
                   style={{ fontSize: 'clamp(16px, 1.4vw, 20px)' }}
@@ -515,7 +509,7 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
           aria-roledescription="slide"
           data-slide
           aria-label="Contacto"
-          className={`relative shrink-0 self-center bg-[#fafaf7] border border-[#ebeae4] overflow-hidden ${
+          className={`relative shrink-0 self-center bg-[#fafaf7] overflow-hidden ${
             narrow ? 'w-full' : ''
           }`}
           style={narrow ? undefined : { width: 'min(820px, 66vw)', height: 'min(62vh, 520px)' }}

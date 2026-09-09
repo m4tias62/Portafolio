@@ -30,7 +30,7 @@ export const categories: Category[] = [
     labelShort: 'UX-UI',
     description:
       'Arquitectura de información, sitemaps, sistemas de diseño y flujos para producto digital.',
-    accentColor: '#5f8f5f', // verde para producto centrado en persona
+    accentColor: '#1fbf75', // verde vibrante
   },
   {
     id: 'datos',
@@ -38,7 +38,7 @@ export const categories: Category[] = [
     labelShort: 'Datos',
     description:
       'Del cruce de bases públicas a piezas de exposición. Datos como material narrativo.',
-    accentColor: '#3d5b8a', // azul de datos (convención dataviz)
+    accentColor: '#2f6bff', // azul vibrante
   },
   {
     id: 'editorial',
@@ -46,7 +46,7 @@ export const categories: Category[] = [
     labelShort: 'Editorial',
     description:
       'Libros, ebooks y piezas gráficas donde la tipografía y la retícula son el proyecto.',
-    accentColor: '#c9955b', // dorado del sistema — coherente con papel/impresión
+    accentColor: '#ff7a00', // naranja vibrante
   },
 ];
 

@@ -4,11 +4,11 @@ import BackButton from '@/components/BackButton';
 import carolinaFull from '@/imports/edubig/persona-carolina-full.png';
 import martinFull from '@/imports/edubig/persona-martin-full.png';
 import tomasFull from '@/imports/edubig/persona-tomas-full.png';
-import bocetos from '@/imports/edubig/bocetos.png';
+import bocetos from '@/imports/edubig/boceto-traduccion.jpg';
 import logoConstru from '@/imports/edubig/logo-construccion.jpg';
 import ficha1 from '@/imports/edubig/ficha-1.png';
 import ficha2 from '@/imports/edubig/ficha-2.png';
-import homeMockup from '@/imports/edubig/home-mockup.png';
+import portada from '@/imports/edubig/portada.png';
 
 /**
  * EdubigCaseStudy — case study dedicado de Edubig.
@@ -96,15 +96,13 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             ranking crudo.
           </p>
 
-          <div className="eb-hero">
-            <img className="eb-phone" src={homeMockup} alt="Home de Edubig en móvil" />
-            <div className="cover-meta">
+          <div className="eb-cover"><img src={portada} alt="Edubig — portada del proyecto" /></div>
+          <div className="cover-meta" style={{ marginTop: 20 }}>
               <div><span className="label">Rol</span><span className="val">Producto, diseño, sistema, motor y datos</span></div>
               <div><span className="label">Equipo</span><span className="val">Dirijo la colaboración: Israel (datos) · Claude (par técnico)</span></div>
               <div><span className="label">Stack</span><span className="val">Figma · Python · Next.js · Vercel · Claude</span></div>
               <div><span className="label">Estado</span><span className="val">MVP Pudahuel completo · migración a Chile nacional (7.168 colegios) en curso</span></div>
             </div>
-          </div>
           <div className="callout"><p><strong>Design Thinking iterativo:</strong> este case study documenta un ciclo vivo, no un proyecto cerrado. Se re-está construyendo el dataset base para pasar de una comuna a todo el país, y luego testear con familias reales.</p></div>
         </header>
 
@@ -440,8 +438,8 @@ const CSS = `
 
 /* mockups de teléfono: los PNG ya traen su marco → sin caja, transparentes, mismo alto */
 .eb .eb-phone{display:block;height:auto;max-height:560px;width:auto;max-width:100%;}
-.eb .eb-hero{display:flex;gap:40px;align-items:center;flex-wrap:wrap;margin-top:26px;}
-.eb .eb-hero .eb-phone{max-height:520px;flex:none;}
+.eb .eb-cover{margin-top:26px;border:1px solid var(--eb-border);border-radius:6px;overflow:hidden;}
+.eb .eb-cover img{display:block;width:100%;height:auto;}
 .eb .cover-meta{flex:1;min-width:300px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;}
 .eb .cover-meta>div{background:var(--eb-bg);padding:16px 18px;}
 .eb .cover-meta .label{margin-bottom:7px;display:block;}

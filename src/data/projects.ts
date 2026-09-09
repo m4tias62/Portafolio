@@ -55,7 +55,7 @@ import sitemapTree from '@/assets/sitemap-ine/sitemap-tree.jpg';
 import sitemapBenchmark from '@/assets/sitemap-ine/benchmark.png';
 import sitemapMockup from '@/assets/sitemap-ine/mockup.png';
 
-import edubigThumb from '@/imports/edubig/home-mockup.png';
+import edubigThumb from '@/imports/edubig/portada.png';
 
 import type { CategoryId } from '@/data/categories';
 
