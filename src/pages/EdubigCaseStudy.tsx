@@ -35,6 +35,11 @@ const BRECHA = [
   { n: 'San Daniel', v: -24, warn: true },
 ];
 
+const WELLS: { name: string; rows: [string, number][] }[] = [
+  { name: 'Convivencia', rows: [['colegio', 78], ['similares', 71], ['nacional', 74]] },
+  { name: 'Autoestima', rows: [['colegio', 82], ['similares', 76], ['nacional', 78]] },
+];
+
 export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
   const [pi, setPi] = useState(0);
   const [on, setOn] = useState(false);
@@ -330,7 +335,9 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
         <section className="eb-flow sec">
           <p className="eyebrow">Visualización de datos</p>
           <h2>El sistema de datos se vuelve visible</h2>
-          <p className="prose">La visualización no decora las conclusiones: las sostiene. Dos piezas cargan el peso — el gráfico de brecha y el sistema de tres carriles de color.</p>
+          <p className="prose">La visualización no decora las conclusiones: las sostiene. Cada gráfico es una decisión sobre qué pregunta responde — y qué geometría la responde.</p>
+
+          {/* Brecha SIMCE — dato real de Pudahuel */}
           <div className="brecha">
             <div className="brecha-head"><span className="label">Brecha SIMCE · vs. colegios similares (mismo GSE)</span><span className="label">escala universal ±56 pts</span></div>
             <div className="brecha-rows">
@@ -348,22 +355,116 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             <div className="brecha-scale"><span>−56</span><span>−28</span><span>0 · promedio similares</span><span>+28</span><span>+56</span></div>
             <p className="figcap"><span className="dotlg pos" /> sobre su grupo GSE · <span className="dotlg neg" /> bajo su grupo GSE. El signo del dato manda: verde/mostaza, nunca el coral de identidad.</p>
           </div>
-          <h3 style={{ marginTop: 30 }}>Tres carriles semánticos que no se mezclan</h3>
-          <p className="prose" style={{ marginTop: 4 }}>Cada uso de color pertenece a un carril. Nunca a dos.</p>
-          <div className="rails">
-            <div className="rail">
-              <div className="rlab"><span className="label">Carril A</span><span className="rn">Identidad</span></div>
-              <div><div className="swatches"><div className="sw" style={{ background: '#2166ac' }} /><div className="sw" style={{ background: '#92c5de' }} /><div className="sw" style={{ background: '#f7f7f7' }} /><div className="sw" style={{ background: '#f4a582' }} /><div className="sw" style={{ background: '#d6604d' }} /></div><div className="rdesc">Frío ↔ cálido (RdBu). Logo, hero, chip de filtro. Reservado a identidad y navegación — nunca codifica dato.</div></div>
-            </div>
-            <div className="rail">
-              <div className="rlab"><span className="label">Carril B</span><span className="rn">Semáforo</span></div>
-              <div><div className="swatches series"><div className="sw" style={{ background: '#198038' }}><span>positivo</span></div><div className="sw" style={{ background: '#8a6d00' }}><span>negativo</span></div></div><div className="rdesc">Verde y mostaza (distinto del coral). Solo donde el signo del dato es la información: brecha SIMCE.</div></div>
-            </div>
-            <div className="rail">
-              <div className="rlab"><span className="label">Carril C</span><span className="rn">Data-viz</span></div>
-              <div><div className="swatches series"><div className="sw" style={{ background: '#198038' }}><span>este</span></div><div className="sw" style={{ background: '#4a62d1' }}><span>similares</span></div><div className="sw" style={{ background: '#a56eff' }}><span>nacional</span></div></div><div className="rdesc">Categorías, no valoración: series comparadas en Bienestar (IDPS) y Comparación.</div></div>
+
+          {/* Nota metodológica — por qué ±56 */}
+          <div className="dv-block">
+            <div className="dv-head"><span className="label">Nota metodológica</span><span className="label">por qué ±56</span></div>
+            <h3>La escala no es cosmética</h3>
+            <p>El eje ±56 no es una convención estética: es el rango real observado en el dataset de Pudahuel (57 colegios, 88 variables). Fijar una escala universal permite que dos colegios de comunas distintas se lean con el mismo criterio visual, sin que la brecha «parezca» mayor o menor por el zoom del eje.</p>
+            <p className="figcap">Cuando el eje cambia entre gráficos, el ojo miente — la <em>lie factor</em> de Tufte. Fijar el eje al rango real del universo es la contramedida más simple.</p>
+          </div>
+
+          {/* Decisión de geometría — antes / después */}
+          <div className="dv-block">
+            <div className="dv-head"><span className="label">Decisión de geometría</span><span className="label">iteración descartada · elegida</span></div>
+            <h3>Antes de la brecha: dos líneas paralelas</h3>
+            <p>La primera versión mostraba el puntaje del colegio y el promedio de similares como dos líneas paralelas. Correcto en los datos, incorrecto en la pregunta: obligaba a la familia a hacer la resta mental y a inferir el signo.</p>
+            <div className="dv-compare">
+              <div className="dv-panel">
+                <span className="dv-tag">Descartado</span>
+                <h4>Dos líneas paralelas</h4>
+                <div className="dv-parallel">
+                  <div className="pl-line colegio"><span>colegio</span></div>
+                  <div className="pl-line similares"><span>similares</span></div>
+                  <div className="pl-gap" />
+                </div>
+                <p className="dv-why">El lector ve dos valores. La conclusión —«sobre o bajo su grupo»— queda por hacer.</p>
+              </div>
+              <div className="dv-panel chosen">
+                <span className="dv-tag">Elegido</span>
+                <h4>Barra de brecha</h4>
+                <div className="dv-minigap">
+                  <div className="mg-axis" />
+                  <div className="mg-bar" />
+                  <div className="mg-val">+31</div>
+                  <div className="mg-zero">0 · promedio similares</div>
+                </div>
+                <p className="dv-why">La brecha ES el dato. El signo y la magnitud se leen antes de terminar la frase.</p>
+              </div>
             </div>
           </div>
+
+          {/* Bienestar IDPS — escala absoluta */}
+          <div className="dv-block">
+            <div className="dv-head"><span className="label">Bienestar · IDPS</span><span className="label">escala absoluta 0–100</span></div>
+            <h3>Cuando la brecha no es la respuesta</h3>
+            <p>Académico y Bienestar responden preguntas distintas, y por eso usan geometrías distintas. Bienestar compara tres alturas absolutas —colegio, similares, nacional— sobre un eje 0–100. Forzarlo a brecha ocultaría el nivel. La coherencia del sistema no es usar el mismo gráfico: es usar el correcto.</p>
+            <div className="dv-wells">
+              {WELLS.map((g) => (
+                <div className="dv-wellgroup" key={g.name}>
+                  <span className="dv-wname">{g.name}</span>
+                  <div className="dv-wcol">
+                    {g.rows.map(([k, v]) => (
+                      <div className="dv-well" key={k}>
+                        <div className="dv-wtrack"><div className={'dv-wfill ' + k} style={{ width: v + '%' }} /></div>
+                        <span className="dv-wv">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="dv-welllegend"><span className="lg colegio">colegio</span><span className="lg similares">similares</span><span className="lg nacional">nacional</span></div>
+            <p className="figcap">Tres valores explícitos, sin resta mental. La escala 0–100 es intrínseca al indicador; no se universaliza porque no hace falta. Datos ilustrativos del patrón.</p>
+          </div>
+
+          {/* Grupo GSE — contra quién se compara */}
+          <div className="dv-block">
+            <div className="dv-head"><span className="label">Contra quién se compara</span><span className="label">grupo de referencia · GSE</span></div>
+            <h3>El «+31» es contra un grupo, no contra todos</h3>
+            <p>Cada brecha tiene un peer group detrás. Volverlo visible es lo que sostiene el sistema anti-ranking: el mismo colegio puede estar sobre su grupo y aún lejos del máximo nacional — y eso no es contradicción, es la lectura correcta.</p>
+            <div className="dv-gse">
+              <div>
+                <div className="dv-gsemap">
+                  <div className="gse-band" />
+                  <span className="gse-dot" style={{ left: '22%', top: '60%' }} />
+                  <span className="gse-dot" style={{ left: '34%', top: '52%' }} />
+                  <span className="gse-dot" style={{ left: '46%', top: '65%' }} />
+                  <span className="gse-dot" style={{ left: '58%', top: '48%' }} />
+                  <span className="gse-dot focus" style={{ left: '78%', top: '42%' }} />
+                  <span className="gse-lab" style={{ left: '78%', top: '14%' }}>Graham Bell</span>
+                  <span className="gse-lab sub" style={{ left: '40%', top: '86%' }}>18 colegios similares</span>
+                </div>
+                <p className="figcap">Grupo estable: 18 pares del mismo GSE. La brecha +31 se lee con confianza.</p>
+              </div>
+              <div>
+                <div className="dv-gsemap small">
+                  <div className="gse-warn">Grupo pequeño (n = 4): la brecha se muestra con menor peso visual y una advertencia explícita — el promedio de similares es menos estable.</div>
+                </div>
+                <p className="figcap">Caso San Daniel: cuando el peer group es chico, el signo puede oscilar. El sistema no lo oculta — lo señala.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Regla de carriles de color */}
+          <div className="dv-block">
+            <div className="dv-head"><span className="label">Reglas de color en dato</span><span className="label">el RdBu vive en identidad, no aquí</span></div>
+            <h3>Un color, un carril</h3>
+            <p>El azul-rojo de identidad (ver Concepto) no aparece en los gráficos. Los datos viven en dos carriles: verde/mostaza para dirección respecto al grupo, y una serie categórica cuando hay que distinguir sin jerarquía. Nunca se cruzan.</p>
+            <div className="dv-lanes">
+              <div className="dv-lane">
+                <span className="label">Semántico · dirección</span>
+                <div className="dv-sw"><div style={{ background: '#388e3c' }} /><div style={{ background: '#a08828' }} /></div>
+                <p>Verde #388e3c: sobre el grupo. Mostaza #a08828: bajo el grupo. El naranjo se descartó — se leía como pariente del coral de identidad.</p>
+              </div>
+              <div className="dv-lane">
+                <span className="label">Categórico · series</span>
+                <div className="dv-sw five"><div style={{ background: '#6929c4' }} /><div style={{ background: '#009d9a' }} /><div style={{ background: '#d3354f' }} /><div style={{ background: '#4a62d1' }} /><div style={{ background: '#a56eff' }} /></div>
+                <p>Se excluyeron el rojo (pariente del coral) y un verde que colisiona con «sobre el grupo». Sin orden, sin jerarquía.</p>
+              </div>
+            </div>
+          </div>
+
           <div className="callout"><p>Contraste verificado numéricamente (WCAG 2.2 AA, mínimo 5.74:1). Redundancia 1.4.1: el color nunca codifica juicio solo — elevación, borde y label textual comunican en paralelo.</p></div>
         </section>
 
@@ -448,7 +549,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
 
 const CSS = `
 .eb{color:var(--eb-strong);
-  --eb-bg:#fafaf7;--eb-surface:#f2f1ec;--eb-surface-2:#ebeae4;--eb-border:#dcdbd5;--eb-border-soft:#ebeae4;--eb-faint:#8a8a85;--eb-medium:#3a3a38;--eb-strong:#0f0f0e;--eb-accent:#5f8f5f;--eb-accent-deep:#456b45;--eb-rdbu-01:#053061;--eb-rdbu-02:#2166ac;--eb-rdbu-09:#d6604d;--eb-exito:#1e6a2e;--eb-advert:#8a6d00;
+  --eb-bg:#fafaf7;--eb-surface:#f2f1ec;--eb-surface-2:#ebeae4;--eb-border:#dcdbd5;--eb-border-soft:#ebeae4;--eb-faint:#8a8a85;--eb-medium:#3a3a38;--eb-strong:#0f0f0e;--eb-accent:#5f8f5f;--eb-accent-deep:#456b45;--eb-rdbu-01:#053061;--eb-rdbu-02:#2166ac;--eb-rdbu-09:#d6604d;--eb-exito:#1e6a2e;--eb-advert:#8a6d00;--eb-data-pos:#388e3c;--eb-data-neg:#a08828;--eb-data-neutral:#c8c6bd;
   --eb-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;--eb-sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;--eb-max:1000px;}
 .eb *{box-sizing:border-box;}
 .eb .eb-content{padding:48px 80px 48px 188px;}
@@ -606,15 +707,15 @@ const CSS = `
 .eb .btrack{position:relative;height:26px;}
 .eb .baxis{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--eb-medium);}
 .eb .bbar{position:absolute;top:4px;bottom:4px;border-radius:2px;}
-.eb .bbar.pos{background:var(--eb-exito);}
-.eb .bbar.neg{background:var(--eb-advert);}
+.eb .bbar.pos{background:var(--eb-data-pos);}
+.eb .bbar.neg{background:var(--eb-data-neg);}
 .eb .bval{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--eb-mono);font-size:12px;font-variant-numeric:tabular-nums;}
-.eb .bval.pos{color:var(--eb-exito);}
-.eb .bval.neg{color:var(--eb-advert);}
+.eb .bval.pos{color:var(--eb-data-pos);}
+.eb .bval.neg{color:var(--eb-data-neg);}
 .eb .brecha-scale{display:flex;justify-content:space-between;margin-top:12px;padding-left:166px;font-family:var(--eb-mono);font-size:10px;color:var(--eb-faint);}
 .eb .dotlg{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:middle;}
-.eb .dotlg.pos{background:var(--eb-exito);}
-.eb .dotlg.neg{background:var(--eb-advert);}
+.eb .dotlg.pos{background:var(--eb-data-pos);}
+.eb .dotlg.neg{background:var(--eb-data-neg);}
 .eb .rails{border:1px solid var(--eb-border);border-radius:4px;padding:4px 20px;margin-top:14px;background:#fff;}
 .eb .rail{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:18px 0;border-top:1px solid var(--eb-border-soft);align-items:center;}
 .eb .rail:first-child{border-top:none;}
@@ -637,8 +738,66 @@ const CSS = `
 .eb .learns{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:14px;}
 .eb .learns>div{background:#fff;padding:22px;}
 .eb .eb-end{margin-top:48px;padding-top:24px;border-top:1px solid var(--eb-border-soft);}
+.eb .dv-block{border:1px solid var(--eb-border);border-radius:4px;background:#fff;padding:26px 28px;margin-top:18px;}
+.eb .dv-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:16px;flex-wrap:wrap;}
+.eb .dv-block h3{margin:0 0 8px;}
+.eb .dv-block>p:not(.figcap){font-size:15px;max-width:66ch;}
+.eb .dv-compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px;}
+.eb .dv-panel{position:relative;border:1px dashed var(--eb-border);border-radius:3px;padding:22px 20px 20px;}
+.eb .dv-panel.chosen{border-style:solid;border-color:var(--eb-medium);}
+.eb .dv-tag{position:absolute;top:-9px;left:18px;background:#fff;padding:0 8px;font-family:var(--eb-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--eb-faint);}
+.eb .dv-panel.chosen .dv-tag{color:var(--eb-strong);}
+.eb .dv-panel h4{font-family:var(--eb-mono);font-weight:500;font-size:14px;margin:0 0 14px;color:var(--eb-medium);}
+.eb .dv-panel .dv-why{font-size:13px;color:var(--eb-faint);margin:12px 0 0;line-height:1.5;}
+.eb .dv-parallel{position:relative;height:108px;border-bottom:1px solid var(--eb-border-soft);}
+.eb .pl-line{position:absolute;left:0;right:0;height:2px;}
+.eb .pl-line.colegio{top:32%;background:var(--eb-data-pos);}
+.eb .pl-line.similares{top:64%;background:var(--eb-data-neutral);}
+.eb .pl-line span{position:absolute;right:0;top:-15px;font-family:var(--eb-mono);font-size:10.5px;color:var(--eb-faint);}
+.eb .pl-gap{position:absolute;left:62%;top:32%;bottom:36%;border-left:1px dotted var(--eb-faint);}
+.eb .pl-gap::after{content:"resta mental";position:absolute;left:6px;top:6px;font-family:var(--eb-mono);font-size:10px;color:var(--eb-faint);white-space:nowrap;}
+.eb .dv-minigap{position:relative;height:108px;}
+.eb .mg-axis{position:absolute;top:0;bottom:18px;left:50%;width:1px;background:var(--eb-border);}
+.eb .mg-bar{position:absolute;left:50%;top:calc(50% - 9px);height:16px;width:32%;background:var(--eb-data-pos);border-radius:0 2px 2px 0;}
+.eb .mg-val{position:absolute;left:calc(50% + 32% + 8px);top:calc(50% - 8px);font-family:var(--eb-mono);font-size:12px;color:var(--eb-strong);}
+.eb .mg-zero{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-family:var(--eb-mono);font-size:10px;color:var(--eb-faint);}
+.eb .dv-wells{display:grid;gap:20px;margin-top:18px;}
+.eb .dv-wellgroup{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:center;}
+.eb .dv-wname{font-family:var(--eb-mono);font-size:13px;color:var(--eb-strong);}
+.eb .dv-wcol{display:flex;flex-direction:column;gap:7px;}
+.eb .dv-well{display:grid;grid-template-columns:1fr 34px;gap:10px;align-items:center;}
+.eb .dv-wtrack{position:relative;height:15px;background:var(--eb-border-soft);border-radius:2px;overflow:hidden;}
+.eb .dv-wfill{position:absolute;left:0;top:0;bottom:0;}
+.eb .dv-wfill.colegio{background:var(--eb-data-pos);}
+.eb .dv-wfill.similares{background:var(--eb-data-neutral);}
+.eb .dv-wfill.nacional{background:transparent;box-shadow:inset 0 0 0 1.5px var(--eb-faint);}
+.eb .dv-wv{font-family:var(--eb-mono);font-size:12px;color:var(--eb-medium);text-align:right;font-variant-numeric:tabular-nums;}
+.eb .dv-welllegend{display:flex;gap:22px;margin-top:16px;flex-wrap:wrap;}
+.eb .dv-welllegend .lg{font-family:var(--eb-mono);font-size:11px;color:var(--eb-faint);display:flex;align-items:center;gap:6px;}
+.eb .dv-welllegend .lg::before{content:"";width:11px;height:11px;border-radius:2px;}
+.eb .dv-welllegend .lg.colegio::before{background:var(--eb-data-pos);}
+.eb .dv-welllegend .lg.similares::before{background:var(--eb-data-neutral);}
+.eb .dv-welllegend .lg.nacional::before{background:transparent;box-shadow:inset 0 0 0 1.5px var(--eb-faint);}
+.eb .dv-gse{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;align-items:start;}
+.eb .dv-gsemap{position:relative;height:170px;border-bottom:1px solid var(--eb-border-soft);}
+.eb .gse-band{position:absolute;left:8%;right:8%;top:38%;height:48px;background:repeating-linear-gradient(90deg,var(--eb-border-soft) 0 4px,transparent 4px 8px);}
+.eb .gse-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--eb-faint);transform:translate(-50%,-50%);}
+.eb .gse-dot.focus{width:14px;height:14px;background:var(--eb-data-pos);}
+.eb .gse-lab{position:absolute;font-family:var(--eb-mono);font-size:11px;color:var(--eb-strong);transform:translateX(-50%);white-space:nowrap;}
+.eb .gse-lab.sub{color:var(--eb-faint);}
+.eb .dv-gsemap.small .gse-warn{position:absolute;left:6%;right:6%;top:50%;transform:translateY(-50%);border:1px solid var(--eb-data-neg);border-radius:3px;padding:12px 14px;font-family:var(--eb-mono);font-size:11.5px;line-height:1.5;color:var(--eb-data-neg);background:#fff;}
+.eb .dv-lanes{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px;}
+.eb .dv-lane{border:1px solid var(--eb-border-soft);border-radius:3px;padding:16px 18px;}
+.eb .dv-lane>.label{display:block;margin-bottom:12px;}
+.eb .dv-sw{display:flex;height:18px;border-radius:2px;overflow:hidden;margin-bottom:12px;}
+.eb .dv-sw div{flex:1;}
+.eb .dv-sw.five{gap:6px;overflow:visible;}
+.eb .dv-sw.five div{border-radius:2px;}
+.eb .dv-lane p{font-size:12.5px;color:var(--eb-faint);margin:0;line-height:1.5;}
 @media(max-width:820px){
   .eb .cover-meta,.eb .grid2,.eb .logo-beats,.eb .use-grid,.eb .evid,.eb .promise-grid,.eb .learns,.eb .patterns-grid{grid-template-columns:1fr;}
+  .eb .dv-compare,.eb .dv-gse,.eb .dv-lanes{grid-template-columns:1fr;}
+  .eb .dv-wellgroup{grid-template-columns:1fr;gap:8px;}
   .eb .callout{grid-template-columns:1fr;gap:8px;}
   .eb .proto-box img{max-width:100%;max-height:70vh;}
   .eb .eb-mockups{grid-template-columns:1fr;max-width:300px;margin-left:auto;margin-right:auto;}
