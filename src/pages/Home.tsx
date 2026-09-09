@@ -454,10 +454,10 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
           aria-roledescription="slide"
           data-slide
           aria-label="Sobre mí"
-          className={`relative shrink-0 self-center bg-[#fafaf7] overflow-hidden ${
-            narrow ? 'w-full' : ''
+          className={`relative shrink-0 bg-[#fafaf7] overflow-hidden ${
+            narrow ? 'w-full' : 'h-full'
           }`}
-          style={narrow ? undefined : { width: 'min(820px, 66vw)', height: 'min(62vh, 520px)' }}
+          style={narrow ? undefined : { width: 'min(1100px, 88vw)' }}
         >
           <div
             className="absolute inset-0 flex flex-col justify-center gap-[22px] overflow-y-auto max-[820px]:static"
@@ -509,10 +509,10 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
           aria-roledescription="slide"
           data-slide
           aria-label="Contacto"
-          className={`relative shrink-0 self-center bg-[#fafaf7] overflow-hidden ${
-            narrow ? 'w-full' : ''
+          className={`relative shrink-0 bg-[#fafaf7] overflow-hidden ${
+            narrow ? 'w-full' : 'h-full'
           }`}
-          style={narrow ? undefined : { width: 'min(820px, 66vw)', height: 'min(62vh, 520px)' }}
+          style={narrow ? undefined : { width: 'min(1100px, 88vw)' }}
         >
           <div
             className="absolute inset-0 flex flex-col justify-center gap-[24px] overflow-y-auto max-[820px]:static"
@@ -586,7 +586,7 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
           <div
             aria-hidden="true"
             className="shrink-0"
-            style={{ width: 'calc((100vw - min(820px, 66vw)) / 2)' }}
+            style={{ width: 'calc((100vw - min(1100px, 88vw)) / 2)' }}
           />
         )}
       </div>
