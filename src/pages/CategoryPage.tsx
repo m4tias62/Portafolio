@@ -20,6 +20,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
   const hasThumbnail = Boolean(project.thumbnail);
   const hasVideo = Boolean(project.thumbnailVideo);
   const fitClass = project.thumbnailFit === 'contain' ? 'object-contain' : 'object-cover';
+  const boxBg = project.thumbnailFit === 'contain' ? 'bg-white' : disabled ? 'bg-[#f2f1ec]' : 'bg-[#ebeae4]';
   return (
     <button
       onClick={onClick}
@@ -38,8 +39,8 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
       <div
         className={
           disabled
-            ? 'w-full relative overflow-hidden bg-[#f2f1ec] border border-[#dcdbd5]'
-            : 'w-full relative overflow-hidden bg-[#ebeae4] border border-[#dcdbd5] transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]'
+            ? `w-full relative overflow-hidden ${boxBg} border border-[#dcdbd5]`
+            : `w-full relative overflow-hidden ${boxBg} border border-[#dcdbd5] transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]`
         }
         style={{ height: 420 }}
       >
