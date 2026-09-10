@@ -19,6 +19,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
   const disabled = !project.available;
   const hasThumbnail = Boolean(project.thumbnail);
   const hasVideo = Boolean(project.thumbnailVideo);
+  const fitClass = project.thumbnailFit === 'contain' ? 'object-contain' : 'object-cover';
   return (
     <button
       onClick={onClick}
@@ -51,7 +52,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
             loop
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            className={`absolute inset-0 w-full h-full ${fitClass} pointer-events-none`}
           />
         )}
         {!hasVideo && hasThumbnail && !disabled && (
@@ -59,7 +60,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
             src={project.thumbnail}
             alt={project.title}
             draggable={false}
-            className="absolute inset-0 w-full h-full object-cover"
+            className={`absolute inset-0 w-full h-full ${fitClass}`}
           />
         )}
         {(!hasThumbnail && !hasVideo) || disabled ? (

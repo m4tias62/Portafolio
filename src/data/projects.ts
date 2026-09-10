@@ -126,6 +126,9 @@ export type Project = {
    * (ej. '/mi-video.mp4' → archivo en /public/mi-video.mp4).
    */
   thumbnailVideo?: string;
+  /** Ajuste del thumbnail en la card: 'cover' (llena, recorta) por defecto,
+   *  o 'contain' (calza completo sin recortar, útil para mockups). */
+  thumbnailFit?: 'cover' | 'contain';
   /** Etiqueta en el encabezado del detalle: "Proyecto 01", "Proyecto 02"… */
   headerLabel: string;
   stages: Stage[];
@@ -389,6 +392,7 @@ export const projects: Project[] = [
     available: true,
     thumbnail: sitemapTree,
     thumbnailVideo: '/sitemap-ine-recorrido.mp4',
+    thumbnailFit: 'contain',
     headerLabel: 'Proyecto 04',
     stages: [
       {
