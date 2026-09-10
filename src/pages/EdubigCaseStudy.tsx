@@ -540,7 +540,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
 const CSS = `
 .eb{color:var(--eb-strong);
   --eb-bg:#fafaf7;--eb-surface:#f2f1ec;--eb-surface-2:#ebeae4;--eb-border:#dcdbd5;--eb-border-soft:#ebeae4;--eb-faint:#8a8a85;--eb-medium:#3a3a38;--eb-strong:#0f0f0e;--eb-accent:#5f8f5f;--eb-accent-deep:#456b45;--eb-rdbu-01:#053061;--eb-rdbu-02:#2166ac;--eb-rdbu-09:#d6604d;--eb-exito:#1e6a2e;--eb-advert:#8a6d00;--eb-data-pos:#388e3c;--eb-data-neg:#a08828;--eb-data-neutral:#c8c6bd;
-  --eb-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;--eb-sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;--eb-max:1000px;}
+  --eb-mono:'IBM Plex Mono:Regular',ui-monospace,Menlo,monospace;--eb-mono-med:'IBM Plex Mono:Medium','IBM Plex Mono:Regular',ui-monospace,Menlo,monospace;--eb-sans:'IBM Plex Sans:Regular',system-ui,-apple-system,sans-serif;--eb-max:1000px;}
 .eb *{box-sizing:border-box;}
 .eb .eb-content{padding:48px 80px 48px 188px;}
 @media(max-width:900px){.eb .eb-content{padding:32px 24px;}}
@@ -549,9 +549,9 @@ const CSS = `
 .eb .sec{max-width:var(--eb-max);padding:56px 0;border-top:1px solid var(--eb-border-soft);margin-top:8px;}
 .eb .eyebrow{font-family:var(--eb-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--eb-accent-deep);margin:0 0 18px;display:flex;align-items:center;gap:10px;}
 .eb .eyebrow::before{content:"";width:22px;height:1px;background:var(--eb-accent);}
-.eb h1{font-family:var(--eb-mono);font-weight:500;font-size:clamp(40px,7vw,68px);line-height:1;letter-spacing:-.02em;margin:0;}
-.eb h2{font-family:var(--eb-mono);font-weight:500;font-size:clamp(24px,3.4vw,32px);line-height:1.12;letter-spacing:-.01em;margin:0 0 10px;}
-.eb h3{font-family:var(--eb-mono);font-weight:500;font-size:18px;line-height:1.25;margin:0 0 6px;}
+.eb h1{font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(40px,7vw,68px);line-height:1;letter-spacing:-.02em;margin:0;}
+.eb h2{font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(24px,3.4vw,32px);line-height:1.12;letter-spacing:-.01em;margin:0 0 10px;}
+.eb h3{font-family:var(--eb-mono-med);font-weight:500;font-size:18px;line-height:1.25;margin:0 0 6px;}
 .eb .lead{font-family:var(--eb-sans);font-size:20px;line-height:1.5;color:var(--eb-medium);margin:14px 0 6px;}
 .eb p{font-family:var(--eb-sans);font-size:16px;line-height:1.62;color:var(--eb-medium);margin:0 0 16px;}
 .eb p:last-child{margin-bottom:0;}
