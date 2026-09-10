@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import ProgressBar from '@/components/ProgressBar';
+import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 import carolinaFull from '@/imports/edubig/persona-carolina-full.png';
 import martinFull from '@/imports/edubig/persona-martin-full.png';
@@ -102,7 +102,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
         className="fixed left-[80px] top-[56px] z-10 flex items-center justify-center max-[900px]:hidden"
         style={{ height: 'calc(100vh - 56px)', width: 28 }}
       >
-        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical />
+        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(13)} />
       </div>
 
       <div ref={contentRef} className="eb-content">

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
-import ProgressBar from '@/components/ProgressBar';
+import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 import EdubigCaseStudy from '@/pages/EdubigCaseStudy';
 import MdaDataBar from '@/components/figures/MdaDataBar';
@@ -317,7 +317,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
         className="fixed left-[80px] top-[56px] z-10 flex items-center justify-center"
         style={{ height: 'calc(100vh - 56px)', width: 28 }}
       >
-        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical />
+        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(project.stages.length)} />
       </div>
 
       {/* Content */}

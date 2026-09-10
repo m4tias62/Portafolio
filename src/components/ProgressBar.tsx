@@ -14,7 +14,18 @@ type ProgressBarProps = {
    */
   onSeek?: (ratio: number, dragging: boolean) => void;
   vertical?: boolean;
+  /** Nº de marcas de la regla. Por defecto 25. Se puede escalar al contenido
+   *  de cada sección/proyecto (ver `tickCount`) para que la densidad de la
+   *  regla sea proporcional a cuánto contenido hay. */
+  ticks?: number;
 };
+
+/** Traduce una cantidad de "segmentos" de contenido (etapas, secciones,
+ *  proyectos) a un nº de marcas de regla, con piso y techo para que nunca
+ *  quede ni vacía ni saturada. Densidad proporcional al contenido. */
+export function tickCount(segments: number): number {
+  return Math.max(14, Math.min(46, Math.round(segments * 3.4)));
+}
 
 /**
  * ProgressBar — indicador Y navegador del scroll de una sección.
@@ -33,8 +44,9 @@ type ProgressBarProps = {
  * El cursor rectangular tiene pointerEvents=none para que los clicks sobre él
  * caigan directamente en la barra debajo — así no hay "zonas muertas".
  */
-export default function ProgressBar({ progress, onSeek, vertical = false }: ProgressBarProps) {
+export default function ProgressBar({ progress, onSeek, vertical = false, ticks }: ProgressBarProps) {
   const safeProgress = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
+  const lines = Math.max(2, Math.round(ticks ?? NUM_LINES));
   const cursorOffset = safeProgress * TRAVEL;
   const svgRef = useRef<SVGSVGElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -110,8 +122,8 @@ export default function ProgressBar({ progress, onSeek, vertical = false }: Prog
         userSelect: 'none',
       }}
     >
-      {Array.from({ length: NUM_LINES }, (_, i) => {
-        const x = (i / (NUM_LINES - 1)) * BAR_LENGTH;
+      {Array.from({ length: lines }, (_, i) => {
+        const x = (i / (lines - 1)) * BAR_LENGTH;
         return (
           <line
             key={i}

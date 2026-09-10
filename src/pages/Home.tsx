@@ -209,7 +209,7 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
         raf = null;
         return;
       }
-      el.scrollLeft += diff * 0.14;
+      el.scrollLeft += diff * 0.115;
       setProg();
       raf = requestAnimationFrame(step);
     };
@@ -234,7 +234,7 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
       settleTimer = window.setTimeout(() => {
         target = nearest(target);
         run();
-      }, 150);
+      }, 200);
     };
 
     const onWheel = (e: WheelEvent) => {

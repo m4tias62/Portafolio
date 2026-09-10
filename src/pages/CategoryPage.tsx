@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import ProgressBar from '@/components/ProgressBar';
+import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 import { getCategoryById, type CategoryId } from '@/data/categories';
 import { projectsByCategory, type Project } from '@/data/projects';
@@ -139,7 +139,12 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
     };
 
     const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      // Mejor práctica: el scroll vertical pertenece a la PÁGINA (para ver toda
+      // la sección). El carrusel se recorre con arrastre, la regla, el swipe
+      // horizontal del trackpad (deltaX, nativo) y Shift+rueda como atajo.
+      const horizontalIntent = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+      if (horizontalIntent) return; // lo maneja overflow-x-auto nativo
+      if (!e.shiftKey) return; // rueda vertical → deja scrollear la página
       e.preventDefault();
       const max = el.scrollWidth - el.clientWidth;
       target = Math.max(0, Math.min(max, target + e.deltaY));
@@ -249,7 +254,7 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
       <section className="px-[80px] py-[48px]">
         <div className="flex flex-col gap-[48px]">
           <div className="flex justify-center">
-            <ProgressBar progress={scrollProgress} onSeek={handleSeek} />
+            <ProgressBar progress={scrollProgress} onSeek={handleSeek} ticks={tickCount(projects.length)} />
           </div>
           <div
             ref={carouselRef}
