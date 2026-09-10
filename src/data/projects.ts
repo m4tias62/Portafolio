@@ -399,7 +399,7 @@ export const projects: Project[] = [
         image: sitemapKit1,
         imageCaption:
           'Kit de validación — objetivo, umbrales de éxito y breadcrumbs de referencia.',
-        figureAspect: 1242 / 1755,
+        figureAspect: 1242 / 1445,
       },
       {
         id: 2,
