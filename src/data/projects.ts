@@ -450,9 +450,10 @@ export const projects: Project[] = [
         text:
           'La propuesta se implementó en censo2024.ine.gob.cl. El árbol vive: las cuatro secciones de nivel 1 — Inicio, Resultados, Censo, Noticias — están ahí, con Documentación absorbida dentro de Censo tal como se recomendó en la etapa de consolidación. La tríada de Resultados existe, y las reglas de breadcrumb, contraste y jerarquía se mantienen. Es raro ver la propia recomendación caminando en producción — más raro todavía cuando se trata de un organismo del tamaño del INE.',
         image: sitemapMockup,
+        video: '/sitemap-ine-recorrido.mp4',
         imageCaption:
-          'Portada de censo2024.ine.gob.cl — el menú superior lleva las cuatro secciones L1 que se propusieron; el submenú de Censo muestra la consolidación de Documentación.',
-        figureAspect: 2030 / 1385,
+          'Recorrido en vivo por censo2024.ine.gob.cl: la arquitectura que propuse, caminando en producción. Se ven las cuatro secciones L1, la tríada de Resultados y la consolidación de Documentación dentro de Censo — exactamente como quedaron en la validación. Es la prueba de que el trabajo no se quedó en un documento: opera hoy en el portal de un organismo del tamaño del INE.',
+        figureAspect: 1600 / 1068,
         link: {
           url: 'https://censo2024.ine.gob.cl/',
           label: 'Verificar la implementación en censo2024.ine.gob.cl',

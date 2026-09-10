@@ -67,7 +67,8 @@ function getFigureDimensions(aspect?: number): { width: number; height: number }
 
 /** Test compartido con el renderer de etapas — misma regla en todos lados. */
 function isUltraWideStage(stage: Stage): boolean {
-  return (stage.figureAspect ?? DEFAULT_ASPECT) >= ULTRA_WIDE_ASPECT;
+  // Un video siempre toma el layout grande (figura full-width arriba, texto abajo).
+  return stage.video != null || (stage.figureAspect ?? DEFAULT_ASPECT) >= ULTRA_WIDE_ASPECT;
 }
 
 /**
@@ -105,6 +106,30 @@ function Caption({ text }: { text: string }) {
 function FigureImage({ stage }: { stage: Stage }) {
   const { width, height } = getFigureDimensions(stage.figureAspect);
 
+  // Video — hero full-width, sin recorte (object-contain). Poster = stage.image.
+  if (stage.video) {
+    return (
+      <div className="w-full">
+        <div
+          className="bg-[#0f0f0e] relative overflow-hidden"
+          style={{ ...FIGURE_FRAME_STYLE, aspectRatio: String(stage.figureAspect ?? DEFAULT_ASPECT) }}
+        >
+          <video
+            src={stage.video}
+            poster={stage.image}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="w-full h-full object-contain block pointer-events-none"
+          />
+        </div>
+        {stage.imageCaption && <Caption text={stage.imageCaption} />}
+      </div>
+    );
+  }
+
   // Ultra-wide (foto) — full-bleed. El layout de la etapa la apila arriba del
   // texto. Imagen a alto nativo, caption al ancho completo de la imagen.
   if (stage.image && isUltraWideStage(stage)) {
@@ -141,25 +166,6 @@ function FigureImage({ stage }: { stage: Stage }) {
         style={{ width: FIGURE_COLUMN_WIDTH, height: 460, ...FIGURE_FRAME_STYLE }}
       >
         <Figure />
-      </div>
-    );
-  } else if (stage.video) {
-    // Video en loop mudo. Usa stage.image como poster mientras carga.
-    figureBox = (
-      <div
-        className="bg-[#0f0f0e] relative overflow-hidden"
-        style={{ width, height, ...FIGURE_FRAME_STYLE }}
-      >
-        <video
-          src={stage.video}
-          poster={stage.image}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="w-full h-full object-cover pointer-events-none"
-        />
       </div>
     );
   } else if (stage.image) {
