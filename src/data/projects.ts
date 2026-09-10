@@ -388,6 +388,7 @@ export const projects: Project[] = [
       'Rediseño del árbol de contenidos del portal del Censo 2024 del INE — validado, documentado e implementado.',
     available: true,
     thumbnail: sitemapTree,
+    thumbnailVideo: '/sitemap-ine-recorrido.mp4',
     headerLabel: 'Proyecto 04',
     stages: [
       {

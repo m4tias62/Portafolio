@@ -240,13 +240,13 @@ function StageText({ stage, horizontal = false }: { stage: Stage; horizontal?: b
   // borde izquierdo de la figura con la etiqueta a su lado (label | cuerpo).
   // Evita la columna solitaria desplazada a la derecha.
   if (horizontal) {
+    // Ultra-wide: texto alineado a la izquierda bajo la figura (etiqueta arriba,
+    // cuerpo debajo), a una medida cómoda — no una columna desplazada.
     return (
-      <div className="flex" style={{ gap: FIGURE_TEXT_GAP }}>
-        <div className="shrink-0" style={{ width: 200 }}>{label}</div>
-        <div className="flex flex-col gap-[20px]" style={{ maxWidth: 560 }}>
-          {body}
-          {link}
-        </div>
+      <div className="flex flex-col gap-[16px]" style={{ maxWidth: 640 }}>
+        {label}
+        {body}
+        {link}
       </div>
     );
   }
