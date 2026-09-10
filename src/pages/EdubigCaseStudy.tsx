@@ -549,7 +549,7 @@ const CSS = `
 .eb .sec{max-width:var(--eb-max);padding:56px 0;border-top:1px solid var(--eb-border-soft);margin-top:8px;}
 .eb .eyebrow{font-family:var(--eb-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--eb-accent-deep);margin:0 0 18px;display:flex;align-items:center;gap:10px;}
 .eb .eyebrow::before{content:"";width:22px;height:1px;background:var(--eb-accent);}
-.eb h1{font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(40px,7vw,68px);line-height:1;letter-spacing:-.02em;margin:0;}
+.eb h1{font-family:var(--eb-mono);font-weight:400;font-size:clamp(28px,2.6vw,40px);line-height:1.1;margin:0;}
 .eb h2{font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(24px,3.4vw,32px);line-height:1.12;letter-spacing:-.01em;margin:0 0 10px;}
 .eb h3{font-family:var(--eb-mono-med);font-weight:500;font-size:18px;line-height:1.25;margin:0 0 6px;}
 .eb .lead{font-family:var(--eb-sans);font-size:20px;line-height:1.5;color:var(--eb-medium);margin:14px 0 6px;}
