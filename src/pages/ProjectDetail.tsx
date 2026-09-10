@@ -50,11 +50,6 @@ const FIGURE_TEXT_GAP = 108;
  *  derecha) para que diagramas horizontales como el árbol de sitemap
  *  (3850×1038, aspect 3.71) rindan a tamaño natural sin scroll horizontal. */
 export const ULTRA_WIDE_ASPECT = 2.5;
-/** Offset horizontal desde donde arranca el texto en las etapas de dos
- *  columnas (ancho de columna de figura + gap). Se aplica también a las
- *  etapas ultra-wide como padding-left para que el borde izquierdo del texto
- *  caiga en la misma línea vertical — consistencia rítmica al hacer scroll. */
-const STAGE_TEXT_LEFT_OFFSET = FIGURE_COLUMN_WIDTH + FIGURE_TEXT_GAP;
 
 function getFigureDimensions(aspect?: number): { width: number; height: number } {
   const a = aspect ?? DEFAULT_ASPECT;
@@ -67,8 +62,7 @@ function getFigureDimensions(aspect?: number): { width: number; height: number }
 
 /** Test compartido con el renderer de etapas — misma regla en todos lados. */
 function isUltraWideStage(stage: Stage): boolean {
-  // Un video siempre toma el layout grande (figura full-width arriba, texto abajo).
-  return stage.video != null || (stage.figureAspect ?? DEFAULT_ASPECT) >= ULTRA_WIDE_ASPECT;
+  return (stage.figureAspect ?? DEFAULT_ASPECT) >= ULTRA_WIDE_ASPECT;
 }
 
 /**
@@ -106,30 +100,6 @@ function Caption({ text }: { text: string }) {
 function FigureImage({ stage }: { stage: Stage }) {
   const { width, height } = getFigureDimensions(stage.figureAspect);
 
-  // Video — hero full-width, sin recorte (object-contain). Poster = stage.image.
-  if (stage.video) {
-    return (
-      <div className="w-full">
-        <div
-          className="bg-[#0f0f0e] relative overflow-hidden"
-          style={{ ...FIGURE_FRAME_STYLE, aspectRatio: String(stage.figureAspect ?? DEFAULT_ASPECT) }}
-        >
-          <video
-            src={stage.video}
-            poster={stage.image}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            className="w-full h-full object-contain block pointer-events-none"
-          />
-        </div>
-        {stage.imageCaption && <Caption text={stage.imageCaption} />}
-      </div>
-    );
-  }
-
   // Ultra-wide (foto) — full-bleed. El layout de la etapa la apila arriba del
   // texto. Imagen a alto nativo, caption al ancho completo de la imagen.
   if (stage.image && isUltraWideStage(stage)) {
@@ -166,6 +136,26 @@ function FigureImage({ stage }: { stage: Stage }) {
         style={{ width: FIGURE_COLUMN_WIDTH, height: 460, ...FIGURE_FRAME_STYLE }}
       >
         <Figure />
+      </div>
+    );
+  } else if (stage.video) {
+    // Video en loop mudo dentro del marco estándar — mismo lenguaje que las fotos
+    // (fondo cremita + borde asimétrico), tamaño de figura landscape.
+    figureBox = (
+      <div
+        className="bg-[#f2f1ec] relative overflow-hidden"
+        style={{ width, height, ...FIGURE_FRAME_STYLE }}
+      >
+        <video
+          src={stage.video}
+          poster={stage.image}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover pointer-events-none"
+        />
       </div>
     );
   } else if (stage.image) {
@@ -216,33 +206,56 @@ function FigureImage({ stage }: { stage: Stage }) {
  * etapas. Cuando la etapa es `variant: 'quote'` el texto se presenta en
  * itálica editorial. Cuando declara `link`, se agrega un enlace externo abajo.
  */
-function StageText({ stage }: { stage: Stage }) {
+function StageText({ stage, horizontal = false }: { stage: Stage; horizontal?: boolean }) {
   const isQuote = stage.variant === 'quote';
+  const label = (
+    <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
+      {stage.label}
+    </p>
+  );
+  const body = (
+    <p
+      className={
+        isQuote
+          ? "font-['IBM_Plex_Sans:Italic',sans-serif] text-[20px] text-[#0f0f0e] leading-[1.6] italic text-balance"
+          : "font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-black leading-[1.7]"
+      }
+      style={{ fontVariationSettings: '"wdth" 100' }}
+    >
+      {stage.text}
+    </p>
+  );
+  const link = stage.link && (
+    <a
+      href={stage.link.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[12px] text-[#0f0f0e] underline underline-offset-4 decoration-[#8a8a85] hover:decoration-[#0f0f0e] tracking-[0.5px] w-fit transition-colors"
+    >
+      {stage.link.label ?? stage.link.url} →
+    </a>
+  );
+
+  // Ultra-wide: la figura va full-width arriba y el texto DEBAJO, anclado al
+  // borde izquierdo de la figura con la etiqueta a su lado (label | cuerpo).
+  // Evita la columna solitaria desplazada a la derecha.
+  if (horizontal) {
+    return (
+      <div className="flex" style={{ gap: FIGURE_TEXT_GAP }}>
+        <div className="shrink-0" style={{ width: 200 }}>{label}</div>
+        <div className="flex flex-col gap-[20px]" style={{ maxWidth: 560 }}>
+          {body}
+          {link}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-[20px] pt-8" style={{ width: 326 }}>
-      <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
-        {stage.label}
-      </p>
-      <p
-        className={
-          isQuote
-            ? "font-['IBM_Plex_Sans:Italic',sans-serif] text-[20px] text-[#0f0f0e] leading-[1.6] italic text-balance"
-            : "font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-black leading-[1.7]"
-        }
-        style={{ fontVariationSettings: '"wdth" 100' }}
-      >
-        {stage.text}
-      </p>
-      {stage.link && (
-        <a
-          href={stage.link.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[12px] text-[#0f0f0e] underline underline-offset-4 decoration-[#8a8a85] hover:decoration-[#0f0f0e] tracking-[0.5px] w-fit transition-colors"
-        >
-          {stage.link.label ?? stage.link.url} →
-        </a>
-      )}
+      {label}
+      {body}
+      {link}
     </div>
   );
 }
@@ -337,12 +350,10 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
                   key={stage.id}
                   id={`stage-${stage.id}`}
                   className="flex flex-col"
-                  style={{ gap: FIGURE_TEXT_GAP }}
+                  style={{ gap: 36 }}
                 >
                   <FigureImage stage={stage} />
-                  <div style={{ paddingLeft: STAGE_TEXT_LEFT_OFFSET }}>
-                    <StageText stage={stage} />
-                  </div>
+                  <StageText stage={stage} horizontal />
                 </div>
               );
             }
