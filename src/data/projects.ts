@@ -56,6 +56,7 @@ import sitemapBenchmark from '@/assets/sitemap-ine/benchmark.png';
 import sitemapMockup from '@/assets/sitemap-ine/mockup.png';
 
 import edubigThumb from '@/imports/edubig/portada.png';
+import tuxpanThumb from '@/assets/tuxpan/tuxpan-thumb.png';
 
 import type { CategoryId } from '@/data/categories';
 
@@ -574,6 +575,24 @@ export const projects: Project[] = [
       'Benchmark consolidado de mejores prácticas en extensiones de accesibilidad web.',
     available: false,
     headerLabel: 'Proyecto 08',
+    stages: [],
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Editorial — Ebooks TUXPAN. Case study dedicado (TuxpanCaseStudy).
+  // ────────────────────────────────────────────────────────────────────────
+  {
+    id: 9,
+    slug: 'ebooks-tuxpan',
+    title: 'Ebooks TUXPAN',
+    year: '2024',
+    category: 'Diseño editorial',
+    categoryId: 'editorial',
+    description:
+      'Serie de tres ebooks descargables para captación de leads B2B — diagramación, ilustración y arte final.',
+    available: true,
+    thumbnail: tuxpanThumb,
+    headerLabel: 'Proyecto 09',
     stages: [],
   },
 ];

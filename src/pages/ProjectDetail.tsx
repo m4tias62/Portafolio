@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 import EdubigCaseStudy from '@/pages/EdubigCaseStudy';
+import TuxpanCaseStudy from '@/pages/TuxpanCaseStudy';
 import MdaDataBar from '@/components/figures/MdaDataBar';
 import { getProjectById, type FigureKey, type Stage } from '@/data/projects';
 
@@ -298,6 +299,10 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
 
   if (project && project.slug === 'edubig') {
     return <EdubigCaseStudy onBack={onBack} />;
+  }
+
+  if (project && project.slug === 'ebooks-tuxpan') {
+    return <TuxpanCaseStudy onBack={onBack} />;
   }
 
   if (!project) {
