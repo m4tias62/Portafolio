@@ -179,7 +179,7 @@ export default function TuxpanCaseStudy({ onBack }: { onBack: () => void }) {
 
         {/* Header — formato del portafolio */}
         <header className="tx-flow tx-header">
-          <p className="eyebrow">Proyecto 09 · Diseño editorial digital · 2024</p>
+          <p className="eyebrow">Proyecto 09 · Diseño editorial digital · 2025</p>
           <h1>Ebooks TUXPAN</h1>
           <p className="lead">Serie de tres ebooks para captación de leads B2B.</p>
           <p className="prose">

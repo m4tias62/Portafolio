@@ -585,7 +585,7 @@ export const projects: Project[] = [
     id: 9,
     slug: 'ebooks-tuxpan',
     title: 'Ebooks TUXPAN',
-    year: '2024',
+    year: '2025',
     category: 'Diseño editorial',
     categoryId: 'editorial',
     description:
