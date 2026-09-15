@@ -493,12 +493,12 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
             style={{ padding: 'clamp(28px, 4vw, 56px)' }}
           >
             <div className="flex gap-[clamp(28px,5vw,64px)] items-start flex-wrap">
-              <div className="shrink-0" style={{ width: 260 }}>
+              <div className="shrink-0 flex flex-col" style={{ width: 260 }}>
                 <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
                   Sobre mí
                 </p>
                 <h2
-                  className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.05] tracking-[-0.4px] mt-2 mb-4"
+                  className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.05] tracking-[-0.4px] mt-[6px] mb-[10px]"
                   style={{ fontSize: 'clamp(24px, 2.4vw, 30px)' }}
                 >
                   Matías Cáceres
@@ -511,28 +511,54 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
                     style={{ borderWidth: '2px 4px 4px 2px', borderStyle: 'solid', borderColor: '#000' }}
                   />
                 </div>
-                <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-black tracking-[1.2px] leading-[1.5] mt-3">
+                <p
+                  className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-black tracking-[1.2px] leading-[1.5] mt-[10px]"
+                  style={{ textAlign: 'justify', textAlignLast: 'justify' }}
+                >
                   Diseñador · Universidad Diego Portales · Santiago de Chile
                 </p>
               </div>
-              <blockquote className="pl-[22px] border-l-2 border-[#0f0f0e] flex-1 min-w-[260px] max-w-[42ch] self-center">
-                <p
-                  className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#0f0f0e] leading-[1.5] text-balance"
-                  style={{ fontSize: 'clamp(16px, 1.4vw, 20px)' }}
-                >
-                  «Nada en la vida es para temer, todo es para comprender. Ahora es el momento de comprender más, para temer menos.»
-                </p>
-                <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[11px] text-[#3a3a38] tracking-[1.2px] leading-[1.5] mt-3 uppercase">
-                  — Marie Curie
-                </p>
-              </blockquote>
+              <div className="flex-1 min-w-[260px] max-w-[62ch] flex flex-col gap-[clamp(20px,2.4vw,32px)]">
+                <blockquote className="pl-[22px] border-l-2 border-[#0f0f0e] max-w-[42ch]">
+                  <p
+                    className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#0f0f0e] leading-[1.5] text-balance"
+                    style={{ fontSize: 'clamp(16px, 1.4vw, 20px)' }}
+                  >
+                    «Nada en la vida es para temer, todo es para comprender. Ahora es el momento de comprender más, para temer menos.»
+                  </p>
+                  <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[11px] text-[#3a3a38] tracking-[1.2px] leading-[1.5] mt-3 uppercase">
+                    — Marie Curie
+                  </p>
+                </blockquote>
+                <div className="flex flex-col gap-[14px] text-[#3a3a38]">
+                  <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[15px] leading-[1.65]">
+                    Hola! Soy Matías Cáceres, Diseñador titulado por la Universidad Diego Portales.
+                    Hoy estoy centrado en el UX/UI, un ámbito que me ha permitido reinterpretar la
+                    labor del diseñador en el momento actual del oficio, marcado por la IA. El
+                    diseñador ya no es un simple productor de piezas gráficas o interfaces bonitas:
+                    la herramienta central, más allá del manejo técnico del software, es la
+                    sensibilidad hacia las necesidades del usuario para el que se diseña — la
+                    capacidad de leer entre líneas para armar flujos lógicos y visualizaciones de
+                    información que realmente sirvan.
+                  </p>
+                  <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[15px] leading-[1.65]">
+                    Me considero capaz de adaptarme a cualquier proyecto donde el conocimiento de
+                    un diseñador aporte, colaborando con múltiples disciplinas. Ese es, para mí, el
+                    superpoder del diseñador: insertarse en casi cualquier espacio para aportar una
+                    mirada crítica, creativa y —por qué no— lógica.
+                  </p>
+                  <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[15px] leading-[1.65]">
+                    Fuera del ámbito profesional soy curioso por comprender el mundo, hambriento de
+                    aprender cosas nuevas y de mejorar. Por eso me pongo siempre retos de
+                    aprendizaje: mantener la mente afilada, preparada para los desafíos no solo
+                    profesionales sino también de la vida — sobre todo en estos tiempos de cambios
+                    de paradigma tecnológicos y sociales. Para mí el aprendizaje no es solo el
+                    placer de saber: lo considero también una forma de resistencia frente a un
+                    mundo que cambia rápido. Por eso lo cultivo como un hábito.
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[15px] leading-[1.7] text-[#3a3a38] max-w-[62ch]">
-              Diseñador UX/UI con una trayectoria de aprendizaje autónomo en matemáticas, física,
-              filosofía e historia de las civilizaciones. Trabajo en la intersección entre el
-              criterio de diseño y los sistemas complejos, integrando herramientas de IA como
-              multiplicador de capacidad sin ceder el juicio de diseño y producto.
-            </p>
           </div>
         </section>
 
