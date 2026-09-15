@@ -395,77 +395,7 @@ export const projects: Project[] = [
     thumbnailVideo: '/sitemap-ine-recorrido.mp4',
     thumbnailFit: 'contain',
     headerLabel: 'Proyecto 04',
-    stages: [
-      {
-        id: 1,
-        label: 'Etapa 1 — Contexto',
-        text:
-          'Como diseñador UX en Globallys, participé en el rediseño del portal del Censo 2024 del Instituto Nacional de Estadísticas. El sitio anterior arrastraba capas acumuladas censo tras censo: menús con doce ítems, publicaciones duplicadas entre secciones, arquitectura calcada de la estructura interna del organismo — no de las preguntas del usuario. El objetivo del rediseño se fijó como una métrica dura: ochenta por ciento de éxito por tarea en tres clicks, y cero confusión mayor al treinta por ciento en cualquier etiqueta.',
-        image: sitemapKit1,
-        imageCaption:
-          'Kit de validación — objetivo, umbrales de éxito y breadcrumbs de referencia.',
-        figureAspect: 1242 / 1445,
-      },
-      {
-        id: 2,
-        label: 'Etapa 2 — Benchmark y método',
-        text:
-          'El proceso empezó con un benchmark de nueve portales estadísticos de la región: Bolivia, Paraguay, Brasil, Uruguay, Costa Rica, Ecuador, Chile, Argentina, Perú. Cada portal se auditó con las mismas columnas — tipo de inicio, H1 visible, clicks al primer resultado, tipo de visualizador, mapa/geoportal, descarga de datos, breadcrumb — y se cerró con dos columnas de opinión: buenas prácticas y riesgos. De ahí emergió la tríada dashboard + mapa interactivo + descarga de tabulados como el patrón dominante, y quedaron mapeadas las carencias que Chile debía cubrir.',
-        image: sitemapBenchmark,
-        imageCaption:
-          'Benchmark regional — nueve portales cruzados por dimensión, con recomendación específica para Chile en la última columna.',
-        figureAspect: 3024 / 1830,
-        link: {
-          url: 'https://docs.google.com/spreadsheets/d/1lYmXGqdN25I1GN9sEPuowuBiaNa-zEkgNpA8tIMmYQU/edit?gid=565267240#gid=565267240',
-          label: 'Ver benchmark completo en Google Sheets',
-        },
-      },
-      {
-        id: 3,
-        label: 'Etapa 3 — El árbol',
-        text:
-          'El árbol colapsa la maraña anterior en cinco rutas de nivel 1: Inicio, Resultados, Documentación, Sobre el Censo y Noticias. Resultados abre a la tríada regional. Documentación centraliza metodología, cuestionarios y boletines para eliminar duplicidades. Sobre el Censo agrupa lo institucional. Cada L1 abre a un L2 con cards de acceso — el objetivo, siempre, era que un usuario cualquiera pudiera responder ¿dónde encuentro los resultados?, ¿cómo descargo los datos? o ¿cuál fue la metodología? sin navegar más de dos niveles.',
-        image: sitemapTree,
-        imageCaption:
-          'Árbol completo del portal, del L0 al L3, dibujado en MIRO. La pieza que se llevó a validación.',
-        figureAspect: 3850 / 1038,
-      },
-      {
-        id: 4,
-        label: 'Etapa 4 — Reglas y consistencia',
-        text:
-          'Un sitemap no basta: hay que asegurar que menú, H1, URL y breadcrumb digan lo mismo con distintas formas. Se documentó un playbook con las reglas — máximo seis o siete ítems por menú, nombres cortos orientados a tarea, breadcrumb que refleje la jerarquía real, la tríada de Resultados siempre visible como entradas pares de L2, descargas con tipo/peso/fecha declarados antes del clic.',
-        image: sitemapKit3,
-        imageCaption:
-          'Reglas de consistencia entre menú, H1, URL y breadcrumb, más patrones específicos para la tríada Resultados.',
-        figureAspect: 1242 / 1755,
-      },
-      {
-        id: 5,
-        label: 'Etapa 5 — Accesibilidad (WCAG 2.2 AA)',
-        text:
-          'El piso no-negociable del proyecto: estructura semántica con un H1 y jerarquía H2/H3, navegación por teclado con foco visible en todos los controles, contraste AA sostenido en todos los estados, alt text obligatorio en imágenes no decorativas, textos de enlace descriptivos (nunca "ver más" suelto), aviso explícito cuando un embebido abre en pestaña nueva o cuando una descarga es pesada. Todo checklist antes del release.',
-        image: sitemapKit5,
-        imageCaption:
-          'Los cinco frentes de accesibilidad WCAG 2.2 AA que se exigieron al portal entero.',
-        figureAspect: 1242 / 1755,
-      },
-      {
-        id: 6,
-        label: 'Etapa 6 — Implementación',
-        text:
-          'La propuesta se implementó en censo2024.ine.gob.cl. El árbol vive: las cuatro secciones de nivel 1 — Inicio, Resultados, Censo, Noticias — están ahí, con Documentación absorbida dentro de Censo tal como se recomendó en la etapa de consolidación. La tríada de Resultados existe, y las reglas de breadcrumb, contraste y jerarquía se mantienen. Es raro ver la propia recomendación caminando en producción — más raro todavía cuando se trata de un organismo del tamaño del INE.',
-        image: sitemapMockup,
-        video: '/sitemap-ine-recorrido.mp4',
-        imageCaption:
-          'Recorrido en vivo por censo2024.ine.gob.cl: la arquitectura que propuse, caminando en producción. Se ven las cuatro secciones L1, la tríada de Resultados y la consolidación de Documentación dentro de Censo — exactamente como quedaron en la validación. Es la prueba de que el trabajo no se quedó en un documento: opera hoy en el portal de un organismo del tamaño del INE.',
-        figureAspect: 1600 / 1068,
-        link: {
-          url: 'https://censo2024.ine.gob.cl/',
-          label: 'Verificar la implementación en censo2024.ine.gob.cl',
-        },
-      },
-    ],
+    stages: [],
   },
 
   // ────────────────────────────────────────────────────────────────────────

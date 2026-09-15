@@ -3,6 +3,7 @@ import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 import EdubigCaseStudy from '@/pages/EdubigCaseStudy';
 import TuxpanCaseStudy from '@/pages/TuxpanCaseStudy';
+import SitemapIneCaseStudy from '@/pages/SitemapIneCaseStudy';
 import MdaDataBar from '@/components/figures/MdaDataBar';
 import { getProjectById, type FigureKey, type Stage } from '@/data/projects';
 
@@ -303,6 +304,10 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
 
   if (project && project.slug === 'ebooks-tuxpan') {
     return <TuxpanCaseStudy onBack={onBack} />;
+  }
+
+  if (project && project.slug === 'sitemap-ine') {
+    return <SitemapIneCaseStudy onBack={onBack} />;
   }
 
   if (!project) {
