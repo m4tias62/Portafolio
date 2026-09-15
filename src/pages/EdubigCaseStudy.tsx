@@ -1,48 +1,505 @@
 import { useEffect, useRef, useState } from 'react';
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
-import carolinaFull from '@/imports/edubig/persona-carolina-full.png';
-import martinFull from '@/imports/edubig/persona-martin-full.png';
-import tomasFull from '@/imports/edubig/persona-tomas-full.png';
-import bocetos from '@/imports/edubig/boceto-traduccion.jpg';
-import logoConstru from '@/imports/edubig/logo-construccion.jpg';
-import ficha1 from '@/imports/edubig/ficha-1.png';
-import ficha2 from '@/imports/edubig/ficha-2.png';
-import portada from '@/imports/edubig/portada.png';
+
+import logo from '@/assets/edubig/logo.png';
+import tarjeta from '@/assets/edubig/tarjeta-colegio.png';
+import bocetoToggle from '@/assets/edubig/boceto-toggle.jpg';
+import formalizacionLogo from '@/assets/edubig/formalizacion-logo.png';
+
+import personaCarolina from '@/assets/edubig/persona-carolina.png';
+import personaMartin from '@/assets/edubig/persona-martin.png';
+import personaTomas from '@/assets/edubig/persona-tomas-francisca.png';
+
+import scHomeLista from '@/assets/edubig/screen-home-lista.jpg';
+import scMapa from '@/assets/edubig/screen-mapa.jpg';
+import scFichaTop from '@/assets/edubig/screen-ficha-top.jpg';
+import scFichaAcademico from '@/assets/edubig/screen-ficha-academico.jpg';
+import scFichaBienestar from '@/assets/edubig/screen-ficha-bienestar.jpg';
+import scQ1 from '@/assets/edubig/screen-q1.jpg';
+import scQ2 from '@/assets/edubig/screen-q2.jpg';
+import scQ3 from '@/assets/edubig/screen-q3.jpg';
+import scQ4 from '@/assets/edubig/screen-q4.jpg';
+import scQ5a from '@/assets/edubig/screen-q5a.jpg';
+import scQ5b from '@/assets/edubig/screen-q5b.jpg';
+import scLoading from '@/assets/edubig/screen-loading.jpg';
+import scShortlist from '@/assets/edubig/screen-shortlist.jpg';
+import scCompTop from '@/assets/edubig/screen-comparacion-top.jpg';
+import scCompCuerpo from '@/assets/edubig/screen-comparacion-cuerpo.jpg';
 
 /**
- * EdubigCaseStudy — case study dedicado de Edubig.
+ * EdubigCaseStudy — case study dedicado de Edubig (rediseñado 2026-09-14).
  *
- * Tiene su propio diseño (más rico que el modelo Stage), pero conserva los
- * elementos mínimos del sistema: NavBar (la pone App), BackButton, la MISMA
- * regla vertical (ProgressBar) que los demás detalles de proyecto, el header
- * `label · categoría · año` + título, y una grilla estable alineada a la
- * izquierda (offset `pl-[188px]`, igual que ProjectDetail). Todo el CSS propio
- * vive bajo `.eb` para no filtrarse al resto del sitio.
+ * Traspasa a React la maqueta que se hizo en Claude Design (`eduBIG Case
+ * Study.dc.html`, auditada en contenido y forma por el usuario). Estructura
+ * editorial en 11 stages numeradas, con figuras enmarcadas (borde asimétrico
+ * 1/4/4/1) y una interacción por pestañas para las tres personas.
+ *
+ * Sistema del portafolio conservado (regla del 2026-09-11): NavBar (la pone
+ * App), BackButton, regla vertical (ProgressBar) y el indent `pl-[188px]` que
+ * usan todos los detalles de proyecto. Fuentes oficiales IBM Plex Mono/Sans
+ * — nombres EXACTOS registrados en `src/index.css`. Todo el CSS propio vive
+ * bajo `.eb` para no filtrarse al resto del sitio.
+ *
+ * Los dos videos del proyecto (pipeline en 16:9, recorrido del Test de Calce
+ * en 9:16) ya viven en `public/` y se cargan aquí en reemplazo de los stubs
+ * de la maqueta.
  */
 
-const PERSONAS = [
-  { img: carolinaFull, name: 'Carolina Muñoz', role: 'La mamá práctica' },
-  { img: martinFull, name: 'Martín Soto', role: 'El estudiante que co-decide' },
-  { img: tomasFull, name: 'Tomás y Francisca', role: 'La pareja investigadora' },
+// ─── DATA ──────────────────────────────────────────────────────────────────
+
+type Persona = {
+  n: string;
+  nombre: string;
+  comuna: string;
+  perfil: string;
+  cita: string;
+  retrato: string;
+  meta: [string, string][];
+  dolores: { dolor: string; sev: string; efecto: string }[];
+  implicaciones: string[];
+};
+
+const PERSONAS: Persona[] = [
+  {
+    n: '01',
+    nombre: 'Carolina Muñoz',
+    comuna: 'Pudahuel',
+    perfil: 'La mamá práctica',
+    retrato: personaCarolina,
+    cita: '«A mí no me vengan con siglas ni números raros que no entiendo; solo necesito saber si el colegio es gratis, si a mi hijo le queda a una pura micro y si va a estar tranquilo sin que nadie me lo ande molestando».',
+    meta: [
+      ['Edad', '36 años'],
+      ['Trabajo', 'Auxiliar de aseo'],
+      ['Familia', 'Madre soltera, 2 hijos (8 y 14)'],
+      ['Equipo', 'Android, sin computador en casa'],
+    ],
+    dolores: [
+      { dolor: 'No entiende el lenguaje técnico: GSE, IDPS, SIMCE y RBD son siglas sin significado para ella.', sev: 'Crítica', efecto: 'Bloquea el uso' },
+      { dolor: 'No tiene computador: toda su navegación es en celular y los portales oficiales no están optimizados para móvil.', sev: 'Crítica', efecto: 'Bloquea el acceso' },
+      { dolor: 'Información fragmentada: comparar dos colegios exige abrir cuatro portales distintos.', sev: 'Alta', efecto: 'Genera abandono' },
+      { dolor: 'Presión de tiempo: el SAE tiene plazos rígidos y no tiene semanas para investigar.', sev: 'Alta', efecto: 'Genera ansiedad' },
+      { dolor: 'Desconfianza de «los números»: sabe que los rankings pueden engañar, pero no tiene herramientas para evaluar por sí misma.', sev: 'Media', efecto: 'Genera inseguridad' },
+    ],
+    implicaciones: [
+      'Lenguaje simple primero, técnico después. Nunca «IDPS: 78»; sí «Bienestar escolar: alto — los estudiantes reportan sentirse seguros y acompañados».',
+      'Filtro de gratuidad como primer nivel, no enterrado en filtros avanzados.',
+      'Mapa como interfaz principal de búsqueda: la proximidad es su criterio número uno y necesita verla espacialmente.',
+    ],
+  },
+  {
+    n: '02',
+    nombre: 'Tomás y Francisca',
+    comuna: 'Providencia',
+    perfil: 'La pareja investigadora',
+    retrato: personaTomas,
+    cita: '«Un ranking general o un puntaje aislado no nos dice nada. Necesitamos comparar datos objetivos en el tiempo frente a colegios equivalentes, para evaluar tanto la exigencia académica como el bienestar socioemocional de nuestra hija».',
+    meta: [
+      ['Edad', '39 y 37 años'],
+      ['Trabajo', 'Ingeniero comercial · psicóloga clínica'],
+      ['Familia', '1 hija (5 años, entrando a 1° básico)'],
+      ['Equipo', 'Alfabetización digital alta; planillas propias'],
+    ],
+    dolores: [
+      { dolor: 'La comparación es manual y agotadora: horas cruzando datos de cuatro fuentes en su propia planilla.', sev: 'Crítica', efecto: 'Es su dolor central' },
+      { dolor: 'Desconfianza de rankings simplistas: han visto listados de «mejores colegios» que contradicen lo que ven en terreno.', sev: 'Alta', efecto: 'Genera escepticismo' },
+      { dolor: 'Incertidumbre de interpretación: Francisca leyó el IDPS, pero no sabe si 72 en clima escolar es bueno para un colegio de ese GSE.', sev: 'Alta', efecto: 'Genera parálisis' },
+      { dolor: 'Tensión de pareja: Tomás se inclina por el mejor SIMCE, Francisca por el mejor IDPS, y no tienen cómo ponderar ambas dimensiones.', sev: 'Alta', efecto: 'Genera ansiedad' },
+    ],
+    implicaciones: [
+      'El comparador es su feature killer: tiene que funcionar impecable para este perfil.',
+      'Etiquetas contextuales obligatorias. «72 en clima escolar» no dice nada; «sobre el promedio de colegios de su mismo GSE» lo cambia todo.',
+      'Link a metodología siempre visible: si no pueden verificar la fuente, no confían — y sin confianza no usan.',
+    ],
+  },
+  {
+    n: '03',
+    nombre: 'Martín Soto',
+    comuna: 'Paine',
+    perfil: 'El estudiante que co-decide',
+    retrato: personaMartin,
+    cita: '«Solo quiero ver desde el teléfono si este colegio de verdad me prepara para sacar buen puntaje en la PAES y si tiene un buen ambiente, sin tener que navegar por páginas complicadas ni leer informes eternos».',
+    meta: [
+      ['Edad', '16 años'],
+      ['Curso', 'Estudiante de III° medio'],
+      ['Familia', 'Vive con su madre y su abuela'],
+      ['Equipo', 'Android, el único dispositivo de la casa'],
+    ],
+    dolores: [
+      { dolor: 'Las plataformas están diseñadas para adultos: el tono y la complejidad lo expulsan. No se siente el usuario esperado.', sev: 'Crítica', efecto: 'Abandona rápido' },
+      { dolor: 'No encuentra rápido lo que le importa: tarda quince minutos en ver resultados PAES en el portal DEMRE.', sev: 'Alta', efecto: 'Genera frustración' },
+      { dolor: 'No tiene con quién hablar de esto: su madre no maneja los datos y el orientador no tiene tiempo.', sev: 'Media', efecto: 'Genera aislamiento' },
+    ],
+    implicaciones: [
+      'Velocidad de carga como requisito, no como optimización: su estándar lo fija TikTok, no el portal del ministerio.',
+      'Módulo PAES arriba en la ficha de colegios de media, no al final.',
+      'Proyecto educativo como identidad, no como documento: «foco en ciencias, taller de robótica, selección de fútbol», no un PDF de veinte páginas.',
+    ],
+  },
 ];
 
-const BRECHA = [
-  { n: 'A. Graham Bell', v: 31 },
-  { n: 'Brasilia', v: 12 },
-  { n: 'Alborada', v: 4 },
-  { n: 'Los Andes', v: -9 },
-  { n: 'San Daniel', v: -24, warn: true },
+const FUENTES: { n: string; nombre: string; detalle: string; tono: string }[] = [
+  { n: '01', nombre: 'Directorio Mineduc', detalle: 'RBD, dependencia, nivel, copago', tono: '#053061' },
+  { n: '02', nombre: 'SIMCE', detalle: 'Agencia de Calidad · 4° y 8° básico', tono: '#2166ac' },
+  { n: '03', nombre: 'IDPS', detalle: 'Cinco dimensiones de desarrollo personal y social', tono: '#2166ac' },
+  { n: '04', nombre: 'Denuncias Supereduc', detalle: 'Materia y estado de tramitación', tono: '#4393c3' },
+  { n: '05', nombre: 'Geolocalización', detalle: 'Distancia real al domicilio', tono: '#4393c3' },
+  { n: '06', nombre: 'PAES', detalle: 'Trayectoria de egreso', tono: '#92c5de' },
 ];
 
-const WELLS: { name: string; rows: [string, number][] }[] = [
-  { name: 'Convivencia', rows: [['colegio', 78], ['similares', 71], ['nacional', 74]] },
-  { name: 'Autoestima', rows: [['colegio', 82], ['similares', 76], ['nacional', 78]] },
+type Capa = {
+  n: string;
+  capa: string;
+  stack: string;
+  modo: string;
+  registro: [string, string][];
+};
+
+const CAPAS: Capa[] = [
+  {
+    n: '01', capa: 'Pipeline de datos', stack: 'Python · Pandas · seis datasets oficiales', modo: 'Modo pedagógico',
+    registro: [
+      ['Dirigí', 'La escritura del código y el orden en que se cruzan los seis datasets.'],
+      ['Generó', 'La explicación del porqué antes del cómo. No entra una línea que no pueda reconstruir solo.'],
+      ['Validé', 'Contra las fuentes oficiales, campo por campo.'],
+    ],
+  },
+  {
+    n: '02', capa: 'Diseño en Figma', stack: 'Wireframes de media y alta fidelidad · Figma con MCP', modo: 'Modo iterativo',
+    registro: [
+      ['Dirigí', 'El criterio y la mejora. Los wireframes de media y alta fidelidad, los estados de cada componente y los recorridos completos quedan cerrados acá, antes de que exista una línea de frontend: este archivo es la especificación.'],
+      ['Generó', 'Wireframes de partida sobre los que trabajo encima. Su valor es la velocidad de iteración, no la propuesta: acortan el costo de descartar una dirección.'],
+      ['Validé', 'Contra los cinco dolores de la investigación, pantalla por pantalla.'],
+    ],
+  },
+  {
+    n: '03', capa: 'Frontend', stack: 'Next.js 14 App Router · Tailwind', modo: 'Modo delegado',
+    registro: [
+      ['Dirigí', 'Reglas de negocio y edge cases: qué pasa cuando un colegio no tiene SIMCE publicado.'],
+      ['Generó', 'La implementación contra especificación.'],
+      ['Validé', 'El recorrido completo, no el componente aislado.'],
+    ],
+  },
+  {
+    n: '04', capa: 'Sistema de diseño', stack: 'tailwind.config.ts · globals.css · web-app/', modo: 'Auditoría',
+    registro: [
+      ['Dirigí', 'El alcance: qué código se audita y contra qué criterio.'],
+      ['Generó', 'La revisión contra WCAG 2.2 AA y los tokens corregidos.'],
+      ['Validé', 'Ratio de contraste y objetivo táctil, uno por uno.'],
+    ],
+  },
 ];
+
+type Eslabon = {
+  n: string;
+  rol: string;
+  frio: string;
+  frioGloss: string;
+  calido: string;
+  calidoGloss: string;
+};
+
+const ESLABONES: Eslabon[] = [
+  {
+    n: '01', rol: 'Origen',
+    frio: 'imparcial', frioGloss: 'El dato no toma partido por ningún colegio: solo registra lo que las seis fuentes oficiales publican.',
+    calido: 'cuidado', calidoGloss: 'La familia no parte de la curiosidad: parte de querer que a su hijo le vaya bien.',
+  },
+  {
+    n: '02', rol: 'Término medio',
+    frio: 'frío', frioGloss: 'Ser imparcial vuelve al dato frío. No consuela, no acompaña, no se adapta a quién pregunta.',
+    calido: 'preocupación', calidoGloss: 'Cuidar vuelve a la familia preocupada. La decisión importa, y eso incomoda.',
+  },
+  {
+    n: '03', rol: 'Resultado',
+    frio: 'honesto', frioGloss: 'Pero un dato frío es un dato honesto: no promete lo que no puede sostener.',
+    calido: 'seguridad', calidoGloss: 'Y una preocupación atendida con un dato honesto termina en seguridad: se puede decidir con esto.',
+  },
+];
+
+type Decision = {
+  n: string;
+  ambito: string;
+  titulo: string;
+  tension: string;
+  resolucion: string;
+  costo: string;
+};
+
+const DECISIONES: Decision[] = [
+  {
+    n: '01', ambito: 'Arquitectura', titulo: 'Acompañar antes que listar',
+    tension: 'Un buscador con filtros asume que la familia ya sabe qué criterios aplicar. La investigación mostró lo contrario: llega sin saber qué preguntar, y una lista de 7.168 colegios filtrable no resuelve eso.',
+    resolucion: 'El CTA primario del home es el Test de Calce, no el buscador. La exploración manual queda bajo «o explora por tu cuenta»: disponible, no primera. El recorrido por defecto termina en una shortlist de tres colegios que calzan, no en resultados.',
+    costo: 'Se antepone un flujo de cinco preguntas a quien solo quería buscar un nombre, y el producto asume la responsabilidad de haber acotado bien.',
+  },
+  {
+    n: '02', ambito: 'Motor', titulo: 'Motor determinístico, no caja negra',
+    tension: 'Un modelo entrenado recomienda mejor en promedio, pero no puede explicar una recomendación concreta a la familia que la recibe.',
+    resolucion: 'Reglas explícitas, ponderaciones públicas y metodología consultable desde la propia recomendación.',
+    costo: 'Se resigna precisión estadística. El sistema no aprende de lo que hacen los usuarios.',
+  },
+  {
+    n: '03', ambito: 'Contexto', titulo: 'Comparación contra grupo GSE',
+    tension: 'Comparar un colegio contra el promedio nacional premia la composición socioeconómica del alumnado y castiga al colegio que trabaja bien en contexto adverso.',
+    resolucion: 'Todo indicador se lee contra colegios de grupo socioeconómico similar. Las etiquetas son Sobre, Similar y Bajo respecto de ese grupo, nunca un ranking absoluto.',
+    costo: 'Desaparece la respuesta simple a «¿cuál es el mejor colegio de Chile?». La pregunta queda sin contestar a propósito.',
+  },
+  {
+    n: '04', ambito: 'Datos', titulo: 'Series IDPS separadas, nunca un score único',
+    tension: 'Clima escolar, autoestima, hábitos y participación miden cosas distintas. Promediarlas produce un número más cómodo y menos cierto.',
+    resolucion: 'Las cuatro dimensiones se muestran como series independientes, cada una contra su grupo GSE. El Test de Calce agrupa en Bienestar y Convivencia solo para ponderar, y aun ahí pregunta dónde poner más peso — nunca cuál descartar.',
+    costo: 'La familia lee cuatro barras donde otros productos muestran una. Más carga de lectura, menos titular.',
+  },
+  {
+    n: '05', ambito: 'Tono', titulo: 'Nota de legitimación',
+    tension: 'El Test de Calce pregunta qué prioriza la familia. Toda pregunta de preferencia implica que hay respuestas mejores que otras, y eso culpabiliza a quien elige distinto.',
+    resolucion: 'Cada resultado del test valida explícitamente la combinación elegida antes de mostrar colegios. No hay perfil incorrecto.',
+    costo: 'Más texto antes del resultado, y el producto renuncia a la autoridad de decirle a la familia qué debería priorizar.',
+  },
+];
+
+type Dim = {
+  nombre: string;
+  que: string;
+  valor: string;
+  delta: string;
+  ancho: string;
+  colapso: string;
+  anchoColapso: string;
+};
+
+const DIMENSIONES: Dim[] = [
+  { nombre: 'Clima escolar', que: 'Convivencia · qué tan respetuosa y segura la sienten', valor: '70', delta: '−5', ancho: '70%', colapso: '75', anchoColapso: '75%' },
+  { nombre: 'Participación', que: 'Convivencia · pertenencia y formación ciudadana', valor: '74', delta: '−4', ancho: '74%', colapso: '78', anchoColapso: '78%' },
+  { nombre: 'Autoestima académica', que: 'Bienestar · confianza y motivación para aprender', valor: '70', delta: '−4', ancho: '70%', colapso: '74', anchoColapso: '74%' },
+  { nombre: 'Hábitos de vida saludable', que: 'Bienestar · alimentación, actividad física, autocuidado', valor: '67', delta: '−5', ancho: '67%', colapso: '72', anchoColapso: '72%' },
+];
+
+const USOS_EJE: { tono: string; estado: string; donde: string }[] = [
+  { tono: '#2166ac', estado: 'Frío · dato sin traducir', donde: 'Card en estado default dentro de la lista general. Todavía no sabe nada de vos.' },
+  { tono: '#d6604d', estado: 'Cálido · en foco', donde: 'Hover sobre la card: cruza al lado cálido porque revela más información que la lista. Era #f4a582 hasta la auditoría de contraste de la stage 08.2' },
+  { tono: '#d6604d', estado: 'Cálido · traducido', donde: 'Cards de la shortlist que devuelve el Test de Calce, armadas contra las necesidades declaradas.' },
+  { tono: '#b2181f', estado: 'Cálido · extremo', donde: 'Isologo y marca. El punto de llegada de la traducción.' },
+];
+
+const USOS_CUAL: { tono: string; estado: string; donde: string }[] = [
+  { tono: '#2f7d32', estado: 'Salud', donde: 'Áreas de carrera de destino de los egresados.' },
+  { tono: '#2b4fc4', estado: 'Ingeniería', donde: 'Misma serie, categoría sin jerarquía respecto de las otras.' },
+  { tono: '#c0392b', estado: 'Cs. Sociales', donde: 'El rojo acá no significa «peor»: significa un área distinta.' },
+  { tono: '#7b52c9', estado: 'Educación', donde: 'Cuarta categoría de la distribución de matrícula.' },
+  { tono: '#5a5a55', estado: 'Otras', donde: 'Agrupa la cola larga de áreas con matrícula menor.' },
+];
+
+type FrameTraduccion = {
+  estado: string;
+  tono: string;
+  url: string;
+  alt: string;
+  recorte: string;
+  nota: string;
+};
+
+const FRAMES_TRAD: FrameTraduccion[] = [
+  {
+    estado: 'Frío · exploración manual', tono: '#2166ac',
+    url: scHomeLista,
+    alt: 'Home mobile con lista de colegios en cards de borde azul',
+    recorte: 'Vista superior · corta tras la primera card',
+    nota: 'La lista general. Cards de borde frío: el colegio está ahí porque vos lo buscaste, no porque el sistema lo eligió para vos.',
+  },
+  {
+    estado: 'Puente · el traductor operando', tono: '#9a9a92',
+    url: scLoading,
+    alt: 'Pantalla de carga con el texto Traduciendo tus respuestas',
+    recorte: 'Pantalla completa',
+    nota: '«Traduciendo tus respuestas… Estamos comparando tus prioridades con los colegios de tu comuna.» El concepto rector como microcopy funcional.',
+  },
+  {
+    estado: 'Cálido · resultado traducido', tono: '#d6604d',
+    url: scShortlist,
+    alt: 'Shortlist de tres colegios que calzan, en cards de borde cálido',
+    recorte: 'Vista superior · corta tras la primera card',
+    nota: 'Misma card, borde cálido y chips de calce. «Estos son los colegios que calzan con tu familia»: el dato ya pasó por las cinco respuestas.',
+  },
+];
+
+type Contraste = {
+  hex: string;
+  uso: string;
+  ratio: string;
+  veredicto: string;
+  marca: string;
+  tintaVeredicto: string;
+};
+
+const CONTRASTE: Contraste[] = [
+  { hex: '#1F1F1F', uso: 'Texto principal de ficha y comparación', ratio: '16,5:1', veredicto: 'AA y AAA', marca: '#3d3d38', tintaVeredicto: '#1a1a18' },
+  { hex: '#b2181f', uso: 'Extremo cálido del eje. Isologo y acentos de texto', ratio: '6,9:1', veredicto: 'AA texto normal', marca: '#3d3d38', tintaVeredicto: '#1a1a18' },
+  { hex: '#0958D9', uso: 'Botones, foco, enlaces', ratio: '6,2:1', veredicto: 'AA texto normal', marca: '#3d3d38', tintaVeredicto: '#1a1a18' },
+  { hex: '#2166ac', uso: 'Extremo frío. Bordes de card en lista y barras de pares', ratio: '5,9:1', veredicto: 'AA texto normal', marca: '#3d3d38', tintaVeredicto: '#1a1a18' },
+  { hex: '#767676', uso: 'Texto secundario, notas de fuente', ratio: '4,6:1', veredicto: 'AA justo. No bajar de 4,5', marca: '#9a9a92', tintaVeredicto: '#1a1a18' },
+  { hex: '#d6604d', uso: 'Cálido medio. Borde de card en shortlist', ratio: '3,7:1', veredicto: 'Solo no textual y texto grande', marca: '#9a9a92', tintaVeredicto: '#1a1a18' },
+  { hex: '#4393c3', uso: 'Frío medio. Barras de visualización', ratio: '3,4:1', veredicto: 'Solo no textual', marca: '#9a9a92', tintaVeredicto: '#1a1a18' },
+  { hex: '#f4a582', uso: 'Cálido claro. Era el borde de card en hover', ratio: '2,0:1', veredicto: 'Falla incluso como no textual', marca: '#b2181f', tintaVeredicto: '#8a1a20' },
+];
+
+type Criterio = {
+  sc: string;
+  nombre: string;
+  estado: string;
+  tinta: string;
+  borde: string;
+  riesgo: string;
+  respuesta: string;
+};
+
+const CRITERIOS: Criterio[] = [
+  {
+    sc: 'SC 1.4.1', nombre: 'Uso del color', estado: 'Corregido', tinta: '#1a1a18', borde: 'rgba(26,26,24,0.34)',
+    riesgo: 'El eje frío–cálido codifica de dónde vino el dato. Si esa es la única señal, quien no distingue azul de rojo pierde la diferencia entre un colegio que encontró navegando y uno que el sistema le trajo.',
+    respuesta: 'La temperatura nunca va sola: la shortlist se anuncia por encabezado («Estos son los colegios que calzan con tu familia») y cada card cálida suma chips de calce que no existen en la lista general.',
+  },
+  {
+    sc: 'SC 1.4.11', nombre: 'Contraste no textual', estado: 'Token retirado', tinta: '#8a1a20', borde: 'rgba(178,24,31,0.44)',
+    riesgo: 'El borde de hover en #f4a582 daba 2,0:1 contra blanco. El estado existía en el sistema y era invisible en la pantalla.',
+    respuesta: 'El hover pasa a #d6604d (3,7:1) y suma elevación, de modo que el cruce a cálido se sostiene sin depender de un tono que no llega al umbral.',
+  },
+  {
+    sc: 'SC 2.5.8', nombre: 'Tamaño del objetivo', estado: 'Cumple', tinta: '#1a1a18', borde: 'rgba(26,26,24,0.34)',
+    riesgo: 'El Test de Calce se responde con una mano, caminando. Opciones chicas o pegadas producen respuestas equivocadas en un cuestionario que después arma la shortlist.',
+    respuesta: 'Las opciones son bloques de ancho completo con 44px de alto mínimo y separación propia. El umbral 2.2 pide 24px: el producto lo duplica porque el error no es cosmético, contamina el resultado.',
+  },
+];
+
+type Screen = { url: string; alt: string; ratio: string; recorte: string; pie: string };
+type Bloque = {
+  n: string;
+  titulo: string;
+  tono: string;
+  vienen: string[];
+  notas: string[];
+  screens: Screen[];
+};
+
+const PRODUCTO: Bloque[] = [
+  {
+    n: '01', titulo: 'Home · lista y mapa', tono: '#2166ac',
+    vienen: ['Decisión 01 · Acompañar antes que listar', 'Carolina · el mapa como interfaz'],
+    notas: [
+      'El CTA primario es el Test de Calce; la exploración manual queda disponible bajo «o explora por tu cuenta». La lista no desaparece, deja de ser la puerta.',
+      'Los chips de filtro nacen fríos y se calientan al seleccionarse: sin filtro el dato es imparcial, con filtro la búsqueda ya se adaptó a una necesidad declarada.',
+      'Lista y mapa son dos vistas del mismo resultado, no dos secciones. Carolina elige por proximidad y necesita verla espacialmente; el mapa es su entrada, la lista es la de quien ya sabe qué comparar.',
+    ],
+    screens: [
+      { url: scHomeLista, alt: 'Home en móvil con lista de colegios y chips de filtro', ratio: '390 / 845', recorte: 'Vista Lista · corta dentro del listado', pie: 'Cards en estado frío: todavía no sabe nada de la familia.' },
+      { url: scMapa, alt: 'Home en móvil, vista Mapa: pines de colegios en Pudahuel con el popup de Escuela Albert Einstein', ratio: '390 / 670', recorte: 'Vista Mapa · mismo set de filtros', pie: 'El toggle Lista / Mapa no cambia de pantalla: cambia de lenguaje sobre los mismos resultados. El pin abre nombre, RBD, comuna y la entrada a la ficha.' },
+    ],
+  },
+  {
+    n: '02', titulo: 'Ficha del colegio', tono: '#2166ac',
+    vienen: ['Decisión 03 · Comparación contra grupo GSE', 'Decisión 04 · Series IDPS separadas', 'Tomás y Francisca · etiquetas contextuales'],
+    notas: [
+      'Módulo Académico: la brecha SIMCE se dibuja en escala fija de ±56 puntos, la misma en todas las fichas. Una escala que se autoajusta hace que una diferencia de 4 puntos se vea igual que una de 40.',
+      'Módulo Bienestar: las tres series —este colegio, colegios similares, promedio nacional— se leen separadas. Colapsarlas en un puntaje habría producido un número más cómodo y menos cierto.',
+    ],
+    screens: [
+      { url: scFichaTop, alt: 'Ficha de colegio en móvil: encabezado y resumen «Lo esencial»', ratio: '390 / 845', recorte: 'Encabezado · Lo esencial', pie: 'Escuela Alexander Graham Bell. El resumen ya trae cada dimensión con su etiqueta de contexto, no un puntaje.' },
+      { url: scFichaAcademico, alt: 'Módulo Académico de la ficha: brechas SIMCE en Lectura y Matemática', ratio: '390 / 845', recorte: 'Módulo Académico · brechas SIMCE', pie: 'Lectura y Matemática en escala fija ±56, con el signo de la brecha visible por curso.' },
+      { url: scFichaBienestar, alt: 'Módulo Bienestar de la ficha: series IDPS separadas', ratio: '390 / 845', recorte: 'Módulo Bienestar · series IDPS', pie: 'Cada dimensión con sus barras separadas: este colegio y colegios similares, nunca un score único.' },
+    ],
+  },
+  {
+    n: '03', titulo: 'Test de Calce · Q1–Q5', tono: '#fddbc7',
+    vienen: ['Decisión 05 · Nota de legitimación', 'SC 2.5.8 · Objetivos de 44px', 'Martín · responder desde el teléfono'],
+    notas: [
+      'La barra de progreso se va calentando a medida que la familia responde: no cuenta cuánto falta, muestra cuánto sabe ya el sistema de esa familia.',
+      'En las preguntas moralmente cargadas —inclusión, prioridad— se aplica la Nota de legitimación: el texto valida explícitamente todas las respuestas posibles antes de dejar avanzar. No hay perfil incorrecto.',
+      'Cada opción es un bloque de ancho completo con 44px de alto mínimo. El umbral WCAG 2.2 pide 24px; acá se duplica porque un toque errado no es cosmético: contamina la shortlist.',
+    ],
+    screens: [
+      { url: scQ1, alt: 'Q1 del Test de Calce: pregunta de copago', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q1 · Copago. El filtro de gratuidad entra primero, no en filtros avanzados.' },
+      { url: scQ2, alt: 'Q2 del Test de Calce: pregunta de inclusión, paso 2', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q2 · Inclusión. Aquí opera la Nota de legitimación.' },
+      { url: scQ3, alt: 'Q3 del Test de Calce: nivel educativo', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q3 · Nivel.' },
+      { url: scQ4, alt: 'Q4 del Test de Calce: distancia al domicilio', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q4 · Distancia. Criterio número uno de Carolina.' },
+      { url: scQ5a, alt: 'Q5 del Test de Calce: prioridad, paso 1', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q5 · Prioridad. Bienestar y Convivencia solo para ponderar.' },
+      { url: scQ5b, alt: 'Q5 paso 2: ponderación de Bienestar', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q5 · Paso 2. Las dimensiones siguen nombradas una por una.' },
+    ],
+  },
+  {
+    n: '04', titulo: 'Traducción y shortlist', tono: '#d6604d',
+    vienen: ['Decisión 02 · Motor determinístico', 'SC 1.4.1 · El color nunca va solo'],
+    notas: [
+      'La espera se llama traducción porque eso es lo que ocurre: reglas explícitas y ponderaciones públicas corriendo sobre las respuestas. No hay modelo que no pueda explicar su resultado.',
+      'Las cards de la shortlist nacen cálidas: el sistema ya conoce a la familia. La temperatura nunca es la única señal — el encabezado lo dice en palabras y cada card suma chips de calce que no existen en la lista general.',
+    ],
+    screens: [
+      { url: scLoading, alt: 'Pantalla de carga: traducción en curso', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Loading · el eje cruza de frío a cálido durante el cálculo.' },
+      { url: scShortlist, alt: 'Shortlist de colegios que calzan con cards de borde cálido', ratio: '390 / 845', recorte: 'Vista superior · corta tras la primera card', pie: 'Shortlist · «Estos son los colegios que calzan con tu familia».' },
+    ],
+  },
+  {
+    n: '05', titulo: 'Comparación', tono: '#b2181f',
+    vienen: ['Tomás y Francisca · el comparador es su feature killer', 'Estado · fuera del MVP'],
+    notas: [
+      'Máximo tres colegios en móvil y cuatro en escritorio. El límite no es técnico: por encima de eso la tabla deja de ser comparable de un vistazo y vuelve al problema que el producto vino a resolver.',
+      'No está en el MVP: es un prototipo para la versión siguiente. La estructura ya está resuelta y se implementa con el nuevo dataset nacional; los campos que se ven acá son los que el schema tiene que garantizar.',
+    ],
+    screens: [
+      { url: scCompTop, alt: 'Comparación en móvil: tres colegios en columnas y resumen esencial', ratio: '390 / 845', recorte: 'Encabezado · tres columnas + Lo esencial', pie: 'Tres colegios, columnas de ancho igual y el toggle «solo diferencias».' },
+      { url: scCompCuerpo, alt: 'Comparación en móvil: cuerpo de la tabla con trayectoria universitaria', ratio: '390 / 845', recorte: 'Cuerpo de tabla · trayectoria universitaria', pie: 'Prototipo: la estructura está resuelta y se implementa con el nuevo dataset.' },
+    ],
+  },
+];
+
+type CapaVal = {
+  n: string;
+  titulo: string;
+  estado: string;
+  tinta: string;
+  borde: string;
+  muestra: string;
+  ancho: string;
+  tono: string;
+  texto: string;
+  porque: string;
+};
+
+const VALIDACION: CapaVal[] = [
+  {
+    n: 'Capa 01', titulo: 'Testeo temprano cerrado', estado: 'Cerrada', tinta: '#1a1a18', borde: 'rgba(26,26,24,0.34)',
+    muestra: '3 familias', ancho: '12%', tono: '#2166ac',
+    texto: 'Tres sesiones tempranas con familias sobre un proto-prototipo que ya no se parece al producto actual. Sirvieron para descartar rumbo, no para validar pantallas.',
+    porque: 'Validar iteraciones intermedias produce ruido —falsos positivos por novedad, falsos negativos por incompletitud— y ese ruido habría contaminado las cinco decisiones fuertes que vinieron después.',
+  },
+  {
+    n: 'Capa 02', titulo: 'Auditoría heurística antes del testeo real', estado: 'En curso', tinta: '#1a1a18', borde: 'rgba(26,26,24,0.34)',
+    muestra: 'Métodos, no personas', ancho: '38%', tono: '#4393c3',
+    texto: 'Contraste y objetivos táctiles cerrados en WCAG 2.2 AA, heurísticas de Nielsen sobre el recorrido completo, arquitectura de información revisada, un solo nombre para cada cosa —«colegios similares» en todas las pantallas— y documentado qué información se muestra de entrada y qué queda un toque más adentro.',
+    porque: 'Lo que un método conocido puede encontrar no se le pregunta a una familia. Hacerle gastar una sesión en un problema que una heurística detecta sola es gastar su tiempo y el mío.',
+  },
+  {
+    n: 'Capa 03', titulo: 'Testeo real al lanzamiento', estado: 'nov-2026', tinta: '#8a1a20', borde: 'rgba(178,24,31,0.44)',
+    muestra: 'Muestra amplia y orgánica', ancho: '100%', tono: '#b2181f',
+    texto: 'La distribución está garantizada: Israel publica sobre educación chilena para una audiencia directa de familias buscando colegio. El lanzamiento es el testeo.',
+    porque: 'La iteración se hace desde uso real y no desde tareas de laboratorio. Testear tarde con distribución real es mejor apuesta que testear temprano con muestra fabricada: es costo-oportunidad, no excusa.',
+  },
+];
+
+type Hito = { fase: string; estado: string; detalle: string; tono: string };
+
+const HITOS: Hito[] = [
+  { fase: 'MVP Pudahuel', estado: 'Hecho', detalle: '57 colegios desplegados en Vercel y diseño móvil terminado. Construido punta a punta, del cruce de datos a la última pantalla.', tono: '#2166ac' },
+  { fase: 'Sistema de diseño', estado: 'Hecho', detalle: 'Tokens corregidos a WCAG 2.2 AA, documento navegable y JSON en formato W3C DTCG.', tono: '#4393c3' },
+  { fase: 'Schema nacional', estado: 'En curso', detalle: '340 campos declarados por prioridad; el dataset de 7.168 colegios se arma con Israel.', tono: '#d6604d' },
+  { fase: 'Publicación', estado: 'nov-2026', detalle: 'Salida como observatorio abierto de trayectorias escolares.', tono: '#b2181f' },
+  { fase: 'Observatorio', estado: 'Después', detalle: 'Crecer y refinarse con uso real, sin esperar a estar perfecto para salir.', tono: '#8a1a20' },
+];
+
+// ─── COMPONENTE ────────────────────────────────────────────────────────────
 
 export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
   const [pi, setPi] = useState(0);
-  const [on, setOn] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const video1Ref = useRef<HTMLVideoElement>(null);
@@ -62,7 +519,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Autoplay al entrar en viewport (silenciado, requisito de los navegadores).
+  // Autoplay al entrar en viewport, silenciado — política de navegadores.
   useEffect(() => {
     const vids = [video1Ref.current, video2Ref.current].filter(Boolean) as HTMLVideoElement[];
     if (!vids.length) return;
@@ -90,8 +547,6 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
   }
 
   const persona = PERSONAS[pi];
-  const next = () => setPi((i) => (i + 1) % PERSONAS.length);
-  const prev = () => setPi((i) => (i - 1 + PERSONAS.length) % PERSONAS.length);
 
   return (
     <div className="eb bg-[#fafaf7] min-h-screen relative">
@@ -106,700 +561,1351 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
       </div>
 
       <div ref={contentRef} className="eb-content">
-        <div style={{ marginBottom: 32 }}>
-          <BackButton onClick={onBack} />
+        <div className="eb-topbar">
+          <BackButton onClick={onBack} label="Volver al listado" />
+          <span className="eb-cat-chip" aria-label="Categoría UX-UI">
+            <span className="eb-cat-dot" />UX-UI
+          </span>
         </div>
 
-        {/* Header — mismo formato que los demás detalles de proyecto */}
-        <header className="eb-flow eb-header">
-          <p className="eyebrow">Proyecto 06 · Product Design · Data-viz · 2026</p>
-          <h1>Edubig</h1>
-          <p className="lead">Un sistema que se traduce en cuidado.</p>
-          <p className="prose">
-            Plataforma abierta de datos escolares para familias chilenas. Traduce cinco fuentes oficiales
-            fragmentadas —Mineduc, SIMCE, IDPS, Supereduc, DEMRE— en una decisión clara, sin caer en el
-            ranking crudo.
-          </p>
+        {/* ─── STAGE 01 · COVER ───────────────────────────────────────── */}
+        <section id="eb-stage-01" className="eb-stage">
+          <StageHead n="01" title="Cover" step="01 / 11" />
+          <div className="eb-cover">
+            <div className="eb-cover-txt">
+              <p className="eb-hook-a">
+                En Chile, cada colegio queda descrito en seis portales oficiales que no dialogan entre sí.
+              </p>
+              <h1 className="eb-hook-b">eduBIG los traduce a una decisión.</h1>
 
-          <div className="eb-cover"><img src={portada} alt="Edubig — portada del proyecto" /></div>
-          <div className="cover-meta" style={{ marginTop: 20 }}>
-              <div><span className="label">Rol</span><span className="val">Producto, diseño, sistema, motor y datos</span></div>
-              <div><span className="label">Equipo</span><span className="val">Dirijo la colaboración: Israel (datos) · Claude (par técnico)</span></div>
-              <div><span className="label">Stack</span><span className="val">Figma · Python · Next.js · Vercel · Claude</span></div>
-              <div><span className="label">Estado</span><span className="val">MVP Pudahuel completo · migración a Chile nacional (7.168 colegios) en curso</span></div>
-            </div>
-          <div className="callout"><p><strong>Design Thinking iterativo:</strong> este case study documenta un ciclo vivo, no un proyecto cerrado. Se re-está construyendo el dataset base para pasar de una comuna a todo el país, y luego testear con familias reales.</p></div>
-        </header>
-
-        {/* SÍNTESIS */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Síntesis</p>
-          <h2>La respuesta primero</h2>
-          <p className="lead prose">Pirámide de Minto, para quien escanea en 60 segundos.</p>
-          <div className="tldr">
-            <div><span className="n">01</span><div><h3>El problema</h3><p>Elegir colegio en Chile obliga a cruzar cinco portales oficiales que no se conectan y a interpretar rankings que correlacionan más con nivel socioeconómico que con calidad pedagógica.</p></div></div>
-            <div><span className="n">02</span><div><h3>La solución</h3><p>Una plataforma nacional con tres promesas al mismo nivel: comparar colegios lado a lado, recomendar vía test de calce, y explorar el universo por métrica con contexto GSE. Motor determinístico y trazable.</p></div></div>
-            <div><span className="n">03</span><div><h3>La postura</h3><p>Anti-ranking. Ningún número aparece sin su contexto GSE: cada colegio se lee contra el promedio de sus similares, no contra el sistema entero. Es una decisión ética defendida con evidencia.</p></div></div>
-          </div>
-        </section>
-
-        {/* CONTEXTO */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Contexto</p>
-          <h2>Cinco portales, cero traducción</h2>
-          <p className="prose">Para entender un colegio hoy, una familia debe cruzar —como mínimo— cinco fuentes oficiales que no dialogan entre sí. La familia hace de integrador manual.</p>
-          <div className="sources">
-            <div className="source"><div className="nm">Mineduc</div><div className="sub">Datos administrativos · directorio nacional</div></div>
-            <div className="source"><div className="nm">SIMCE</div><div className="sub">Rendimiento académico por área</div></div>
-            <div className="source"><div className="nm">IDPS</div><div className="sub">Desarrollo integral · clima, autoestima</div></div>
-            <div className="source"><div className="nm">Supereduc</div><div className="sub">Denuncias y sanciones</div></div>
-            <div className="source"><div className="nm">DEMRE</div><div className="sub">Trayectoria universitaria</div></div>
-          </div>
-          <div className="callout warm"><p>Ninguna fuente se conecta con las otras. Los rankings públicos lo simplifican todo a un número que correlaciona con NSE, no con calidad pedagógica — el propio DEMRE prohíbe usar la PAES para rankear colegios.</p></div>
-        </section>
-
-        {/* ROL & MÉTODO */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Rol y método</p>
-          <h2>Diseñador dirigiendo un equipo colaborativo</h2>
-          <p className="prose">Producto, diseño y sistema son míos. Datos y frontend se ejecutan con colaboradores dirigidos. La complejidad técnica se delega; el criterio, nunca.</p>
-          <div className="grid2">
-            <div className="mini">
-              <span className="label">Qué dirijo y ejecuto</span>
-              <ul className="ticks">
-                <li>Concepto rector, principios y trade-offs de producto</li>
-                <li>Investigación con evidencia secundaria (BID, Agencia de Calidad, benchmark internacional)</li>
-                <li>Sistema de diseño en Figma con tokens propios</li>
-                <li>Motor de scoring determinístico (dos capas)</li>
-                <li>Estructura del pipeline de datos y esquema del dataset</li>
-              </ul>
-            </div>
-            <div className="mini">
-              <span className="label">Con quién colaboro</span>
-              <h3 style={{ marginTop: 12 }}>Israel Rubilar · analista de datos</h3>
-              <p>Coordinador de Análisis Institucional (U. Alberto Hurtado). Cierra el schema del dataset nacional y aporta autoridad reputacional al lanzamiento.</p>
-              <h3 style={{ marginTop: 14 }}>Claude · par técnico dirigido</h3>
-              <p>Acelera la implementación: scripts de Figma, pipeline de datos, frontend en Next.js. Cada decisión de producto pasa por mi juicio y queda en la bitácora.</p>
-            </div>
-          </div>
-          <div className="callout"><p>El red flag no es delegar la ejecución — es delegar el criterio. Ese es el que retengo.</p></div>
-        </section>
-
-        {/* INVESTIGACIÓN · PERSONAS (visor de tus láminas originales) */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Investigación</p>
-          <h2>Personas basadas en evidencia real</h2>
-          <p className="prose">Las personas de Edubig no son inventadas. NN/g advierte que los personas inventados son «prueba poco convincente»: cada dolor, dispositivo y prioridad es trazable a una fuente pública (BID, Agencia de Calidad, estudio SIMCE, benchmark internacional).</p>
-          <div className="evid">
-            <div><div className="es">BID</div><div className="en">Preferencias parentales · admisión centralizada</div><div className="ed">NSE bajo prioriza proximidad y atributos no académicos; NSE alto, calidad y proyecto.</div></div>
-            <div><div className="es">Agencia de Calidad</div><div className="en">Voces de los Apoderados 2018 · n = 590.601</div><div className="ed">55,8% espera carrera universitaria; 77% cree a sus hijos protegidos de violencia.</div></div>
-            <div><div className="es">Estudio SIMCE</div><div className="en">Comprensión de reportes · métodos mixtos</div><div className="ed">La mayoría interpreta mal la información básica, aunque el reporte les parece claro.</div></div>
-            <div><div className="es">Benchmark internacional</div><div className="en">GreatSchools · Niche · Ofsted · ERO</div><div className="ed">Las plataformas exitosas combinan geolocalización + contexto + multidimensionalidad.</div></div>
-          </div>
-
-          <p className="pv-lead">Tres personas, un mismo dato leído a tres profundidades. Recórrelas →</p>
-          <div className="pv">
-            <button
-              type="button"
-              className="pv-frame"
-              onClick={next}
-              aria-label={`${persona.name} — ${persona.role}. Clic para ver las otras ${PERSONAS.length - 1} personas`}
-            >
-              <img src={persona.img} alt={`Persona: ${persona.name} — ${persona.role}`} />
-              <span className="pv-hint" aria-hidden="true">+{PERSONAS.length - 1} · ver las otras personas →</span>
-            </button>
-            <div className="pv-controls">
-              <div className="pv-dots">
-                {PERSONAS.map((p, i) => (
-                  <button key={p.name} className={'pv-dot' + (i === pi ? ' active' : '')} aria-label={`Ver ${p.name}`} aria-current={i === pi} onClick={() => setPi(i)} />
-                ))}
-                <span className="pv-name">{persona.name} · {persona.role} · {pi + 1} / {PERSONAS.length}</span>
+              <div className="eb-filete">
+                <div className="eb-filete-bar" />
+                <div className="eb-filete-row">
+                  <span>Dato frío</span><span>Puente</span><span>Familia</span>
+                </div>
               </div>
-              <div className="pv-nav">
-                <button className="pv-btn" onClick={prev} aria-label="Persona anterior">←</button>
-                <button className="pv-btn" onClick={next} aria-label="Persona siguiente">→</button>
-              </div>
+
+              <p className="eb-lead">
+                Plataforma abierta de datos escolares para familias chilenas. Comparar, recomendar y explorar
+                colegios con el contexto que hace legible cada dato: los indicadores se leen contra colegios
+                parecidos y la metodología queda a la vista. En construcción; lanzamiento apuntado a noviembre
+                de 2026.
+              </p>
+
+              <dl className="eb-meta">
+                <div><dt>Rol</dt><dd>MVP completo — dato, diseño, producto y sistema</dd></div>
+                <div><dt>Colaboración</dt><dd>Israel Rubilar — dataset nacional, desde la fase de escala</dd></div>
+                <div><dt>Estado</dt><dd>En construcción · <span className="mono">nov-2026</span></dd></div>
+                <div><dt>Escala</dt><dd><span className="mono">57</span> colegios validados <span className="arrow">→</span> <span className="mono">7.168</span> en schema</dd></div>
+              </dl>
             </div>
-          </div>
-        </section>
 
-        {/* INSIGHT */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Insight</p>
-          <h2>Diseñar para «el usuario promedio» es diseñar para nadie</h2>
-          <p className="prose">Los tres personas comparten cinco dolores transversales, pero cada uno los sufre distinto. El sistema debe operar en tres registros simultáneos.</p>
-          <div className="pains">
-            <div className="pain"><span className="pn">01</span><div><span className="ph">Gap de comprensión</span><div className="pd">Ver un dato no equivale a entenderlo. Aun con reportes «claros», los padres interpretan mal la información básica.</div></div></div>
-            <div className="pain"><span className="pn">02</span><div><span className="ph">Fragmentación de fuentes</span><div className="pd">Cinco portales que no se conectan. La familia hace de integrador manual.</div></div></div>
-            <div className="pain"><span className="pn">03</span><div><span className="ph">Sesgo de ranking</span><div className="pd">Los listados públicos simplifican calidad a un número que oculta el contexto socioeconómico.</div></div></div>
-            <div className="pain"><span className="pn">04</span><div><span className="ph">Exclusión digital</span><div className="pd">Los portales estatales no funcionan bien en móvil ni en baja alfabetización: excluyen a quien más los necesita.</div></div></div>
-            <div className="pain"><span className="pn">05</span><div><span className="ph">Ansiedad de decisión</span><div className="pd">Elegir colegio se percibe irreversible. Las familias quieren sentirse seguras, no solo informadas.</div></div></div>
-          </div>
-        </section>
-
-        {/* CONCEPTO */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Concepto</p>
-          <h2>Un sistema que se traduce en cuidado</h2>
-          <p className="prose">La traducción es el verbo rector, anclado en el concepto de isomorfismo de Hofstadter: un puente fiel a los dos lados sin aplanar ninguno.</p>
-          <div className="chain3">
-            <div className="cc input"><div className="cch">Dato · input</div><p className="w">Imparcial</p><div className="a">↓</div><p className="w">Frío</p><div className="a">↓</div><p className="w">Honesto</p></div>
-            <div className="cc bridge"><div className="cch">Puente · Edubig</div><p className="w">Accesible</p><div className="a">↓</div><p className="w">Comprensible</p><div className="a">↓</div><p className="w">Informado</p></div>
-            <div className="cc output"><div className="cch">Familia · output</div><p className="w">Cuidado</p><div className="a">↓</div><p className="w">Preocupación</p><div className="a">↓</div><p className="w">Seguridad</p></div>
-          </div>
-          <div className="resolve">Un sistema que se traduce en cuidado</div>
-          <div className="palette">
-            {['#053061', '#2166ac', '#4393c3', '#92c5de', '#d1e5f0', '#f7f7f7', '#fddbc7', '#f4a582', '#d6604d', '#b2181f', '#67001f'].map((c) => (
-              <div key={c} className="p" style={{ background: c }} />
-            ))}
-          </div>
-          <p className="figcap">Escala RdBu (ColorBrewer) como identidad del sistema: frío para el dato imparcial, cálido para el cuidado familiar. El principio anti-ranking se deriva de aquí — una traducción fiel es fiel a los dos lados.</p>
-        </section>
-
-        {/* DEL CONCEPTO AL LOGOTIPO */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Del concepto al logotipo</p>
-          <h2>La traducción, hecha forma</h2>
-          <p className="prose">Si el sistema traduce, la marca debía traducir también. La exploración fue del dato frío al dato cálido, y pasó por el gesto de un <em>toggle switch</em>: el interruptor que enciende la traducción.</p>
-          <div className="logo-beats">
-            <figure className="fig">
-              <div className="frame"><img src={bocetos} alt="Bocetos de exploración del logotipo de Edubig" /></div>
-              <figcaption className="figcap">Bocetos de exploración — del dato frío al dato cálido, del switch ON/OFF a las dos cápsulas.</figcaption>
+            <figure className="eb-fig">
+              <div className="eb-frame eb-frame-logo">
+                <img src={logo} alt="Isologo eduBIG: dos cápsulas superpuestas, 011 en pixel sobre azul y eB sobre rojo" />
+              </div>
+              <figcaption className="eb-fcap">
+                <span className="eb-figlabel">Fig. 01 · Isologo</span>
+                <p>
+                  Dos cápsulas superpuestas dibujadas como los dos estados de un toggle.{' '}
+                  <span className="mono cold">011</span> en Pixelify Sans es el dato tal como sale de la
+                  máquina: frío, binario, ilegible para cualquiera.{' '}
+                  <span className="mono warm">eB</span> en Work Sans es lo que la familia recibe. La forma
+                  del logo es el concepto.
+                </p>
+              </figcaption>
             </figure>
-            <div className="toggle-demo">
-              <span className="label">El gesto, en vivo</span>
-              <button className={'tg' + (on ? ' is-on' : '')} aria-pressed={on} onClick={() => setOn((v) => !v)} aria-label="Alternar dato frío / cálido">
-                <span className="tg-track"><span className="tg-knob">{on ? 'eB' : '011'}</span></span>
-              </button>
-              <div className={'tg-state' + (on ? ' on' : '')}>{on ? 'Dato cálido · traducido' : 'Dato frío · sin traducir'}</div>
-              <p className="figcap" style={{ marginTop: 14 }}>Acciónalo: el mismo gesto de frío a cálido que da forma al isologo — y un guiño al chip de filtro del producto.</p>
+          </div>
+        </section>
+
+        {/* ─── STAGE 02 · LA PREGUNTA ─────────────────────────────────── */}
+        <section id="eb-stage-02" className="eb-stage">
+          <StageHead n="02" title="La pregunta" step="02 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Una familia elige el colegio de su hijo. A su alcance hay seis fuentes oficiales: directorio
+                Mineduc, SIMCE y IDPS de la Agencia de Calidad, denuncias Supereduc, geolocalización, PAES.
+                Casi ninguna familia las abre, y las que lo hacen encuentran datos que nadie les explicó
+                cómo leer.
+              </p>
+              <p className="p-soft">
+                El problema no es la falta de información. Es la distancia entre el dato oficial y la
+                pregunta real de una familia: <em>¿este colegio es un buen lugar para mi hijo?</em>
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">La decisión de eduBIG fue no construir un séptimo portal. Tampoco un ranking. Un traductor.</p>
             </div>
           </div>
-          <figure className="fig" style={{ marginTop: 24 }}>
-            <div className="frame"><img src={logoConstru} alt="Construcción del logotipo de Edubig" /></div>
-            <figcaption className="figcap">De la metáfora a la forma: la retícula del toggle define las dos cápsulas del isologo — 011 en tipo pixel sobre azul frío (el dato), eB en serif sobre coral cálido (la traducción).</figcaption>
-          </figure>
-        </section>
 
-        {/* FRAMING */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Framing</p>
-          <h2>Tres promesas al mismo nivel</h2>
-          <p className="prose">Comparar, recomendar y explorar. Ninguna subordinada a las otras — la línea superior las mantiene en el mismo plano.</p>
-          <div className="promises"><div className="promise-grid">
-            <div className="promise"><div className="dot" /><h3>Comparar</h3><p>Dos o tres colegios lado a lado con semáforo semántico y visualización honesta. La familia entra con nombres y sale con distinciones claras.</p><span className="tag">Módulo comparación · viz cualitativa</span></div>
-            <div className="promise"><div className="dot" /><h3>Recomendar</h3><p>Test de calce Q1–Q5 que devuelve una shortlist por afinidad. Reglas transparentes en dos capas: filtros duros + scoring ponderado.</p><span className="tag">Test de Calce · motor determinístico</span></div>
-            <div className="promise"><div className="dot" /><h3>Explorar</h3><p>Universo ordenable por la métrica que el usuario elige, siempre con contexto GSE. Nunca «top 10 absolutos» — sí «colegios sobre su grupo similar».</p><span className="tag">Exploración libre · contexto GSE</span></div>
-          </div></div>
-        </section>
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-fuentes-grid">
+                <div className="eb-fuentes-col">
+                  <div className="eb-fuentes-line" />
+                  <span className="eb-col-label">Entrada · seis fuentes oficiales</span>
+                  {FUENTES.map((f) => (
+                    <div className="eb-fuente-row" key={f.n}>
+                      <span className="eb-fnum">{f.n}</span>
+                      <span className="eb-fbody">
+                        <span className="eb-fnombre">{f.nombre}</span>
+                        <span className="eb-fdet">{f.detalle}</span>
+                      </span>
+                      <span className="eb-fbar" style={{ background: f.tono }} />
+                    </div>
+                  ))}
+                  <div className="eb-fuentes-end" />
+                </div>
 
-        {/* DECISIONES */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Decisiones de diseño</p>
-          <h2>Tres decisiones de diseño</h2>
-          <p className="prose">Cada una es un rechazo explícito, una elección y un trade-off asumido.</p>
-          {[
-            { k: '01', t: 'Anti-ranking como postura', no: 'El ranking absoluto. Simplifica calidad a un número que correlaciona con NSE; genera ansiedad y distorsiona la decisión.', yes: 'Fit contextual multidimensional: cada colegio se compara solo contra su grupo GSE, en cinco dimensiones separadas (SIMCE + IDPS).', tr: 'Más fricción cognitiva. Se compensa con disclosure progresivo: primero el insight legible, luego el gráfico, después la metodología.' },
-            { k: '02', t: 'Comparar contra pares, no contra el sistema', no: 'Escalas absolutas nacionales, que castigan a los establecimientos vulnerables por su contexto y no por su desempeño real.', yes: 'Gráfico de brecha vs. GSE similar, con escala universal de ±56 puntos (rango real del universo). La lectura vuelve honesta.', tr: 'Grupos de referencia pequeños se vuelven volátiles: se resuelve con una advertencia visible, no ocultando el dato.' },
-            { k: '03', t: 'Motor determinístico, no modelo opaco', no: 'Un modelo de recomendación cerrado. En una decisión de alta carga emocional, la trazabilidad genera confianza; la magia, no.', yes: 'Dos capas de reglas transparentes: filtros duros no-negociables + suma ponderada de cinco dimensiones. Cada recomendación se audita paso a paso.', tr: 'Menos «wow», más responsabilidad: la familia entiende por qué aparece cada colegio.' },
-          ].map((d) => (
-            <div className="decision" key={d.k}>
-              <div className="dhead"><span className="label">Decisión {d.k}</span><h3>{d.t}</h3></div>
-              <div className="drow"><span className="rk no">Rechacé</span><span className="rv">{d.no}</span></div>
-              <div className="drow"><span className="rk yes">Elegí</span><span className="rv">{d.yes}</span></div>
-              <div className="drow"><span className="rk trade">Trade-off</span><span className="rv">{d.tr}</span></div>
-            </div>
-          ))}
-        </section>
-
-        {/* INGENIERÍA DE DATOS */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Ingeniería de datos · co-work con IA</p>
-          <h2>De cuatro fuentes oficiales a un JSON maestro</h2>
-          <p className="prose">El pipeline y el motor de scoring son infraestructura. Los construí dirigiendo a Claude como par técnico: yo defino el esquema y las reglas, la IA acelera la ejecución. Cada paso queda trazado.</p>
-          <figure className="fig">
-            <div className="eb-videoframe wide"><video ref={video1Ref} src="/edubig-proceso-datos.mp4" muted controls playsInline preload="metadata" /></div>
-            <figcaption className="figcap">Video 01 · Ingeniería de datos — proceso de limpieza y unificación de fuentes, mostrando el co-work con IA.</figcaption>
-          </figure>
-          <div className="pipe">
-            <div className="node"><div className="nt">4 fuentes</div><div className="nd">SIMCE · IDPS · denuncias · directorio</div></div>
-            <div className="arw">→</div>
-            <div className="node hi"><div className="nt">Limpieza + normalización</div><div className="nd">Python dirigido · reglas y esquema definidos por mí</div></div>
-            <div className="arw">→</div>
-            <div className="node"><div className="nt">JSON maestro</div><div className="nd">57 colegios · 88 columnas · MVP Pudahuel</div></div>
-          </div>
-          <div className="callout"><p>Expansión en curso: se invirtió el flujo del pipeline — ahora yo entrego la estructura (schema de 340 campos) e Israel rellena el dataset sobre esa forma. Meta: 7.168 colegios de todo Chile sin romper el esquema del sitio en cada iteración.</p></div>
-        </section>
-
-        {/* VISUALIZACIÓN DE DATOS */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Visualización de datos</p>
-          <h2>El sistema de datos se vuelve visible</h2>
-          <p className="prose">La visualización no decora las conclusiones: las sostiene. Cada gráfico es una decisión sobre qué pregunta responde — y qué geometría la responde.</p>
-
-          {/* Brecha SIMCE — dato real de Pudahuel */}
-          <div className="brecha">
-            <div className="brecha-head"><span className="label">Brecha SIMCE · vs. colegios similares (mismo GSE)</span><span className="label">escala universal ±56 pts</span></div>
-            <div className="brecha-rows">
-              {BRECHA.map((r) => (
-                <div className="brow" key={r.n}>
-                  <div className="bname">{r.n}{r.warn && <span className="warnchip">grupo pequeño</span>}</div>
-                  <div className="btrack">
-                    <div className="baxis" />
-                    <div className={'bbar ' + (r.v >= 0 ? 'pos' : 'neg')} style={r.v >= 0 ? { left: '50%', width: (Math.abs(r.v) / 56) * 50 + '%' } : { right: '50%', width: (Math.abs(r.v) / 56) * 50 + '%' }} />
-                    <span className={'bval ' + (r.v >= 0 ? 'pos' : 'neg')} style={r.v >= 0 ? { left: `calc(50% + ${(Math.abs(r.v) / 56) * 50}% + 8px)` } : { right: `calc(50% + ${(Math.abs(r.v) / 56) * 50}% + 8px)` }}>{r.v > 0 ? '+' + r.v : r.v}</span>
+                <div className="eb-fuentes-mid">
+                  <div className="eb-fuentes-conn" />
+                  <div className="eb-fuentes-node">
+                    <img src={logo} alt="Isologo eduBIG" />
                   </div>
                 </div>
-              ))}
+
+                <div className="eb-fuentes-out">
+                  <span className="eb-col-label">Salida · una conclusión legible</span>
+                  <img src={tarjeta} alt="TarjetaColegio de eduBIG: Colegio Alexander Graham Bell, educación pública, básica, a 850 m, con etiquetas gratuito, programa PIE, SIMCE sobre su GSE, convivencia alta y sin denuncias" className="eb-tarjeta" />
+                  <span className="eb-fdet" style={{ maxWidth: 276 }}>Etiquetas contextuales, no puntaje. Comparado contra su grupo GSE; metodología pública.</span>
+                </div>
+              </div>
             </div>
-            <div className="brecha-scale"><span>−56</span><span>−28</span><span>0 · promedio similares</span><span>+28</span><span>+56</span></div>
-            <p className="figcap"><span className="dotlg pos" /> sobre su grupo GSE · <span className="dotlg neg" /> bajo su grupo GSE. El signo del dato manda: verde/mostaza, nunca el coral de identidad.</p>
-          </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 02 · Seis entradas, una salida</span>
+              <p>
+                Las seis fuentes no se suman ni se promedian en un puntaje: se cruzan y salen como la{' '}
+                <span className="mono">TarjetaColegio</span> del producto — <em>SIMCE sobre su GSE</em>,{' '}
+                <em>convivencia alta</em>, <em>a 850 m de tu casa</em>. El nodo del medio no es un motor
+                de ranking: es el punto donde el mismo dato se dice de otra manera.
+              </p>
+            </figcaption>
+          </figure>
+        </section>
 
-          {/* Nota metodológica — por qué ±56 */}
-          <div className="dv-block">
-            <div className="dv-head"><span className="label">Nota metodológica</span><span className="label">por qué ±56</span></div>
-            <h3>La escala no es cosmética</h3>
-            <p>El eje ±56 no es una convención estética: es el rango real observado en el dataset de Pudahuel (57 colegios, 88 variables). Fijar una escala universal permite que dos colegios de comunas distintas se lean con el mismo criterio visual, sin que la brecha «parezca» mayor o menor por el zoom del eje.</p>
-            <p className="figcap">Cuando el eje cambia entre gráficos, el ojo miente — la <em>lie factor</em> de Tufte. Fijar el eje al rango real del universo es la contramedida más simple.</p>
-          </div>
-
-          {/* Decisión de geometría — antes / después */}
-          <div className="dv-block">
-            <div className="dv-head"><span className="label">Decisión de geometría</span><span className="label">iteración descartada · elegida</span></div>
-            <h3>Antes de la brecha: dos líneas paralelas</h3>
-            <p>La primera versión mostraba el puntaje del colegio y el promedio de similares como dos líneas paralelas. Correcto en los datos, incorrecto en la pregunta: obligaba a la familia a hacer la resta mental y a inferir el signo.</p>
-            <div className="dv-compare">
-              <div className="dv-panel">
-                <span className="dv-tag">Descartado</span>
-                <h4>Dos líneas paralelas</h4>
-                <div className="dv-parallel">
-                  <div className="pl-line colegio"><span>colegio</span></div>
-                  <div className="pl-line similares"><span>similares</span></div>
-                  <div className="pl-gap" />
-                </div>
-                <p className="dv-why">El lector ve dos valores. La conclusión —«sobre o bajo su grupo»— queda por hacer.</p>
-              </div>
-              <div className="dv-panel chosen">
-                <span className="dv-tag">Elegido</span>
-                <h4>Barra de brecha</h4>
-                <div className="dv-minigap">
-                  <div className="mg-axis" />
-                  <div className="mg-bar" />
-                  <div className="mg-val">+31</div>
-                  <div className="mg-zero">0 · promedio similares</div>
-                </div>
-                <p className="dv-why">La brecha ES el dato. El signo y la magnitud se leen antes de terminar la frase.</p>
-              </div>
+        {/* ─── STAGE 03 · ROL Y FORMA DE TRABAJAR ─────────────────────── */}
+        <section id="eb-stage-03" className="eb-stage">
+          <StageHead n="03" title="Rol y forma de trabajar" step="03 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Dirección de diseño, producto y sistema — y en el MVP también la ingeniería de datos: lo
+                construí entero yo, del cruce de los seis datasets a la última pantalla. Israel Rubilar,
+                analista institucional que publica sobre educación en Chile con alcance directo a familias,
+                entró después de ver el MVP funcionando: con él decidimos escalar a todo Chile, y desde ahí
+                él construye el dataset nacional sobre la estructura que yo defino.
+              </p>
+              <p className="p-soft">
+                La IA trabaja como colaborador dirigido, no como reemplazo. Lo que le toca hacer cambia en
+                cada capa del proyecto.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">Cada capa registra qué se dirigió, qué se generó y cómo se validó.</p>
             </div>
           </div>
 
-          {/* Bienestar IDPS — escala absoluta */}
-          <div className="dv-block">
-            <div className="dv-head"><span className="label">Bienestar · IDPS</span><span className="label">escala absoluta 0–100</span></div>
-            <h3>Cuando la brecha no es la respuesta</h3>
-            <p>Académico y Bienestar responden preguntas distintas, y por eso usan geometrías distintas. Bienestar compara tres alturas absolutas —colegio, similares, nacional— sobre un eje 0–100. Forzarlo a brecha ocultaría el nivel. La coherencia del sistema no es usar el mismo gráfico: es usar el correcto.</p>
-            <div className="dv-wells">
-              {WELLS.map((g) => (
-                <div className="dv-wellgroup" key={g.name}>
-                  <span className="dv-wname">{g.name}</span>
-                  <div className="dv-wcol">
-                    {g.rows.map(([k, v]) => (
-                      <div className="dv-well" key={k}>
-                        <div className="dv-wtrack"><div className={'dv-wfill ' + k} style={{ width: v + '%' }} /></div>
-                        <span className="dv-wv">{v}</span>
+          <figure className="eb-fig">
+            <div className="eb-frame" style={{ padding: '8px 34px 34px' }}>
+              {CAPAS.map((c) => (
+                <div className="eb-capa-row" key={c.n}>
+                  <div className="eb-capa-l">
+                    <div className="eb-capa-head">
+                      <span className="mono small">{c.n}</span>
+                      <span className="eb-capa-name">{c.capa}</span>
+                    </div>
+                    <span className="eb-capa-stack">{c.stack}</span>
+                    <span className="eb-capa-modo">{c.modo}</span>
+                  </div>
+                  <div className="eb-capa-r">
+                    {c.registro.map(([k, v]) => (
+                      <div className="eb-capa-reg" key={k}>
+                        <span className="eb-reg-k">{k}</span>
+                        <span className="eb-reg-v">{v}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               ))}
             </div>
-            <div className="dv-welllegend"><span className="lg colegio">colegio</span><span className="lg similares">similares</span><span className="lg nacional">nacional</span></div>
-            <p className="figcap">Tres valores explícitos, sin resta mental. La escala 0–100 es intrínseca al indicador; no se universaliza porque no hace falta. Datos ilustrativos del patrón.</p>
-          </div>
-
-          {/* Grupo GSE — contra quién se compara */}
-          <div className="dv-block">
-            <div className="dv-head"><span className="label">Contra quién se compara</span><span className="label">grupo de referencia · GSE</span></div>
-            <h3>El «+31» es contra un grupo, no contra todos</h3>
-            <p>Cada brecha tiene un peer group detrás. Volverlo visible es lo que sostiene el sistema anti-ranking: el mismo colegio puede estar sobre su grupo y aún lejos del máximo nacional — y eso no es contradicción, es la lectura correcta.</p>
-            <div className="dv-gse">
-              <div>
-                <div className="dv-gsemap">
-                  <div className="gse-band" />
-                  <span className="gse-dot" style={{ left: '22%', top: '60%' }} />
-                  <span className="gse-dot" style={{ left: '34%', top: '52%' }} />
-                  <span className="gse-dot" style={{ left: '46%', top: '65%' }} />
-                  <span className="gse-dot" style={{ left: '58%', top: '48%' }} />
-                  <span className="gse-dot focus" style={{ left: '78%', top: '42%' }} />
-                  <span className="gse-lab" style={{ left: '78%', top: '14%' }}>Graham Bell</span>
-                  <span className="gse-lab sub" style={{ left: '40%', top: '86%' }}>18 colegios similares</span>
-                </div>
-                <p className="figcap">Grupo estable: 18 pares del mismo GSE. La brecha +31 se lee con confianza.</p>
-              </div>
-              <div>
-                <div className="dv-gsemap small">
-                  <div className="gse-warn">Grupo pequeño (n = 4): la brecha se muestra con menor peso visual y una advertencia explícita — el promedio de similares es menos estable.</div>
-                </div>
-                <p className="figcap">Caso San Daniel: cuando el peer group es chico, el signo puede oscilar. El sistema no lo oculta — lo señala.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Regla de carriles de color */}
-          <div className="dv-block">
-            <div className="dv-head"><span className="label">Reglas de color en dato</span><span className="label">el RdBu vive en identidad, no aquí</span></div>
-            <h3>Un color, un carril</h3>
-            <p>El azul-rojo de identidad (ver Concepto) no aparece en los gráficos. Los datos viven en dos carriles: verde/mostaza para dirección respecto al grupo, y una serie categórica cuando hay que distinguir sin jerarquía. Nunca se cruzan.</p>
-            <div className="dv-lanes">
-              <div className="dv-lane">
-                <span className="label">Semántico · dirección</span>
-                <div className="dv-sw"><div style={{ background: '#388e3c' }} /><div style={{ background: '#a08828' }} /></div>
-                <p>Verde #388e3c: sobre el grupo. Mostaza #a08828: bajo el grupo. El naranjo se descartó — se leía como pariente del coral de identidad.</p>
-              </div>
-              <div className="dv-lane">
-                <span className="label">Categórico · series</span>
-                <div className="dv-sw five"><div style={{ background: '#6929c4' }} /><div style={{ background: '#009d9a' }} /><div style={{ background: '#d3354f' }} /><div style={{ background: '#4a62d1' }} /><div style={{ background: '#a56eff' }} /></div>
-                <p>Se excluyeron el rojo (pariente del coral) y un verde que colisiona con «sobre el grupo». Sin orden, sin jerarquía.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="callout"><p>Contraste verificado numéricamente (WCAG 2.2 AA, mínimo 5.74:1). Redundancia 1.4.1: el color nunca codifica juicio solo — elevación, borde y label textual comunican en paralelo.</p></div>
-        </section>
-
-        {/* EL PRODUCTO EN USO */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">El producto en uso</p>
-          <h2>Test de Calce, ficha y comparación de colegios</h2>
-          <p className="prose">El producto es que una madre entienda cinco dimensiones sin ser experta en política educativa. El Test de Calce y la ficha del colegio ya funcionan sobre datos reales; la comparación de colegios lado a lado está diseñada pero aún sin sustento de datos — es el siguiente paso del ciclo.</p>
-          {/* Flujo real del MVP — video + los patrones que lo sostienen */}
-          <div className="use-grid">
-            <figure className="fig">
-              <div className="mk-box"><video ref={video2Ref} className="mk-media" src="/edubig-navegacion-mvp.mp4" autoPlay muted loop playsInline preload="metadata" /></div>
-              <figcaption className="figcap">Video 02 · Recorrido del MVP — el Test de Calce y la ficha del colegio en uso, sobre datos reales.</figcaption>
-            </figure>
-            <div className="patterns">
-              <span className="label">Patrones contra el sesgo de deseabilidad social</span>
-              <h3>Auto-advance</h3><p>Sin botón «Continuar»: la respuesta es la acción.</p>
-              <h3>Nota de legitimación</h3><p>Bloque neutral que valida todas las respuestas en preguntas de alto riesgo de deseabilidad social.</p>
-              <h3>Reencuadre lingüístico</h3><p>«Importar» (valor moral) → «necesitar/preferir» (necesidad práctica).</p>
-              <h3>Ficha · disclosure progresivo</h3><p>Cuatro módulos en orden fijo (Seguridad → Bienestar → Académico → Trayectoria U.) para hacer comparable cada colegio.</p>
-            </div>
-          </div>
-
-          {/* Comparar colegios — prototipo (sin datos aún), las dos pantallas en un mismo lienzo */}
-          <div className="proto-head">
-            <h3>Comparar colegios</h3>
-            <span className="mk-tag">Prototipo · datos en proceso</span>
-          </div>
-          <p className="prose" style={{ marginTop: 4 }}>La comparación lado a lado está diseñada pero aún sin sustento de datos — es el siguiente paso del ciclo.</p>
-          <figure className="fig" style={{ marginTop: 18 }}>
-            <div className="proto-box">
-              <img src={ficha1} alt="Comparar colegios (prototipo, sin datos reales aún) — dimensiones lado a lado y trayectoria" />
-              <img src={ficha2} alt="Comparar colegios (prototipo, sin datos reales aún) — universidades de destino y áreas de carrera" />
-            </div>
-            <figcaption className="figcap">Dimensiones lado a lado · trayectoria universitaria y áreas de carrera de destino.</figcaption>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 03 · Cuatro capas, cuatro modos de dirigir</span>
+              <p>
+                El modo no es una preferencia de trabajo: lo fija cuánto costaría equivocarse en esa capa.
+                Un error en el pipeline ensucia el dato de 7.168 colegios y llega hasta la ficha; un error
+                de frontend se ve y se corrige en el momento. En Figma la IA sirve para tirar wireframes de
+                arranque y descartar caminos sin gastar mucho, pero el diseño que queda es el que trabajé
+                encima — y es ese archivo el que implementa el frontend, no una descripción. La capa de
+                sistema es la única donde la IA revisa mi trabajo y no al revés: de ahí sale la auditoría
+                de la <span className="mono">08.2</span>.
+              </p>
+            </figcaption>
           </figure>
         </section>
 
-        {/* ESTADO */}
-        <section className="eb-flow sec">
-          <p className="eyebrow">Estado del proyecto</p>
-          <h2>MVP validado · camino a lo nacional</h2>
-          <p className="prose">Honestidad sobre qué está probado, qué falta y cuál es el camino. Design Thinking es iterativo: este es el ciclo en el que estoy hoy.</p>
-          <div className="grid2">
-            <div className="mini">
-              <span className="label">Lo validado en el MVP</span>
-              <ul className="checklist">
-                <li>Motor de scoring recorrido end-to-end con los tres perfiles sobre 57 colegios.</li>
-                <li>Auditoría de UX writing en la ficha con heurísticas de Nielsen.</li>
-                <li>Verificación WCAG 2.2 AA con cálculo numérico de contraste.</li>
-                <li>Sistema de color reorganizado en tres carriles sin colisiones.</li>
-              </ul>
+        {/* ─── STAGE 04 · INVESTIGACIÓN ───────────────────────────────── */}
+        <section id="eb-stage-04" className="eb-stage">
+          <StageHead n="04" title="Investigación" step="04 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Tres personas construidas sobre evidencia: informes del BID, datos de la Agencia de Calidad
+                y denuncias de la Supereduc. Ninguna salió de mi cabeza.
+              </p>
+              <p className="p-soft">
+                De las tres aparecen cinco dolores que se repiten. El más grave no es de usabilidad ni de
+                acceso: es de idioma.
+              </p>
             </div>
-            <div className="mini warm-mini">
-              <span className="label">El gap principal</span>
-              <p>Aún no hay testing con familias reales. Sin al menos una ronda documentada, el case study se lee como «concepto bonito» y no como trabajo listo para producir. Es la pieza que hoy decide contrataciones en Product Design — y la próxima del ciclo.</p>
+            <div className="eb-two-r">
+              <p className="eb-pull">El dato existe, pero no habla el idioma de la decisión familiar.</p>
             </div>
           </div>
-          <h3 style={{ marginTop: 26 }}>Roadmap inmediato</h3>
-          <div className="roadmap">
-            <div className="rmi"><span className="rmn">01</span><div><h3>Cerrar el schema con Israel</h3><p>Planilla de 340 campos entregada; en revisión colaborativa hasta cerrar el dataset de 7.168 colegios.</p></div></div>
-            <div className="rmi"><span className="rmn">02</span><div><h3>Migrar el frontend al schema nacional</h3><p>Adaptar lib/data y lib/types en Next.js. Recalibrar el motor del quiz con el universo nuevo.</p></div></div>
-            <div className="rmi"><span className="rmn">03</span><div><h3>Testear con 5–8 familias</h3><p>Tareas reales sobre el prototipo. Hallazgos por severidad + iteraciones antes/después.</p></div></div>
+
+          <figure className="eb-fig">
+            <div className="eb-frame" style={{ padding: '26px 30px 30px' }}>
+              <div className="eb-persona-tabs" role="tablist" aria-label="Personas">
+                {PERSONAS.map((p, i) => (
+                  <button
+                    key={p.n}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === pi}
+                    onClick={() => setPi(i)}
+                    className={'eb-persona-tab' + (i === pi ? ' is-active' : '')}
+                  >
+                    <span className="eb-persona-tabn">{p.n}</span>
+                    <span className="eb-persona-tabnombre">{p.nombre}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="eb-persona-body">
+                <div className="eb-persona-l">
+                  <div
+                    role="img"
+                    aria-label={`Retrato de persona: ${persona.nombre}`}
+                    className="eb-persona-retrato"
+                    style={{ backgroundImage: `url(${persona.retrato})` }}
+                  />
+                  <dl className="eb-persona-meta">
+                    {persona.meta.map(([k, v]) => (
+                      <div key={k}>
+                        <dt>{k}</dt><dd>{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+
+                <div className="eb-persona-r">
+                  <div className="eb-persona-title">
+                    <span className="mono uc small dim">{persona.comuna} · {persona.perfil}</span>
+                    <h3>{persona.nombre}</h3>
+                  </div>
+
+                  <blockquote className="eb-persona-quote">
+                    <p>{persona.cita}</p>
+                  </blockquote>
+
+                  <div className="eb-persona-dolores">
+                    <div className="eb-dolor-head">
+                      <span>Dolor</span><span>Severidad</span>
+                    </div>
+                    {persona.dolores.map((d, i) => (
+                      <div className="eb-dolor-row" key={i}>
+                        <span className="eb-dolor-txt">{d.dolor}</span>
+                        <span className="eb-dolor-sev">
+                          <span className="eb-dolor-sev-n">{d.sev}</span>
+                          <span className="eb-dolor-efecto">{d.efecto}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="eb-persona-implic">
+                    <span className="mono uc small dim">Implicaciones para el diseño</span>
+                    {persona.implicaciones.map((i, k) => (
+                      <div className="eb-implic-row" key={k}>
+                        <span className="eb-implic-dot" />
+                        <span>{i}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 04 · Tres personas, una card intercambiable</span>
+              <p>
+                Cada dolor viene con severidad y con el efecto que produce, porque eso es lo que ordenó
+                la prioridad: los dos críticos de Carolina — no entiende las siglas, no tiene computador —
+                son los que fijaron mobile-first y lenguaje simple antes que cualquier funcionalidad.
+                Carolina y Francisca llegan al mismo requisito desde extremos opuestos del eje
+                socioeconómico: una no puede leer un puntaje, la otra no confía en uno sin contexto. Las
+                dos piden lo mismo — comparación contra colegios equivalentes — y esa coincidencia es la
+                que sostiene las decisiones 1 y 4.
+              </p>
+            </figcaption>
+          </figure>
+        </section>
+
+        {/* ─── STAGE 05 · CONCEPTO RECTOR ─────────────────────────────── */}
+        <section id="eb-stage-05" className="eb-stage">
+          <StageHead n="05" title="Concepto rector" step="05 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                El concepto rector es <strong>un sistema que se traduce en cuidado.</strong>
+              </p>
+              <p className="p-soft">
+                Su base es una idea de Hofstadter en <em>Gödel, Escher, Bach</em>: una traducción es fiel
+                cuando conserva la estructura de lo que traduce, aunque cambie por completo el material.
+                En eduBIG eso se ve en dos cadenas de tres pasos que tienen la misma forma, una del lado
+                del dato y otra del lado de la familia.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">
+                eduBIG es el puente: conserva la estructura del dato y cambia el material por algo que
+                una familia puede usar.
+              </p>
+            </div>
+          </div>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-eslab-head">
+                <span>
+                  <span className="mono uc small">Dato</span>
+                  <span className="eb-eslab-sub">Cadena fría</span>
+                </span>
+                <span className="eb-eslab-mid">
+                  <span className="mono uc small">Puente</span>
+                  <span className="eb-eslab-sub">Posición</span>
+                </span>
+                <span>
+                  <span className="mono uc small">Familia</span>
+                  <span className="eb-eslab-sub">Cadena cálida</span>
+                </span>
+              </div>
+              {ESLABONES.map((e) => (
+                <div className="eb-eslab-row" key={e.n}>
+                  <div className="eb-eslab-cold">
+                    <span className="eb-eslab-key">{e.frio}</span>
+                    <span className="eb-eslab-gloss">{e.frioGloss}</span>
+                  </div>
+                  <div className="eb-eslab-mid-col">
+                    <span className="mono small dim">{e.n}</span>
+                    <span className="eb-eslab-line" />
+                    <span className="eb-eslab-rol">{e.rol}</span>
+                  </div>
+                  <div className="eb-eslab-warm">
+                    <span className="eb-eslab-key">{e.calido}</span>
+                    <span className="eb-eslab-gloss">{e.calidoGloss}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 05 · Dos cadenas, la misma estructura</span>
+              <p>
+                Las dos cadenas se leen en paralelo porque tienen la misma forma, no porque signifiquen lo
+                mismo: tres eslabones, un origen, un término medio incómodo y un resultado. Eso es lo que
+                la traducción preserva. La posición 2 es la prueba: <em>frío</em> y <em>preocupación</em>{' '}
+                son los dos eslabones que un producto amable borraría, y son justamente los que sostienen{' '}
+                <em>honesto</em> y <em>seguridad</em>.
+              </p>
+            </figcaption>
+          </figure>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-logo-beat">
+                <span className="mono uc small dim">01 · Boceto</span>
+                <div className="eb-logo-box"><img src={bocetoToggle} alt="Board manuscrito del proceso: traducción de dato frío a dato cálido, bocetos de toggle" /></div>
+                <p className="eb-logo-desc">
+                  El board parte de <em>dato frío → dato cálido</em> y llega a la pregunta anotada al
+                  margen: «¿toggles, switches?». La metáfora no se buscó para el logo; apareció buscando
+                  cómo dibujar la traducción, y trae ya el vocabulario entero — la paleta frío→cálido como
+                  puente, el <em>switch off</em> como dato crudo, el <em>on</em> como dato traducido.
+                </p>
+              </div>
+
+              <div className="eb-logo-beat divider">
+                <span className="mono uc small dim">02 · Formalización</span>
+                <div className="eb-logo-box"><img src={formalizacionLogo} alt="Formalización del logo: retícula de construcción del toggle en estados ON y OFF junto al isologo resultante" /></div>
+                <p className="eb-logo-desc">
+                  El toggle real se desarma en retícula: dos estados, un radio, un eje. La marca hereda
+                  esa construcción exacta — misma cápsula, mismo círculo desplazado, mismas tangentes —
+                  en lugar de imitar su apariencia. A la derecha, la retícula vacía y el isologo ocupando
+                  el mismo lugar que ocupaba el control.
+                </p>
+              </div>
+
+              <div className="eb-logo-final">
+                <div className="eb-logo-final-box"><img src={logo} alt="Isologo eduBIG final" /></div>
+                <div className="eb-logo-final-txt">
+                  <span className="mono uc small dim">03 · Isologo</span>
+                  <p>
+                    Dos cápsulas superpuestas: <span className="mono cold">011</span> en Pixelify Sans es
+                    lenguaje de máquina — el grado cero del dato — y{' '}
+                    <span className="mono warm">eB</span> en Work Sans es lo que la familia recibe. El
+                    gradiente entre ambas no es un efecto: es el eje RdBu completo, el mismo que después
+                    ordena los módulos del producto.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 06 · Del gesto a la marca</span>
+              <p>
+                El isologo no ilustra el concepto: lo ejecuta. Un toggle es el único objeto de interfaz
+                cuyo significado es exactamente «el mismo sistema, dos estados», que es la definición
+                operativa de una traducción fiel — cambia el material, se preserva la estructura. Por eso
+                el binario queda en la cápsula fría y la sigla legible en la cálida, y no al revés. La
+                forma del logo es el concepto.
+              </p>
+            </figcaption>
+          </figure>
+        </section>
+
+        {/* ─── STAGE 06 · CINCO DECISIONES ────────────────────────────── */}
+        <section id="eb-stage-06" className="eb-stage">
+          <StageHead n="06" title="Cinco decisiones" step="06 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Cinco decisiones de diseño, cada una con su tensión, su resolución y su costo. Ninguna es
+                gratis: las cinco renuncian a algo que un producto más vendible conservaría.
+              </p>
+              <p className="p-soft">
+                Las cinco derivan del mismo criterio: cuando la legibilidad y la honestidad entran en
+                conflicto, gana la honestidad — pero la carga de hacerla legible es del producto, no de
+                la familia.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">Un producto sin costos declarados no tomó decisiones: tomó defaults.</p>
+            </div>
+          </div>
+
+          <div className="eb-decisiones">
+            {DECISIONES.map((d) => (
+              <div className="eb-decision" key={d.n}>
+                <div className="eb-dec-l">
+                  <div className="eb-dec-head">
+                    <span className="mono small dim">{d.n}</span>
+                    <h3>{d.titulo}</h3>
+                  </div>
+                  <span className="eb-dec-tag">{d.ambito}</span>
+                </div>
+                <div className="eb-dec-r">
+                  <div className="eb-dec-row">
+                    <span className="eb-dec-k dim">Tensión</span>
+                    <span className="eb-dec-v soft">{d.tension}</span>
+                  </div>
+                  <div className="eb-dec-row hilite">
+                    <span className="eb-dec-k">Resolución</span>
+                    <span className="eb-dec-v">{d.resolucion}</span>
+                  </div>
+                  <div className="eb-dec-row hilite">
+                    <span className="eb-dec-k warn">Costo</span>
+                    <span className="eb-dec-v soft">{d.costo}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-dim-head">
+                <span className="mono uc small">Dimensión IDPS</span>
+                <span className="mono uc small">Colegios similares</span>
+                <span className="mono uc small">Graham Bell · 8° básico</span>
+              </div>
+              {DIMENSIONES.map((s) => (
+                <div className="eb-dim-row" key={s.nombre}>
+                  <span className="eb-dim-name">
+                    <span className="mono">{s.nombre}</span>
+                    <span className="eb-dim-que">{s.que}</span>
+                  </span>
+                  <span className="eb-dim-bar">
+                    <span className="eb-dim-fill grey" style={{ width: s.anchoColapso }} />
+                    <span className="mono small dim">{s.colapso}</span>
+                  </span>
+                  <span className="eb-dim-bar">
+                    <span className="eb-dim-fill dark" style={{ width: s.ancho }} />
+                    <span className="mono small">{s.valor}</span>
+                    <span className="mono small dim">{s.delta}</span>
+                  </span>
+                </div>
+              ))}
+              <div className="eb-dim-total">
+                <span className="eb-dim-total-l">Colapsado en un score único</span>
+                <span className="eb-dim-bar"><span className="eb-dim-fill grey" style={{ width: '74.8%' }} /><span className="mono small dim">74,8</span></span>
+                <span className="eb-dim-bar"><span className="eb-dim-fill grey" style={{ width: '70.3%' }} /><span className="mono small dim">70,3</span></span>
+              </div>
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 07 · Por qué las cuatro series no se promedian</span>
+              <p>
+                Datos reales de la ficha de Graham Bell, IDPS 8° básico 2025 preliminar. Colapsadas, las
+                cuatro dimensiones dan <span className="mono">70,3</span> contra{' '}
+                <span className="mono">74,8</span> de sus pares: «algo bajo», y nada más. Separadas se
+                ve lo que el promedio no puede decir: las cuatro brechas son casi idénticas —{' '}
+                <span className="mono">−5, −4, −4, −5</span> —, o sea un colegio parejo un poco por
+                debajo de sus pares, no uno con un área hundida. Ese mismo{' '}
+                <span className="mono">70,3</span> lo produciría también un colegio con tres dimensiones
+                altas y una colapsada, que para una familia es una decisión completamente distinta. Las
+                barras van en tinta neutra a propósito: acá el color no codifica nada, y el eje frío–cálido
+                está reservado para otra pregunta.
+              </p>
+            </figcaption>
+          </figure>
+        </section>
+
+        {/* ─── STAGE 07 · INGENIERÍA DEL DATO ─────────────────────────── */}
+        <section id="eb-stage-07" className="eb-stage">
+          <StageHead n="07" title="Ingeniería del dato" step="07 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Un pipeline en Python y Pandas cruza los seis datasets oficiales en un{' '}
+                <strong>único JSON maestro.</strong> El MVP lo construí yo entero: el cruce, el JSON, el
+                diseño y el producto. 57 colegios de Pudahuel, punta a punta.
+              </p>
+              <p className="p-soft">
+                Israel entró después, al ver el MVP funcionando. En esa reunión decidimos escalarlo a todo
+                Chile — 7.168 colegios de básica — y ahí aparece el nuevo dataset nacional. El cambio de
+                escala es lo que obliga a cambiar de método.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">
+                Definir el schema es diseño: decide qué se va a poder decir de un colegio antes de que
+                exista el dato.
+              </p>
+            </div>
+          </div>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-scale">
+                <div className="eb-scale-col">
+                  <span className="mono uc small dim">MVP · una persona, 57 colegios</span>
+                  <span className="eb-scale-title">El dato y el diseño en la misma cabeza</span>
+                  <span className="eb-scale-desc">Cruzar los datasets a mano funcionaba porque quien los cruzaba era quien dibujaba la ficha. No había contrato que escribir: el schema vivía en mi cabeza y cambiaba conmigo.</span>
+                </div>
+                <div className="eb-scale-col warm">
+                  <span className="mono uc small dim">Escala · dos personas, 7.168 colegios</span>
+                  <span className="eb-scale-title">eduBIG declara 340 campos, Israel los rellena</span>
+                  <span className="eb-scale-desc">A escala nacional el dato ya no lo levanto yo, así que el schema tiene que estar escrito y priorizado antes de pedirlo. El contrato reemplaza a la coordinación informal.</span>
+                </div>
+              </div>
+
+              <div className="eb-p-grid">
+                <div className="eb-p-col" style={{ borderTop: '3px solid #2166ac' }}>
+                  <span className="mono">P0</span>
+                  <span>Sin esto no hay ficha: RBD, dependencia, copago, nivel, ubicación.</span>
+                </div>
+                <div className="eb-p-col" style={{ borderTop: '3px solid #4393c3' }}>
+                  <span className="mono">P1</span>
+                  <span>Sin esto no hay traducción: series SIMCE e IDPS contra grupo GSE.</span>
+                </div>
+                <div className="eb-p-col" style={{ borderTop: '3px solid #d1e5f0' }}>
+                  <span className="mono">P2</span>
+                  <span>Enriquecen la ficha cuando estén: PAES, proyecto educativo, talleres.</span>
+                </div>
+              </div>
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 08 · Del MVP a la escala nacional</span>
+              <p>
+                La prioridad no ordena el pedido por comodidad: ordena qué puede prometer el producto en
+                cada etapa. P0 habilita la ficha, P1 habilita el Test de Calce — sin series contra grupo
+                GSE no hay calce que calcular — y P2 es todo lo que puede faltar sin que la decisión de la
+                familia se degrade. Escribir esa jerarquía fue posible porque el MVP ya había hecho el
+                recorrido completo a mano.
+              </p>
+            </figcaption>
+          </figure>
+
+          <figure className="eb-fig">
+            <div className="eb-videoframe">
+              <video ref={video1Ref} src="/edubig-proceso-datos.mp4" muted controls playsInline preload="metadata" />
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 09 · El co-work sobre el pipeline</span>
+              <p>
+                En el video se ve cómo trabajé el pipeline junto a la IA: yo decido qué dato se cruza con
+                qué y en qué orden, la IA escribe el código, y después reviso cada resultado contra la
+                fuente oficial. Si un campo queda mal cruzado se nota enseguida en la ficha del colegio,
+                así que el error sale a la superficie y se arregla barato. Por eso acá puedo delegar la
+                escritura sin delegar la decisión.
+              </p>
+            </figcaption>
+          </figure>
+        </section>
+
+        {/* ─── STAGE 08 · INFRAESTRUCTURA Y ACCESIBILIDAD ─────────────── */}
+        <section id="eb-stage-08" className="eb-stage">
+          <StageHead n="08" title="Infraestructura y accesibilidad" step="08 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Migrar al schema nacional depende del nuevo dataset, que se está armando y tiene su propio
+                calendario. <strong>Esa ventana de espera es el momento correcto</strong> para hacer el
+                trabajo de sistema que antes no correspondía.
+              </p>
+              <p className="p-soft">
+                El diseño se había hecho en Figma como un dibujo: componentes mínimos, criterios repetidos
+                por convención, sin sistema formalizado. Formalizarlo antes de saber si la propuesta
+                resistía habría sido inversión prematura. El MVP ya la validó.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">
+                Se entrega de dos formas: un documento navegable para leerlo y un JSON en formato W3C DTCG
+                para volver a Figma con Tokens Studio.
+              </p>
+            </div>
+          </div>
+
+          {/* 08.1 · Las dos paletas */}
+          <div className="eb-substage">
+            <span className="mono small uc bold">08.1 · Las dos paletas</span>
+          </div>
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                El sistema tiene dos paletas y no se mezclan. La primera viene de RdBu (ColorBrewer) y no
+                clasifica colegios: dice <strong>en qué punto de la traducción está lo que estás
+                mirando.</strong> Frío es dato crudo; cálido es dato ya traducido a lo que la familia
+                necesita.
+              </p>
+              <p className="p-soft">
+                La segunda es para gráficos de categorías que no tienen orden: universidades de destino,
+                áreas de carrera, niveles Alto / Medio / Bajo. Si usáramos el eje frío–cálido ahí, estaría
+                diciendo algo que no es cierto.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">
+                La temperatura no es un estilo: es una variable con significado, y por eso tiene prohibido
+                usarse para otra cosa.
+              </p>
+            </div>
+          </div>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-pals">
+                <div className="eb-pal-col">
+                  <div className="eb-pal-title">
+                    <span className="mono uc small">Paleta 01 · Eje de traducción</span>
+                    <span className="eb-pal-sub">RdBu — ColorBrewer. Ordinal y con dirección.</span>
+                  </div>
+                  <div className="eb-pal-bar" style={{ background: 'linear-gradient(90deg,#053061,#2166ac,#4393c3,#d1e5f0,#f7f7f7,#fddbc7,#f4a582,#d6604d,#b2181f)' }} />
+                  <div className="eb-pal-list">
+                    {USOS_EJE.map((u, i) => (
+                      <div className="eb-pal-row" key={i}>
+                        <span className="eb-pal-swatch" style={{ background: u.tono }} />
+                        <span className="eb-pal-txt">
+                          <span>{u.estado}</span>
+                          <span className="dim">{u.donde}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="eb-pal-col">
+                  <div className="eb-pal-title">
+                    <span className="mono uc small">Paleta 02 · Visualización cualitativa</span>
+                    <span className="eb-pal-sub">Categórica: sin orden ni dirección. Los tonos están tomados de los frames y todavía faltan fijarlos como token.</span>
+                  </div>
+                  <div className="eb-pal-bar-cat">
+                    <span style={{ background: '#2f7d32' }} />
+                    <span style={{ background: '#2b4fc4' }} />
+                    <span style={{ background: '#c0392b' }} />
+                    <span style={{ background: '#7b52c9' }} />
+                    <span style={{ background: '#5a5a55' }} />
+                  </div>
+                  <div className="eb-pal-list">
+                    {USOS_CUAL.map((u, i) => (
+                      <div className="eb-pal-row" key={i}>
+                        <span className="eb-pal-swatch" style={{ background: u.tono }} />
+                        <span className="eb-pal-txt">
+                          <span>{u.estado}</span>
+                          <span className="dim">{u.donde}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="eb-pal-rules">
+                <div>
+                  <span className="mono uc small dim">Regla única</span>
+                  <span>Si el color responde «¿qué tan traducido está esto?», es RdBu. Si responde «¿cuál de estos es?», es cualitativa.</span>
+                </div>
+                <div>
+                  <span className="mono uc small dim">Interactivo</span>
+                  <span><span className="mono" style={{ color: '#0958D9' }}>#0958D9</span> queda fuera de ambas. Es affordance, no significado: botón, foco, enlace.</span>
+                </div>
+                <div>
+                  <span className="mono uc small dim">Tercer encoding</span>
+                  <span>Las chips Alto / Medio / Bajo de la comparación usan verde–ámbar–rojo, que es semántica de evaluación y no pertenece a ninguna de las dos paletas.</span>
+                </div>
+              </div>
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 10 · Dos paletas, dos preguntas distintas</span>
+              <p>
+                Separarlas no es purismo: es lo que permite que el eje frío–cálido siga significando algo.
+                Si las chips de comparación usaran RdBu, un colegio «Bajo» se leería como un dato más
+                traducido en vez de como una categoría, y el único recurso que carga el concepto rector
+                quedaría gastado en clasificar.
+              </p>
+            </figcaption>
+          </figure>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-frames-trad">
+                {FRAMES_TRAD.map((f, i) => (
+                  <div className="eb-frame-t" key={i}>
+                    <div className="eb-frame-t-head">
+                      <span className="eb-frame-t-dot" style={{ background: f.tono }} />
+                      <span className="mono uc small">{f.estado}</span>
+                    </div>
+                    <div
+                      role="img"
+                      aria-label={f.alt}
+                      className="eb-frame-t-img"
+                      style={{ backgroundImage: `url(${f.url})` }}
+                    />
+                    <span className="mono uc small dim">{f.recorte}</span>
+                    <p className="eb-frame-t-nota">{f.nota}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 11 · La misma card, dos temperaturas</span>
+              <p>
+                La prueba de que el eje es estado y no estilo: es el mismo componente de card en las dos
+                puntas, y su temperatura cambia sola con el origen del dato. Frío cuando lo encontraste
+                vos navegando una lista; cálido cuando el sistema lo trajo para tu familia — y recién ahí
+                aparecen las chips de calce y las acciones, porque hay contra qué contrastarlo. En el
+                medio, la pantalla de espera dice literalmente <em>Traduciendo tus respuestas</em> — el
+                concepto rector no aparece en un manifiesto sino en el microcopy de un loader.
+              </p>
+            </figcaption>
+          </figure>
+
+          {/* 08.2 · Auditoría WCAG */}
+          <div className="eb-substage">
+            <span className="mono small uc bold">08.2 · Auditoría WCAG 2.2 AA</span>
+          </div>
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Revisé los colores del producto contra WCAG 2.2 AA. Es la única parte del proyecto donde
+                la IA revisa mi trabajo y no al revés: yo definí qué se auditaba, ella pasó el criterio
+                por cada token y después verifiqué los ratios uno por uno.
+              </p>
+              <p className="p-soft">
+                Carolina decide desde el teléfono, con datos móviles, en la calle. Un contraste que falla
+                no es una infracción formal: es un dato que no se lee.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">
+                La auditoría encontró dos tokens que el propio sistema usaba mal. Los dos son cálidos.
+              </p>
+            </div>
+          </div>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-contraste-head">
+                <span className="mono uc small">Token</span>
+                <span className="mono uc small">Uso en el producto</span>
+                <span className="mono uc small right">Ratio</span>
+                <span className="mono uc small">Veredicto</span>
+              </div>
+              {CONTRASTE.map((c) => (
+                <div className="eb-contraste-row" key={c.hex}>
+                  <span className="eb-contraste-hex">
+                    <span className="eb-contraste-chip" style={{ background: c.hex }} />
+                    <span className="mono small">{c.hex}</span>
+                  </span>
+                  <span className="eb-contraste-uso">{c.uso}</span>
+                  <span className="mono right">{c.ratio}</span>
+                  <span className="eb-contraste-verd">
+                    <span className="eb-contraste-dot" style={{ background: c.marca }} />
+                    <span style={{ color: c.tintaVeredicto }}>{c.veredicto}</span>
+                  </span>
+                </div>
+              ))}
+              <span className="eb-contraste-nota">
+                Ratios calculados contra <span className="mono small">#FFFFFF</span>, superficie real de
+                card y ficha. Umbrales WCAG 2.2: 4,5:1 texto normal · 3:1 texto grande y elementos no
+                textuales.
+              </span>
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 12 · Auditoría de contraste sobre los tokens</span>
+              <p>
+                El hallazgo incómodo: el lado cálido del eje es el más débil.{' '}
+                <span className="mono">#f4a582</span> no alcanza ni el umbral no textual, y era exactamente
+                el token del borde en hover — el estado que la <span className="mono">08.1</span> presenta,
+                más arriba en esta misma stage, como el momento en que el dato cruza a cálido. El concepto
+                rector dependía de un contraste que no existía.
+              </p>
+            </figcaption>
+          </figure>
+
+          <div className="eb-criterios">
+            {CRITERIOS.map((k) => (
+              <div className="eb-criterio" key={k.sc}>
+                <div className="eb-crit-l">
+                  <span className="mono small dim">{k.sc}</span>
+                  <span className="eb-crit-name">{k.nombre}</span>
+                  <span
+                    className="eb-crit-tag"
+                    style={{ color: k.tinta, borderColor: k.borde }}
+                  >{k.estado}</span>
+                </div>
+                <div className="eb-crit-r">
+                  <div className="eb-crit-row">
+                    <span className="eb-crit-k dim">Riesgo</span>
+                    <span className="eb-crit-v soft">{k.riesgo}</span>
+                  </div>
+                  <div className="eb-crit-row hilite">
+                    <span className="eb-crit-k">Respuesta</span>
+                    <span className="eb-crit-v">{k.respuesta}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
-        <div className="eb-flow eb-end"><span className="label">Edubig · Case study · Matías Cáceres · 2026</span></div>
+        {/* ─── STAGE 09 · EL PRODUCTO ─────────────────────────────────── */}
+        <section id="eb-stage-09" className="eb-stage">
+          <StageHead n="09" title="El producto" step="09 / 11" />
+          <div className="eb-prod-intro">
+            <figure className="eb-fig eb-prod-video">
+              <div className="eb-videoframe">
+                <video ref={video2Ref} src="/edubig-navegacion-mvp.mp4" muted controls playsInline preload="metadata" />
+              </div>
+              <figcaption className="mono uc small dim">Fig. 13 · El recorrido completo, en movimiento</figcaption>
+            </figure>
+            <div className="eb-prod-intro-txt">
+              <p className="p-strong">
+                Las pantallas se recorren en <strong>orden narrativo, no por menú.</strong>
+              </p>
+              <p className="p-soft">
+                Al margen de cada una queda anotada la decisión de las stages anteriores que ahí se vuelve
+                visible. Sin esa anotación el screen no prueba nada: es una captura.
+              </p>
+              <div className="eb-recorrido">
+                <span className="mono uc small dim">Recorrido por defecto</span>
+                <span className="eb-recorrido-line">Home → Test de Calce → Traducción → Shortlist → Ficha</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="eb-producto">
+            {PRODUCTO.map((b) => (
+              <div className="eb-prod-row" key={b.n}>
+                <div className="eb-prod-l">
+                  <div className="eb-prod-head">
+                    <span className="mono small dim">{b.n}</span>
+                    <span className="eb-prod-title">{b.titulo}</span>
+                  </div>
+                  <div className="eb-prod-tono" style={{ background: b.tono }} />
+                  <div className="eb-prod-vienen">
+                    <span className="mono uc small dim">Acá se manifiesta</span>
+                    <div className="eb-prod-chips">
+                      {b.vienen.map((v, i) => <span className="eb-prod-chip" key={i}>{v}</span>)}
+                    </div>
+                  </div>
+                  <div className="eb-prod-notas">
+                    {b.notas.map((n, i) => <p key={i}>{n}</p>)}
+                  </div>
+                </div>
+
+                <div className="eb-prod-r">
+                  <div className="eb-frame" style={{ padding: 26 }}>
+                    <div className="eb-screens">
+                      {b.screens.map((s, i) => (
+                        <figure className="eb-screen" key={i}>
+                          <div
+                            role="img"
+                            aria-label={s.alt}
+                            className="eb-screen-img"
+                            style={{ backgroundImage: `url(${s.url})`, aspectRatio: s.ratio }}
+                          />
+                          <span className="mono uc small dim">{s.recorte}</span>
+                          <figcaption>{s.pie}</figcaption>
+                        </figure>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mono small dim eb-prod-footnote">
+            Fig. 14 · Pantallas del producto en construcción, en ventanas recortadas a 390×845.
+          </p>
+        </section>
+
+        {/* ─── STAGE 10 · MÉTODO DE VALIDACIÓN ────────────────────────── */}
+        <section id="eb-stage-10" className="eb-stage">
+          <StageHead n="10" title="Método de validación" step="10 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                La estrategia de validación es <strong>una decisión de secuencia, no una omisión.</strong>
+              </p>
+              <p className="p-soft">
+                Tres capas, y cada una responde una pregunta distinta. La discusión no es cuánto se testó:
+                es en qué orden conviene gastar la atención de una familia que está eligiendo colegio en
+                plazos del SAE.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">
+                Testear tarde con distribución real es mejor apuesta que testear temprano con muestra
+                fabricada.
+              </p>
+            </div>
+          </div>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              {VALIDACION.map((c) => (
+                <div className="eb-val-row" key={c.n}>
+                  <div className="eb-val-l">
+                    <span className="mono uc small dim">{c.n}</span>
+                    <span className="eb-val-title">{c.titulo}</span>
+                    <span className="eb-val-tag" style={{ color: c.tinta, borderColor: c.borde }}>{c.estado}</span>
+                    <div className="eb-val-scale">
+                      <span className="eb-val-bar" style={{ width: c.ancho, background: c.tono }} />
+                      <span className="mono small dim">{c.muestra}</span>
+                    </div>
+                  </div>
+                  <div className="eb-val-r">
+                    <p className="eb-val-txt">{c.texto}</p>
+                    <div className="eb-val-porque">
+                      <span className="mono uc small dim">Por qué</span>
+                      <span className="soft">{c.porque}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 15 · Tres capas, muestra creciente</span>
+              <p>
+                La barra crece porque la muestra crece, y crece justo donde el producto ya aguanta ser
+                mirado. Las dos primeras capas existen para que la tercera no gaste su muestra en encontrar
+                lo que un método conocido encuentra gratis.
+              </p>
+            </figcaption>
+          </figure>
+        </section>
+
+        {/* ─── STAGE 11 · ESTADO Y HORIZONTE ──────────────────────────── */}
+        <section id="eb-stage-11" className="eb-stage last">
+          <StageHead n="11" title="Estado y horizonte" step="11 / 11" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Hoy: diseño terminado en móvil, MVP desplegado con 57 colegios de Pudahuel, sistema de
+                diseño formalizado y deck de portafolio cerrado en 19 slides. Los módulos de comparación
+                avanzan como prototipo.
+              </p>
+              <p className="p-soft">
+                Lo próximo: cerrar el schema nacional, migrar el pipeline y los tipos de datos, publicar
+                como observatorio abierto de trayectorias escolares.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">
+                El sitio nace con la premisa de crecer y refinarse después del lanzamiento, no de esperar
+                a estar perfecto para salir.
+              </p>
+            </div>
+          </div>
+
+          <figure className="eb-fig">
+            <div className="eb-frame">
+              <div className="eb-timeline-bar" />
+              <div className="eb-timeline">
+                {HITOS.map((h) => (
+                  <div className="eb-hito" key={h.fase}>
+                    <span className="eb-hito-dot" style={{ background: h.tono }} />
+                    <span className="eb-hito-fase">{h.fase}</span>
+                    <span className="mono uc small dim">{h.estado}</span>
+                    <span className="eb-hito-det">{h.detalle}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <figcaption className="eb-fcap">
+              <span className="eb-figlabel">Fig. 16 · De Pudahuel al observatorio</span>
+              <p>
+                La línea de tiempo corre sobre el mismo eje frío→cálido que ordena el producto: empieza
+                en el dato crudo de 57 colegios y termina en un observatorio que devuelve trayectorias
+                a las familias. La escala cambia; la traducción es la misma.
+              </p>
+            </figcaption>
+          </figure>
+
+          <p className="eb-cierre">
+            eduBIG no es un producto terminado. Es un sistema que aprende a traducir.
+          </p>
+        </section>
       </div>
     </div>
   );
 }
 
-const CSS = `
-.eb{color:var(--eb-strong);
-  --eb-bg:#fafaf7;--eb-surface:#f2f1ec;--eb-surface-2:#ebeae4;--eb-border:#dcdbd5;--eb-border-soft:#ebeae4;--eb-faint:#8a8a85;--eb-medium:#3a3a38;--eb-strong:#0f0f0e;--eb-accent:#5f8f5f;--eb-accent-deep:#456b45;--eb-rdbu-01:#053061;--eb-rdbu-02:#2166ac;--eb-rdbu-09:#d6604d;--eb-exito:#1e6a2e;--eb-advert:#8a6d00;--eb-data-pos:#388e3c;--eb-data-neg:#a08828;--eb-data-neutral:#c8c6bd;
-  --eb-mono:'IBM Plex Mono:Regular',ui-monospace,Menlo,monospace;--eb-mono-med:'IBM Plex Mono:Medium','IBM Plex Mono:Regular',ui-monospace,Menlo,monospace;--eb-sans:'IBM Plex Sans:Regular',system-ui,-apple-system,sans-serif;--eb-max:1000px;}
-.eb *{box-sizing:border-box;}
-.eb .eb-content{padding:48px 80px 48px 188px;}
-@media(max-width:900px){.eb .eb-content{padding:32px 24px;}}
-.eb .eb-flow{max-width:var(--eb-max);}
-.eb .eb-header{padding-bottom:8px;}
-.eb .sec{max-width:var(--eb-max);padding:56px 0;border-top:1px solid var(--eb-border-soft);margin-top:8px;}
-.eb .eyebrow{font-family:var(--eb-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--eb-accent-deep);margin:0 0 18px;display:flex;align-items:center;gap:10px;}
-.eb .eyebrow::before{content:"";width:22px;height:1px;background:var(--eb-accent);}
-.eb h1{font-family:var(--eb-mono);font-weight:400;font-size:clamp(28px,2.6vw,40px);line-height:1.1;margin:0;}
-.eb h2{font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(24px,3.4vw,32px);line-height:1.12;letter-spacing:-.01em;margin:0 0 10px;}
-.eb h3{font-family:var(--eb-mono-med);font-weight:500;font-size:18px;line-height:1.25;margin:0 0 6px;}
-.eb .lead{font-family:var(--eb-sans);font-size:20px;line-height:1.5;color:var(--eb-medium);margin:14px 0 6px;}
-.eb p{font-family:var(--eb-sans);font-size:16px;line-height:1.62;color:var(--eb-medium);margin:0 0 16px;}
-.eb p:last-child{margin-bottom:0;}
-.eb .prose{max-width:66ch;}
-.eb strong{color:var(--eb-strong);font-weight:600;}
-.eb em{font-style:italic;}
-.eb .label{font-family:var(--eb-mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--eb-faint);}
-.eb .figcap{font-family:var(--eb-mono);font-size:11.5px;letter-spacing:.03em;color:var(--eb-faint);margin-top:14px;line-height:1.5;max-width:66ch;}
-.eb .brecha .figcap{margin-top:22px;}
-.eb .dv-block .figcap{margin-top:18px;}
-.eb .fig{margin:0;}
-.eb .frame{border:1px solid var(--eb-medium);border-width:1px 4px 4px 1px;border-radius:3px;background:#fff;overflow:hidden;}
-.eb .frame img{display:block;width:100%;height:auto;}
+// ─── PIEZAS AUXILIARES ────────────────────────────────────────────────────
 
-/* mockups de teléfono: los PNG ya traen su marco → sin caja, transparentes, mismo alto */
-.eb .eb-phone{display:block;height:auto;max-height:560px;width:auto;max-width:100%;}
-.eb .eb-cover{margin-top:26px;border:1px solid var(--eb-border);border-radius:6px;overflow:hidden;}
-.eb .eb-cover img{display:block;width:100%;height:auto;}
-.eb .cover-meta{flex:1;min-width:300px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;}
-.eb .cover-meta>div{background:#fff;padding:16px 18px;}
-.eb .cover-meta .label{margin-bottom:7px;display:block;}
-.eb .cover-meta .val{font-family:var(--eb-sans);font-size:14.5px;line-height:1.35;color:var(--eb-strong);}
-.eb .patterns-block{margin-top:16px;}
-.eb .patterns-block>.label{display:block;margin-bottom:14px;}
-.eb .patterns-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 30px;}
-.eb .patterns-grid h3{margin:0 0 4px;}
-.eb .patterns-grid p{margin:0;font-size:14px;}
-.eb .eb-mockups{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:26px;align-items:start;}
-.eb .mk{margin:0;}
-.eb .mk-box{background:#fff;border:1px solid var(--eb-border);border-radius:16px;padding:14px;aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.eb .mk-media{width:100%;height:100%;object-fit:contain;display:block;border-radius:8px;}
-.eb .mk-tag{display:inline-block;font-family:var(--eb-mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--eb-advert);border:1px solid var(--eb-advert);border-radius:100px;padding:2px 9px;margin-right:8px;vertical-align:1px;}
-.eb .proto-head{display:flex;align-items:center;gap:12px;margin-top:44px;}
-.eb .proto-head h3{margin:0;}
-.eb .proto-box{background:#fff;border:1px solid var(--eb-border);border-radius:18px;padding:28px 26px;display:flex;gap:34px;justify-content:center;align-items:center;flex-wrap:wrap;}
-.eb .proto-box img{height:auto;max-height:600px;width:auto;max-width:46%;display:block;border-radius:8px;}
-
-/* videos */
-.eb .eb-videoframe{overflow:hidden;background:var(--eb-surface);}
-.eb .eb-videoframe.wide{aspect-ratio:16/9;border:1px solid var(--eb-medium);border-width:1px 4px 4px 1px;border-radius:4px;background:#0f0f0e;}
-.eb .eb-videoframe.wide video{width:100%;height:100%;object-fit:cover;display:block;}
-.eb .eb-videoframe.tall{width:260px;aspect-ratio:9/16;border-radius:30px;border:1px solid var(--eb-border);background:var(--eb-surface);flex:none;}
-.eb .eb-videoframe.tall video{width:100%;height:100%;object-fit:cover;display:block;}
-
-.eb .callout{border:none;background:none;border-radius:0;padding:16px 0 0;margin-top:30px;max-width:var(--eb-max);display:grid;grid-template-columns:120px 1fr;gap:26px;border-top:1px solid var(--eb-border);}
-.eb .callout::before{content:"Nota";font-family:var(--eb-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--eb-faint);padding-top:3px;}
-.eb .callout.warm::before{content:"Advertencia";color:var(--eb-advert);}
-.eb .callout p{margin:0;font-size:14.5px;line-height:1.62;color:var(--eb-medium);}
-.eb .callout p strong{color:var(--eb-strong);}
-.eb .tldr{display:grid;gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:14px;}
-.eb .tldr>div{background:#fff;padding:22px 24px;display:grid;grid-template-columns:38px 1fr;gap:16px;align-items:start;}
-.eb .tldr .n{font-family:var(--eb-mono);font-size:13px;color:var(--eb-faint);padding-top:3px;}
-.eb .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:14px;}
-.eb .mini{border:1px solid var(--eb-border);border-radius:3px;padding:20px 22px;background:#fff;}
-.eb .mini.warm-mini{border-left:3px solid var(--eb-rdbu-09);}
-.eb .mini .label{display:block;margin-bottom:12px;}
-.eb ul.ticks,.eb ul.checklist{list-style:none;padding:0;margin:0;}
-.eb ul.ticks li,.eb ul.checklist li{position:relative;padding-left:24px;margin-bottom:10px;font-family:var(--eb-sans);font-size:15px;color:var(--eb-medium);line-height:1.45;}
-.eb ul.ticks li::before{content:"";position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:50%;background:var(--eb-accent);}
-.eb ul.checklist li::before{content:"";position:absolute;left:0;top:3px;width:14px;height:14px;border:1.5px solid var(--eb-exito);border-radius:3px;background:linear-gradient(45deg,transparent 45%,var(--eb-exito) 45%,var(--eb-exito) 55%,transparent 55%),linear-gradient(-45deg,transparent 45%,var(--eb-exito) 45%,var(--eb-exito) 55%,transparent 55%);}
-.eb .sources{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px;}
-.eb .source{border:1px solid var(--eb-border);border-radius:3px;padding:14px 12px;background:#fff;}
-.eb .source .nm{font-family:var(--eb-mono);font-size:14px;color:var(--eb-strong);margin-bottom:5px;}
-.eb .source .sub{font-family:var(--eb-sans);font-size:12px;line-height:1.35;color:var(--eb-faint);}
-.eb .evid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:14px;}
-.eb .evid>div{background:#fff;padding:18px 20px;}
-.eb .evid .es{font-family:var(--eb-mono);font-size:13.5px;color:var(--eb-strong);margin-bottom:4px;}
-.eb .evid .en{font-family:var(--eb-mono);font-size:11px;color:var(--eb-faint);margin-bottom:8px;}
-.eb .evid .ed{font-family:var(--eb-sans);font-size:13.5px;line-height:1.45;color:var(--eb-medium);}
-.eb .pv-lead{font-family:var(--eb-mono);font-size:13px;color:var(--eb-accent-deep);margin:22px 0 0;}
-.eb .pv{margin-top:12px;}
-.eb .pv-frame{position:relative;display:block;width:100%;padding:0;border:1px solid var(--eb-border);border-radius:4px;overflow:hidden;background:#fff;cursor:pointer;}
-.eb .pv-frame img{display:block;width:100%;height:auto;transition:transform .5s ease;}
-.eb .pv-frame:hover img,.eb .pv-frame:focus-visible img{transform:scale(1.015);}
-.eb .pv-frame:focus-visible{outline:2px solid var(--eb-strong);outline-offset:2px;}
-.eb .pv-hint{position:absolute;right:14px;bottom:14px;background:rgba(15,15,14,.88);color:#fff;padding:8px 15px;border-radius:100px;font-family:var(--eb-mono);font-size:12px;letter-spacing:.02em;opacity:0;transform:translateY(8px);transition:opacity .3s ease,transform .3s ease;pointer-events:none;}
-.eb .pv-frame:hover .pv-hint,.eb .pv-frame:focus-visible .pv-hint{opacity:1;transform:translateY(0);}
-.eb .pv-controls{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:12px;flex-wrap:wrap;}
-.eb .pv-dots{display:flex;gap:8px;align-items:center;}
-.eb .pv-dot{width:9px;height:9px;border-radius:50%;background:var(--eb-border);border:1px solid var(--eb-border);padding:0;cursor:pointer;}
-.eb .pv-dot.active{background:var(--eb-accent);border-color:var(--eb-accent);}
-.eb .pv-name{font-family:var(--eb-mono);font-size:12px;color:var(--eb-faint);margin-left:4px;}
-.eb .pv-nav{display:flex;gap:8px;}
-.eb .pv-btn{font-family:var(--eb-mono);font-size:15px;line-height:1;border:1px solid var(--eb-medium);border-width:1px 3px 3px 1px;background:#fff;border-radius:2px;padding:7px 13px;cursor:pointer;color:var(--eb-medium);}
-.eb .pv-btn:hover{color:var(--eb-strong);}
-.eb .pains{display:grid;margin-top:14px;border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;}
-.eb .pain{display:grid;grid-template-columns:34px 1fr;gap:16px;padding:15px 20px;border-top:1px solid var(--eb-border-soft);background:#fff;}
-.eb .pain:first-child{border-top:none;}
-.eb .pain .pn{font-family:var(--eb-mono);font-size:12px;color:var(--eb-faint);padding-top:2px;}
-.eb .pain .ph{font-family:var(--eb-mono);font-size:14px;color:var(--eb-strong);}
-.eb .pain .pd{font-family:var(--eb-sans);font-size:13.5px;color:var(--eb-medium);line-height:1.45;}
-.eb .chain3{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--eb-border);border-radius:4px 4px 0 0;overflow:hidden;margin-top:14px;}
-.eb .chain3 .cc{padding:24px 18px;text-align:center;border-left:1px solid rgba(255,255,255,.5);}
-.eb .chain3 .cc:first-child{border-left:none;}
-.eb .chain3 .cc.input{background:linear-gradient(180deg,#eef5f9,#e3eef5);}
-.eb .chain3 .cc.bridge{background:#fbfbf9;}
-.eb .chain3 .cc.output{background:linear-gradient(180deg,#fbeee9,#f7e1d9);}
-.eb .chain3 .cch{font-family:var(--eb-mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;margin-bottom:16px;}
-.eb .chain3 .input .cch{color:var(--eb-rdbu-01);}
-.eb .chain3 .bridge .cch{color:var(--eb-strong);}
-.eb .chain3 .output .cch{color:var(--eb-rdbu-09);}
-.eb .chain3 .w{font-family:var(--eb-mono);font-size:15px;color:var(--eb-strong);margin:0;}
-.eb .chain3 .a{color:var(--eb-faint);font-size:12px;margin:5px 0;}
-.eb .resolve{background:var(--eb-strong);color:var(--eb-bg);text-align:center;padding:20px;border-radius:0 0 4px 4px;font-family:var(--eb-mono);font-weight:500;font-size:clamp(16px,2.6vw,22px);letter-spacing:-.01em;}
-.eb .palette{display:flex;border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:18px;}
-.eb .palette .p{flex:1;height:40px;}
-.eb .logo-beats{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:stretch;margin-top:14px;}
-.eb .toggle-demo{border:none;background:none;padding:8px 0;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.eb .toggle-demo .label{margin-bottom:18px;}
-.eb .tg{border:none;background:none;padding:0;cursor:pointer;display:inline-block;line-height:0;}
-.eb .tg-track{display:block;width:172px;height:78px;border-radius:100px;position:relative;background:linear-gradient(90deg,#2166ac,#67a9cf);box-shadow:inset 0 1px 3px rgba(0,0,0,.18);transition:background .45s ease;}
-.eb .tg.is-on .tg-track{background:linear-gradient(90deg,#2166ac,#d1e5f0 42%,#fddbc7 58%,#d6604d);}
-.eb .tg-knob{position:absolute;top:6px;left:6px;width:66px;height:66px;border-radius:50%;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-family:var(--eb-mono);font-weight:600;font-size:14px;color:var(--eb-rdbu-02);transition:left .45s cubic-bezier(.6,.2,.1,1),color .45s ease;}
-.eb .tg.is-on .tg-knob{left:100px;color:var(--eb-rdbu-09);}
-.eb .tg-state{font-family:var(--eb-mono);font-size:12px;letter-spacing:.09em;text-transform:uppercase;margin-top:18px;color:var(--eb-rdbu-02);}
-.eb .tg-state.on{color:var(--eb-rdbu-09);}
-.eb .promises{position:relative;margin-top:14px;}
-.eb .promises::before{content:"";position:absolute;top:0;left:6%;right:6%;height:1px;background:var(--eb-accent);}
-.eb .promise-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;padding-top:26px;}
-.eb .promise .dot{width:9px;height:9px;border-radius:50%;background:var(--eb-accent);margin-bottom:14px;}
-.eb .promise .tag{font-family:var(--eb-mono);font-size:10.5px;letter-spacing:.08em;color:var(--eb-faint);text-transform:uppercase;margin-top:12px;display:block;}
-.eb .decision{border:1px solid var(--eb-border);border-radius:4px;overflow:hidden;margin-top:20px;}
-.eb .decision .dhead{padding:16px 20px;background:#fff;border-bottom:1px solid var(--eb-border);}
-.eb .decision .dhead .label{color:var(--eb-accent-deep);}
-.eb .decision .dhead h3{margin:6px 0 0;}
-.eb .decision .drow{display:grid;grid-template-columns:120px 1fr;gap:18px;padding:16px 20px;border-top:1px solid var(--eb-border-soft);}
-.eb .decision .drow:first-of-type{border-top:none;}
-.eb .decision .rk{font-family:var(--eb-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding-top:2px;}
-.eb .rk.no{color:var(--eb-rdbu-09);}
-.eb .rk.yes{color:var(--eb-exito);}
-.eb .rk.trade{color:var(--eb-advert);}
-.eb .decision .rv{font-family:var(--eb-sans);font-size:15px;line-height:1.5;color:var(--eb-medium);}
-.eb .pipe{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:14px;margin-top:20px;}
-.eb .pipe .node{border:1px solid var(--eb-border);border-radius:3px;padding:16px;text-align:center;background:#fff;}
-.eb .pipe .node .nt{font-family:var(--eb-mono);font-size:13px;color:var(--eb-strong);margin-bottom:4px;}
-.eb .pipe .node .nd{font-family:var(--eb-sans);font-size:11.5px;color:var(--eb-faint);line-height:1.35;}
-.eb .pipe .node.hi{border-color:var(--eb-accent);background:rgba(95,143,95,.06);}
-.eb .pipe .arw{font-family:var(--eb-mono);color:var(--eb-faint);font-size:18px;text-align:center;}
-.eb .brecha{border:1px solid var(--eb-border);border-radius:4px;padding:22px;margin-top:14px;background:#fff;}
-.eb .brecha-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
-.eb .brecha-rows{display:flex;flex-direction:column;gap:14px;}
-.eb .brow{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center;}
-.eb .bname{font-family:var(--eb-mono);font-size:13px;color:var(--eb-strong);display:flex;flex-direction:column;gap:3px;}
-.eb .warnchip{font-family:var(--eb-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--eb-advert);}
-.eb .btrack{position:relative;height:26px;}
-.eb .baxis{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--eb-medium);}
-.eb .bbar{position:absolute;top:4px;bottom:4px;border-radius:2px;}
-.eb .bbar.pos{background:var(--eb-data-pos);}
-.eb .bbar.neg{background:var(--eb-data-neg);}
-.eb .bval{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--eb-mono);font-size:12px;font-variant-numeric:tabular-nums;}
-.eb .bval.pos{color:var(--eb-data-pos);}
-.eb .bval.neg{color:var(--eb-data-neg);}
-.eb .brecha-scale{display:flex;justify-content:space-between;margin-top:18px;padding-left:166px;font-family:var(--eb-mono);font-size:10px;color:var(--eb-faint);}
-.eb .dotlg{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:middle;}
-.eb .dotlg.pos{background:var(--eb-data-pos);}
-.eb .dotlg.neg{background:var(--eb-data-neg);}
-.eb .rails{border:1px solid var(--eb-border);border-radius:4px;padding:4px 20px;margin-top:14px;background:#fff;}
-.eb .rail{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:18px 0;border-top:1px solid var(--eb-border-soft);align-items:center;}
-.eb .rail:first-child{border-top:none;}
-.eb .rail .rlab .label{display:block;margin-bottom:3px;}
-.eb .rail .rlab .rn{font-family:var(--eb-mono);font-size:14px;color:var(--eb-strong);}
-.eb .swatches{display:flex;border-radius:3px;overflow:hidden;height:32px;border:1px solid var(--eb-border);}
-.eb .swatches.series{gap:8px;border:none;height:auto;}
-.eb .swatches .sw{flex:1;}
-.eb .swatches.series .sw{border-radius:3px;height:32px;display:flex;align-items:flex-end;padding:5px 8px;}
-.eb .swatches.series .sw span{font-family:var(--eb-mono);font-size:10px;color:#fff;}
-.eb .rail .rdesc{font-family:var(--eb-sans);font-size:13px;color:var(--eb-medium);line-height:1.45;margin-top:8px;}
-.eb .use-grid{display:grid;grid-template-columns:260px 1fr;gap:32px;margin-top:14px;align-items:start;}
-.eb .patterns .label{display:block;margin-bottom:12px;}
-.eb .patterns h3{margin-top:14px;}
-.eb .patterns h3:first-of-type{margin-top:0;}
-.eb .roadmap{margin-top:8px;}
-.eb .rmi{display:grid;grid-template-columns:32px 1fr;gap:16px;padding:16px 0;border-top:1px solid var(--eb-border-soft);}
-.eb .rmi:first-child{border-top:none;}
-.eb .rmi .rmn{font-family:var(--eb-mono);font-size:13px;color:var(--eb-accent-deep);padding-top:2px;}
-.eb .learns{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--eb-border);border:1px solid var(--eb-border);border-radius:3px;overflow:hidden;margin-top:14px;}
-.eb .learns>div{background:#fff;padding:22px;}
-.eb .eb-end{margin-top:48px;padding-top:24px;border-top:1px solid var(--eb-border-soft);}
-.eb .dv-block{border:1px solid var(--eb-border);border-radius:4px;background:#fff;padding:26px 28px;margin-top:18px;}
-.eb .dv-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:16px;flex-wrap:wrap;}
-.eb .dv-block h3{margin:0 0 8px;}
-.eb .dv-block>p:not(.figcap){font-size:15px;max-width:66ch;}
-.eb .dv-compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px;}
-.eb .dv-panel{position:relative;border:1px dashed var(--eb-border);border-radius:3px;padding:22px 20px 20px;}
-.eb .dv-panel.chosen{border-style:solid;border-color:var(--eb-medium);}
-.eb .dv-tag{position:absolute;top:-9px;left:18px;background:#fff;padding:0 8px;font-family:var(--eb-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--eb-faint);}
-.eb .dv-panel.chosen .dv-tag{color:var(--eb-strong);}
-.eb .dv-panel h4{font-family:var(--eb-mono);font-weight:500;font-size:14px;margin:0 0 14px;color:var(--eb-medium);}
-.eb .dv-panel .dv-why{font-size:13px;color:var(--eb-faint);margin:12px 0 0;line-height:1.5;}
-.eb .dv-parallel{position:relative;height:108px;border-bottom:1px solid var(--eb-border-soft);}
-.eb .pl-line{position:absolute;left:0;right:0;height:2px;}
-.eb .pl-line.colegio{top:32%;background:var(--eb-data-pos);}
-.eb .pl-line.similares{top:64%;background:var(--eb-data-neutral);}
-.eb .pl-line span{position:absolute;right:0;top:-15px;font-family:var(--eb-mono);font-size:10.5px;color:var(--eb-faint);}
-.eb .pl-gap{position:absolute;left:62%;top:32%;bottom:36%;border-left:1px dotted var(--eb-faint);}
-.eb .pl-gap::after{content:"resta mental";position:absolute;left:6px;top:6px;font-family:var(--eb-mono);font-size:10px;color:var(--eb-faint);white-space:nowrap;}
-.eb .dv-minigap{position:relative;height:108px;}
-.eb .mg-axis{position:absolute;top:0;bottom:18px;left:50%;width:1px;background:var(--eb-border);}
-.eb .mg-bar{position:absolute;left:50%;top:calc(50% - 9px);height:16px;width:32%;background:var(--eb-data-pos);border-radius:0 2px 2px 0;}
-.eb .mg-val{position:absolute;left:calc(50% + 32% + 8px);top:calc(50% - 8px);font-family:var(--eb-mono);font-size:12px;color:var(--eb-strong);}
-.eb .mg-zero{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-family:var(--eb-mono);font-size:10px;color:var(--eb-faint);}
-.eb .dv-wells{display:grid;gap:20px;margin-top:18px;}
-.eb .dv-wellgroup{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:center;}
-.eb .dv-wname{font-family:var(--eb-mono);font-size:13px;color:var(--eb-strong);}
-.eb .dv-wcol{display:flex;flex-direction:column;gap:7px;}
-.eb .dv-well{display:grid;grid-template-columns:1fr 34px;gap:10px;align-items:center;}
-.eb .dv-wtrack{position:relative;height:15px;background:var(--eb-border-soft);border-radius:2px;overflow:hidden;}
-.eb .dv-wfill{position:absolute;left:0;top:0;bottom:0;}
-.eb .dv-wfill.colegio{background:var(--eb-data-pos);}
-.eb .dv-wfill.similares{background:var(--eb-data-neutral);}
-.eb .dv-wfill.nacional{background:transparent;box-shadow:inset 0 0 0 1.5px var(--eb-faint);}
-.eb .dv-wv{font-family:var(--eb-mono);font-size:12px;color:var(--eb-medium);text-align:right;font-variant-numeric:tabular-nums;}
-.eb .dv-welllegend{display:flex;gap:22px;margin-top:20px;flex-wrap:wrap;}
-.eb .dv-welllegend .lg{font-family:var(--eb-mono);font-size:11px;color:var(--eb-faint);display:flex;align-items:center;gap:6px;}
-.eb .dv-welllegend .lg::before{content:"";width:11px;height:11px;border-radius:2px;}
-.eb .dv-welllegend .lg.colegio::before{background:var(--eb-data-pos);}
-.eb .dv-welllegend .lg.similares::before{background:var(--eb-data-neutral);}
-.eb .dv-welllegend .lg.nacional::before{background:transparent;box-shadow:inset 0 0 0 1.5px var(--eb-faint);}
-.eb .dv-gse{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;align-items:start;}
-.eb .dv-gsemap{position:relative;height:170px;border-bottom:1px solid var(--eb-border-soft);}
-.eb .gse-band{position:absolute;left:8%;right:8%;top:38%;height:48px;background:repeating-linear-gradient(90deg,var(--eb-border-soft) 0 4px,transparent 4px 8px);}
-.eb .gse-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--eb-faint);transform:translate(-50%,-50%);}
-.eb .gse-dot.focus{width:14px;height:14px;background:var(--eb-data-pos);}
-.eb .gse-lab{position:absolute;font-family:var(--eb-mono);font-size:11px;color:var(--eb-strong);transform:translateX(-50%);white-space:nowrap;}
-.eb .gse-lab.sub{color:var(--eb-faint);}
-.eb .dv-gsemap.small .gse-warn{position:absolute;left:6%;right:6%;top:50%;transform:translateY(-50%);border:1px solid var(--eb-data-neg);border-radius:3px;padding:12px 14px;font-family:var(--eb-mono);font-size:11.5px;line-height:1.5;color:var(--eb-data-neg);background:#fff;}
-.eb .dv-lanes{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px;}
-.eb .dv-lane{border:1px solid var(--eb-border-soft);border-radius:3px;padding:16px 18px;}
-.eb .dv-lane>.label{display:block;margin-bottom:12px;}
-.eb .dv-sw{display:flex;height:18px;border-radius:2px;overflow:hidden;margin-bottom:12px;}
-.eb .dv-sw div{flex:1;}
-.eb .dv-sw.five{gap:6px;overflow:visible;}
-.eb .dv-sw.five div{border-radius:2px;}
-.eb .dv-lane p{font-size:12.5px;color:var(--eb-faint);margin:0;line-height:1.5;}
-@media(max-width:820px){
-  .eb .cover-meta,.eb .grid2,.eb .logo-beats,.eb .use-grid,.eb .evid,.eb .promise-grid,.eb .learns,.eb .patterns-grid{grid-template-columns:1fr;}
-  .eb .dv-compare,.eb .dv-gse,.eb .dv-lanes{grid-template-columns:1fr;}
-  .eb .dv-wellgroup{grid-template-columns:1fr;gap:8px;}
-  .eb .callout{grid-template-columns:1fr;gap:8px;}
-  .eb .proto-box img{max-width:100%;max-height:70vh;}
-  .eb .eb-mockups{grid-template-columns:1fr;max-width:300px;margin-left:auto;margin-right:auto;}
-  .eb .sources{grid-template-columns:repeat(2,1fr);}
-  .eb .chain3,.eb .pipe{grid-template-columns:1fr;}
-  .eb .pipe .arw{transform:rotate(90deg);}
-  .eb .brow{grid-template-columns:1fr;gap:6px;}
-  .eb .brecha-scale{padding-left:0;}
-  .eb .rail{grid-template-columns:1fr;gap:10px;}
-  .eb .eb-hero{gap:24px;}
+function StageHead({ n, title, step }: { n: string; title: string; step: string }) {
+  return (
+    <div className="eb-stagehead">
+      <span className="mono uc small bold">Stage {n} · {title}</span>
+      <span className="mono uc small dim">{step}</span>
+    </div>
+  );
 }
-@media(prefers-reduced-motion:reduce){.eb .tg-track,.eb .tg-knob,.eb .pv-frame img,.eb .pv-hint{transition:none;}}
+
+// ─── ESTILOS ──────────────────────────────────────────────────────────────
+
+const CSS = `
+.eb{color:var(--eb-ink);
+  --eb-ink:#1a1a18;--eb-body:#3d3d38;--eb-dim:#6b6b64;--eb-line:rgba(26,26,24,.16);--eb-line-soft:rgba(26,26,24,.12);
+  --eb-cold-3:#053061;--eb-cold-2:#2166ac;--eb-cold-1:#4393c3;--eb-cold-0:#92c5de;
+  --eb-warm-0:#fddbc7;--eb-warm-1:#f4a582;--eb-warm-2:#d6604d;--eb-warm-3:#b2181f;
+  --eb-int:#0958D9;
+  --eb-mono:'IBM Plex Mono:Regular',ui-monospace,Menlo,monospace;
+  --eb-mono-med:'IBM Plex Mono:Medium','IBM Plex Mono:Regular',ui-monospace,Menlo,monospace;
+  --eb-sans:'IBM Plex Sans:Regular',system-ui,-apple-system,sans-serif;
+  --eb-max:1180px;}
+.eb *{box-sizing:border-box;}
+.eb .eb-content{padding:32px 80px 96px 188px;}
+@media(max-width:900px){.eb .eb-content{padding:24px 20px 60px;}}
+
+/* topbar: back + chip de categoría */
+.eb .eb-topbar{max-width:var(--eb-max);display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:36px;flex-wrap:wrap;}
+.eb .eb-cat-chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--eb-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4a7a4a;border:1px solid rgba(95,143,95,.55);border-radius:2px;padding:6px 10px;}
+.eb .eb-cat-dot{width:6px;height:6px;background:#5f8f5f;border-radius:50%;display:inline-block;}
+
+/* utilidades tipográficas locales */
+.eb .mono{font-family:var(--eb-mono);font-size:12.5px;}
+.eb .mono.small{font-size:10px;letter-spacing:.1em;}
+.eb .mono.uc{text-transform:uppercase;letter-spacing:.12em;}
+.eb .mono.bold{font-family:var(--eb-mono-med);font-weight:600;}
+.eb .mono.right{text-align:right;}
+.eb .mono.cold{color:var(--eb-cold-2);}
+.eb .mono.warm{color:var(--eb-warm-3);}
+.eb .dim{color:var(--eb-dim);}
+.eb .soft{color:var(--eb-body);}
+.eb .arrow{color:var(--eb-dim);}
+
+/* stage y encabezado */
+.eb .eb-stage{max-width:var(--eb-max);padding:0 0 104px;}
+.eb .eb-stage.last{padding-bottom:20px;}
+.eb .eb-stagehead{display:flex;align-items:baseline;justify-content:space-between;gap:20px;border-top:1px solid var(--eb-ink);padding-top:12px;flex-wrap:wrap;}
+.eb .eb-substage{margin:56px 0 0;border-top:1px solid var(--eb-ink);padding-top:12px;display:flex;align-items:baseline;gap:12px;}
+
+/* layout de dos columnas (párrafos + pull) */
+.eb .eb-two{display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start;padding-top:48px;}
+.eb .eb-two-l{flex:1 1 380px;display:flex;flex-direction:column;gap:22px;min-width:0;}
+.eb .eb-two-r{flex:1 1 300px;min-width:0;border-left:1px solid var(--eb-line);padding-left:26px;}
+.eb .p-strong{margin:0;font-family:var(--eb-sans);font-size:17px;line-height:1.62;color:var(--eb-ink);max-width:60ch;text-wrap:pretty;}
+.eb .p-soft{margin:0;font-family:var(--eb-sans);font-size:17px;line-height:1.62;color:var(--eb-body);max-width:60ch;text-wrap:pretty;}
+.eb .p-strong strong,.eb .p-soft strong{font-weight:600;color:var(--eb-ink);}
+.eb .p-strong em,.eb .p-soft em{font-style:italic;color:var(--eb-ink);}
+.eb .eb-pull{margin:0;font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(17px,1.55vw,21px);line-height:1.44;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
+
+/* figuras: marco 1/4/4/1, caption debajo */
+.eb .eb-fig{margin:56px 0 0;display:flex;flex-direction:column;gap:14px;}
+.eb .eb-frame{border-style:solid;border-color:var(--eb-ink);border-width:1px 4px 4px 1px;background:#f7f7f7;padding:34px;box-sizing:border-box;overflow-x:auto;}
+.eb .eb-fcap{display:flex;flex-direction:column;gap:9px;}
+.eb .eb-figlabel{font-family:var(--eb-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);}
+.eb .eb-fcap p{margin:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.58;color:var(--eb-body);max-width:74ch;text-wrap:pretty;}
+.eb .eb-fcap p em{font-style:italic;color:var(--eb-ink);}
+
+/* STAGE 01 · Cover */
+.eb .eb-cover{display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start;padding-top:56px;}
+.eb .eb-cover-txt{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:0;}
+.eb .eb-hook-a{margin:0;font-family:var(--eb-sans);font-weight:400;font-size:clamp(17px,1.8vw,23px);line-height:1.5;letter-spacing:0;color:var(--eb-body);text-wrap:pretty;max-width:34ch;}
+.eb .eb-hook-b{margin:22px 0 0;font-family:var(--eb-mono-med);font-weight:600;font-size:clamp(32px,4.2vw,54px);line-height:1.12;letter-spacing:-.028em;color:#141412;text-wrap:pretty;max-width:16ch;}
+.eb .eb-filete{margin:38px 0 0;display:flex;flex-direction:column;gap:7px;}
+.eb .eb-filete-bar{height:5px;width:100%;max-width:560px;background:linear-gradient(90deg,#053061 0%,#2166ac 16%,#4393c3 30%,#d1e5f0 43%,#f7f7f7 50%,#fddbc7 60%,#f4a582 71%,#d6604d 85%,#b2181f 100%);}
+.eb .eb-filete-row{display:flex;justify-content:space-between;max-width:560px;font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);}
+.eb .eb-lead{margin:40px 0 0;font-family:var(--eb-sans);font-size:17px;line-height:1.62;color:var(--eb-body);max-width:58ch;text-wrap:pretty;}
+.eb .eb-meta{margin:44px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:22px 32px;border-top:1px solid var(--eb-line);padding-top:22px;}
+.eb .eb-meta>div{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.eb .eb-meta dt{font-family:var(--eb-mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-dim);}
+.eb .eb-meta dd{margin:0;font-family:var(--eb-sans);font-size:14px;line-height:1.45;color:var(--eb-ink);}
+.eb .eb-fig .eb-frame.eb-frame-logo{padding:34px 30px;display:flex;align-items:center;justify-content:center;}
+.eb .eb-frame-logo img{display:block;width:100%;max-width:340px;height:auto;}
+
+/* STAGE 02 · fuentes → nodo → tarjeta */
+.eb .eb-fuentes-grid{display:grid;grid-template-columns:minmax(272px,1fr) 132px minmax(252px,.92fr);gap:0;align-items:start;min-width:656px;}
+.eb .eb-fuentes-col{position:relative;display:flex;flex-direction:column;gap:0;min-width:0;}
+.eb .eb-fuentes-line{position:absolute;top:46px;bottom:13px;right:0;width:1px;background:linear-gradient(180deg,#053061,#2166ac,#4393c3,#92c5de);}
+.eb .eb-col-label{font-family:var(--eb-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-dim);padding-bottom:10px;}
+.eb .eb-fuente-row{display:grid;grid-template-columns:20px minmax(0,1fr) 28px;gap:12px;align-items:center;border-top:1px solid var(--eb-line-soft);padding:11px 0;}
+.eb .eb-fuentes-end{border-top:1px solid var(--eb-line-soft);}
+.eb .eb-fnum{font-family:var(--eb-mono);font-size:10px;color:var(--eb-dim);text-align:right;}
+.eb .eb-fbody{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.eb .eb-fnombre{font-family:var(--eb-mono);font-size:12.5px;color:var(--eb-ink);}
+.eb .eb-fdet{font-family:var(--eb-sans);font-size:11.5px;line-height:1.4;color:var(--eb-dim);}
+.eb .eb-fbar{height:1px;width:100%;display:block;}
+.eb .eb-fuentes-mid{position:relative;align-self:stretch;display:flex;align-items:center;justify-content:center;min-height:200px;}
+.eb .eb-fuentes-conn{position:absolute;top:50%;left:0;right:-22px;height:1px;background:linear-gradient(90deg,#4393c3 0%,#4393c3 18%,#f7f7f7 48%,#d6604d 76%,#d6604d 100%);}
+.eb .eb-fuentes-node{position:relative;display:flex;align-items:center;justify-content:center;background:#f7f7f7;padding:7px 6px;}
+.eb .eb-fuentes-node img{display:block;width:112px;height:auto;}
+.eb .eb-fuentes-out{display:flex;flex-direction:column;gap:10px;min-width:0;padding-left:22px;}
+.eb .eb-tarjeta{display:block;width:100%;max-width:276px;height:auto;}
+
+/* STAGE 03 · capas */
+.eb .eb-capa-row{display:grid;grid-template-columns:minmax(190px,.78fr) minmax(0,1.62fr);gap:34px;align-items:start;border-bottom:1px solid var(--eb-line-soft);padding:26px 0;}
+.eb .eb-capa-row:last-child{border-bottom:none;}
+.eb .eb-capa-l{display:flex;flex-direction:column;gap:10px;min-width:0;}
+.eb .eb-capa-head{display:flex;align-items:baseline;gap:9px;}
+.eb .eb-capa-name{font-family:var(--eb-mono-med);font-size:14px;font-weight:500;color:var(--eb-ink);letter-spacing:-.01em;}
+.eb .eb-capa-stack{font-family:var(--eb-sans);font-size:12px;line-height:1.4;color:var(--eb-dim);}
+.eb .eb-capa-modo{align-self:flex-start;font-family:var(--eb-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-ink);border:1px solid rgba(26,26,24,.34);border-radius:2px;padding:5px 9px;}
+.eb .eb-capa-r{display:flex;flex-direction:column;gap:0;min-width:0;}
+.eb .eb-capa-reg{display:grid;grid-template-columns:74px minmax(0,1fr);gap:16px;align-items:baseline;padding:7px 0;}
+.eb .eb-reg-k{font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);}
+.eb .eb-reg-v{font-family:var(--eb-sans);font-size:14.5px;line-height:1.52;color:var(--eb-ink);text-wrap:pretty;}
+
+/* STAGE 04 · personas */
+.eb .eb-persona-tabs{display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--eb-line);padding-bottom:18px;margin-bottom:26px;}
+.eb .eb-persona-tab{display:inline-flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:44px;padding:7px 13px;border-radius:2px;border:1px solid rgba(26,26,24,.28);cursor:pointer;text-align:left;font-family:var(--eb-mono);background:transparent;color:var(--eb-ink);transition:border-color .2s;}
+.eb .eb-persona-tab:hover{border-color:var(--eb-ink);}
+.eb .eb-persona-tab.is-active{background:var(--eb-ink);border-color:var(--eb-ink);color:#fafaf7;}
+.eb .eb-persona-tabn{font-size:9.5px;letter-spacing:.12em;opacity:.72;}
+.eb .eb-persona-tabnombre{font-size:12.5px;font-weight:500;letter-spacing:-.01em;}
+.eb .eb-persona-body{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;}
+.eb .eb-persona-l{flex:0 1 232px;min-width:186px;display:flex;flex-direction:column;gap:10px;}
+.eb .eb-persona-retrato{width:100%;aspect-ratio:1/1;border:1px solid rgba(26,26,24,.2);background-color:#eeeeea;background-size:cover;background-position:center 18%;}
+.eb .eb-persona-meta{margin:0;display:flex;flex-direction:column;gap:0;}
+.eb .eb-persona-meta>div{display:grid;grid-template-columns:66px minmax(0,1fr);gap:10px;align-items:baseline;border-bottom:1px solid var(--eb-line-soft);padding:7px 0;}
+.eb .eb-persona-meta dt{font-family:var(--eb-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);}
+.eb .eb-persona-meta dd{margin:0;font-family:var(--eb-sans);font-size:12px;line-height:1.42;color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-persona-r{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:22px;}
+.eb .eb-persona-title{display:flex;flex-direction:column;gap:7px;}
+.eb .eb-persona-title h3{margin:0;font-family:var(--eb-mono);font-size:clamp(20px,2vw,27px);font-weight:500;line-height:1.2;letter-spacing:-.02em;color:#141412;}
+.eb .eb-persona-quote{margin:0;padding-left:16px;border-left:2px solid var(--eb-warm-2);}
+.eb .eb-persona-quote p{margin:0;font-family:var(--eb-sans);font-size:15.5px;font-style:italic;line-height:1.58;color:var(--eb-ink);max-width:52ch;text-wrap:pretty;}
+.eb .eb-persona-dolores{display:flex;flex-direction:column;gap:0;}
+.eb .eb-dolor-head{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:18px;border-bottom:1px solid var(--eb-ink);padding-bottom:8px;font-family:var(--eb-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink);}
+.eb .eb-dolor-row{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:18px;align-items:baseline;border-bottom:1px solid var(--eb-line-soft);padding:11px 0;}
+.eb .eb-dolor-txt{font-family:var(--eb-sans);font-size:13.5px;line-height:1.5;color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-dolor-sev{display:flex;flex-direction:column;gap:2px;}
+.eb .eb-dolor-sev-n{font-family:var(--eb-mono-med);font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--eb-ink);}
+.eb .eb-dolor-efecto{font-family:var(--eb-sans);font-size:11.5px;line-height:1.35;color:var(--eb-dim);}
+.eb .eb-persona-implic{display:flex;flex-direction:column;gap:11px;}
+.eb .eb-implic-row{display:grid;grid-template-columns:14px minmax(0,1fr);gap:12px;align-items:baseline;}
+.eb .eb-implic-row>span:last-child{font-family:var(--eb-sans);font-size:13.5px;line-height:1.52;color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-implic-dot{height:5px;width:5px;border-radius:50%;background:var(--eb-cold-2);display:inline-block;transform:translateY(-3px);}
+
+/* STAGE 05 · eslabones + logo beats */
+.eb .eb-eslab-head{display:grid;grid-template-columns:minmax(0,1fr) 120px minmax(0,1fr);gap:24px;border-bottom:1px solid var(--eb-ink);padding-bottom:10px;}
+.eb .eb-eslab-head>span{display:flex;flex-direction:column;gap:3px;}
+.eb .eb-eslab-head .eb-eslab-mid{text-align:center;}
+.eb .eb-eslab-sub{font-family:var(--eb-sans);font-size:11.5px;line-height:1.35;color:var(--eb-dim);}
+.eb .eb-eslab-row{display:grid;grid-template-columns:minmax(0,1fr) 120px minmax(0,1fr);gap:24px;align-items:center;border-bottom:1px solid var(--eb-line-soft);padding:20px 0;}
+.eb .eb-eslab-cold,.eb .eb-eslab-warm{display:flex;flex-direction:column;gap:6px;min-width:0;padding-left:14px;}
+.eb .eb-eslab-cold{border-left:2px solid var(--eb-cold-2);}
+.eb .eb-eslab-warm{border-left:2px solid var(--eb-warm-3);}
+.eb .eb-eslab-key{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:var(--eb-ink);}
+.eb .eb-eslab-gloss{font-family:var(--eb-sans);font-size:13px;line-height:1.48;color:var(--eb-body);text-wrap:pretty;}
+.eb .eb-eslab-mid-col{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0;}
+.eb .eb-eslab-line{height:1px;width:100%;background:linear-gradient(90deg,var(--eb-cold-2),#f7f7f7 50%,var(--eb-warm-3));}
+.eb .eb-eslab-rol{font-family:var(--eb-sans);font-size:10.5px;line-height:1.3;color:var(--eb-dim);text-align:center;}
+
+/* STAGE 05 · logo beats */
+.eb .eb-logo-beat{display:flex;flex-direction:column;gap:12px;padding-bottom:30px;}
+.eb .eb-logo-beat.divider{border-top:1px solid var(--eb-line-soft);padding:30px 0;}
+.eb .eb-logo-box{background:#fff;border:1px solid rgba(26,26,24,.18);padding:12px;box-sizing:border-box;}
+.eb .eb-logo-box img{display:block;width:100%;height:auto;}
+.eb .eb-logo-desc{margin:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.55;color:var(--eb-body);max-width:68ch;text-wrap:pretty;}
+.eb .eb-logo-desc em{font-style:italic;color:var(--eb-ink);}
+.eb .eb-logo-final{display:flex;flex-wrap:wrap;gap:30px;align-items:center;border-top:1px solid var(--eb-line-soft);padding-top:30px;}
+.eb .eb-logo-final-box{flex:0 1 300px;min-width:220px;background:#fff;border:1px solid rgba(26,26,24,.18);padding:28px 18px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;}
+.eb .eb-logo-final-box img{display:block;width:100%;max-width:250px;height:auto;}
+.eb .eb-logo-final-txt{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:12px;}
+.eb .eb-logo-final-txt p{margin:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.55;color:var(--eb-body);max-width:52ch;text-wrap:pretty;}
+
+/* STAGE 06 · decisiones + dimensiones */
+.eb .eb-decisiones{margin:48px 0 0;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--eb-ink);}
+.eb .eb-decision{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;border-bottom:1px solid var(--eb-line);padding:30px 0;}
+.eb .eb-dec-l{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:11px;}
+.eb .eb-dec-head{display:flex;align-items:baseline;gap:10px;}
+.eb .eb-dec-head h3{margin:0;font-family:var(--eb-mono-med);font-size:clamp(16px,1.5vw,19px);font-weight:500;line-height:1.28;letter-spacing:-.015em;color:#141412;text-wrap:pretty;}
+.eb .eb-dec-tag{align-self:flex-start;font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);border:1px solid rgba(26,26,24,.28);border-radius:2px;padding:4px 8px;}
+.eb .eb-dec-r{flex:2 1 420px;min-width:0;display:flex;flex-direction:column;gap:0;}
+.eb .eb-dec-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:baseline;padding:0 0 10px;}
+.eb .eb-dec-row.hilite{padding:10px 0;border-top:1px solid var(--eb-line-soft);}
+.eb .eb-dec-row.hilite:last-child{padding:10px 0 0;}
+.eb .eb-dec-k{font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-ink);}
+.eb .eb-dec-k.dim{color:var(--eb-dim);}
+.eb .eb-dec-k.warn{color:#8a1a20;}
+.eb .eb-dec-v{font-family:var(--eb-sans);font-size:14.5px;line-height:1.55;color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-dec-v.soft{color:var(--eb-body);}
+.eb .eb-dim-head{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:22px;border-bottom:1px solid var(--eb-ink);padding-bottom:10px;font-family:var(--eb-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink);}
+.eb .eb-dim-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:center;border-bottom:1px solid var(--eb-line-soft);padding:16px 0;}
+.eb .eb-dim-name{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.eb .eb-dim-name .mono{font-size:13.5px;letter-spacing:0;}
+.eb .eb-dim-que{font-family:var(--eb-sans);font-size:11.5px;line-height:1.4;color:var(--eb-dim);}
+.eb .eb-dim-bar{display:flex;align-items:center;gap:10px;min-width:0;}
+.eb .eb-dim-fill{height:8px;display:block;}
+.eb .eb-dim-fill.grey{background:#c9c9c2;}
+.eb .eb-dim-fill.dark{background:#3d3d38;}
+.eb .eb-dim-total{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:22px;padding-top:14px;}
+.eb .eb-dim-total-l{font-family:var(--eb-sans);font-size:12px;line-height:1.45;color:var(--eb-ink);}
+
+/* STAGE 07 · escala + prioridades + video */
+.eb .eb-scale{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--eb-ink);}
+.eb .eb-scale-col{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:9px;border-bottom:1px solid var(--eb-line-soft);padding:20px 26px 22px 0;}
+.eb .eb-scale-col.warm{border-left:2px solid var(--eb-warm-3);padding:20px 0 22px 26px;}
+.eb .eb-scale-title{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-scale-desc{font-family:var(--eb-sans);font-size:13.5px;line-height:1.55;color:var(--eb-body);max-width:46ch;text-wrap:pretty;}
+.eb .eb-p-grid{display:flex;flex-wrap:wrap;gap:22px;padding-top:26px;}
+.eb .eb-p-col{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:7px;padding-top:12px;}
+.eb .eb-p-col span:first-child{font-family:var(--eb-mono);font-size:13px;letter-spacing:.06em;color:var(--eb-ink);}
+.eb .eb-p-col span:last-child{font-family:var(--eb-sans);font-size:13.5px;line-height:1.5;color:var(--eb-body);text-wrap:pretty;}
+.eb .eb-videoframe{border-style:solid;border-color:var(--eb-ink);border-width:1px 4px 4px 1px;overflow:hidden;background:#0f0f0e;display:block;line-height:0;}
+.eb .eb-videoframe video{display:block;width:100%;height:auto;}
+
+/* STAGE 08.1 · paletas */
+.eb .eb-pals{display:flex;flex-wrap:wrap;gap:34px;align-items:stretch;}
+.eb .eb-pal-col{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:14px;}
+.eb .eb-pal-title{display:flex;flex-direction:column;gap:4px;}
+.eb .eb-pal-sub{font-family:var(--eb-sans);font-size:12px;line-height:1.4;color:var(--eb-dim);}
+.eb .eb-pal-bar{height:38px;width:100%;}
+.eb .eb-pal-bar-cat{display:flex;height:38px;width:100%;}
+.eb .eb-pal-bar-cat>span{flex:1;}
+.eb .eb-pal-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--eb-line-soft);}
+.eb .eb-pal-row{display:grid;grid-template-columns:12px minmax(0,1fr);gap:12px;align-items:start;border-bottom:1px solid var(--eb-line-soft);padding:10px 0;}
+.eb .eb-pal-swatch{height:12px;width:12px;margin-top:3px;display:block;}
+.eb .eb-pal-txt{display:flex;flex-direction:column;gap:2px;min-width:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.4;color:var(--eb-ink);}
+.eb .eb-pal-txt .dim{font-size:12px;line-height:1.45;}
+.eb .eb-pal-rules{margin-top:26px;border-top:1px solid var(--eb-ink);padding-top:16px;display:flex;flex-wrap:wrap;gap:28px;}
+.eb .eb-pal-rules>div{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:6px;}
+.eb .eb-pal-rules>div>span:last-child{font-family:var(--eb-sans);font-size:13.5px;line-height:1.5;color:var(--eb-ink);text-wrap:pretty;}
+
+/* STAGE 08.1 · frames de traducción */
+.eb .eb-frames-trad{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start;}
+.eb .eb-frame-t{flex:1 1 240px;min-width:210px;max-width:300px;display:flex;flex-direction:column;gap:12px;}
+.eb .eb-frame-t-head{display:flex;align-items:center;gap:8px;}
+.eb .eb-frame-t-dot{height:10px;width:10px;border-radius:50%;display:inline-block;}
+.eb .eb-frame-t-img{width:100%;aspect-ratio:390/845;border:1px solid rgba(26,26,24,.2);background-color:#fff;background-size:100% auto;background-repeat:no-repeat;background-position:top center;}
+.eb .eb-frame-t-nota{margin:0;font-family:var(--eb-sans);font-size:12.5px;line-height:1.5;color:var(--eb-body);text-wrap:pretty;}
+.eb .eb-frame-t-nota em{font-style:italic;color:var(--eb-ink);}
+
+/* STAGE 08.2 · tabla de contraste + criterios */
+.eb .eb-contraste-head{display:grid;grid-template-columns:112px minmax(0,1.5fr) 72px minmax(0,1.1fr);gap:20px;border-bottom:1px solid var(--eb-ink);padding-bottom:10px;font-family:var(--eb-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink);}
+.eb .eb-contraste-row{display:grid;grid-template-columns:112px minmax(0,1.5fr) 72px minmax(0,1.1fr);gap:20px;align-items:center;border-bottom:1px solid var(--eb-line-soft);padding:12px 0;}
+.eb .eb-contraste-hex{display:flex;align-items:center;gap:8px;min-width:0;}
+.eb .eb-contraste-chip{height:16px;width:16px;flex:none;border:1px solid rgba(26,26,24,.24);}
+.eb .eb-contraste-uso{font-family:var(--eb-sans);font-size:13.5px;line-height:1.45;color:var(--eb-body);text-wrap:pretty;}
+.eb .eb-contraste-verd{display:flex;align-items:center;gap:8px;min-width:0;font-family:var(--eb-sans);font-size:12.5px;line-height:1.4;text-wrap:pretty;}
+.eb .eb-contraste-dot{height:8px;width:8px;flex:none;border-radius:50%;display:inline-block;}
+.eb .eb-contraste-nota{display:block;font-family:var(--eb-sans);font-size:11.5px;line-height:1.5;color:var(--eb-dim);padding-top:12px;}
+.eb .eb-criterios{margin:52px 0 0;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--eb-ink);}
+.eb .eb-criterio{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;border-bottom:1px solid var(--eb-line);padding:26px 0;}
+.eb .eb-crit-l{flex:1 1 230px;min-width:0;display:flex;flex-direction:column;gap:8px;}
+.eb .eb-crit-name{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
+.eb .eb-crit-tag{align-self:flex-start;font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-width:1px;border-style:solid;border-radius:2px;padding:4px 8px;}
+.eb .eb-crit-r{flex:2 1 400px;min-width:0;display:flex;flex-direction:column;gap:0;}
+.eb .eb-crit-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:baseline;padding:0 0 10px;}
+.eb .eb-crit-row.hilite{padding:10px 0 0;border-top:1px solid var(--eb-line-soft);}
+.eb .eb-crit-k{font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-ink);}
+.eb .eb-crit-k.dim{color:var(--eb-dim);}
+.eb .eb-crit-v{font-family:var(--eb-sans);font-size:14.5px;line-height:1.55;color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-crit-v.soft{color:var(--eb-body);}
+
+/* STAGE 09 · producto */
+.eb .eb-prod-intro{display:flex;flex-wrap:wrap;gap:64px;align-items:flex-start;padding:72px 0 24px 24px;}
+.eb .eb-prod-video{flex:0 0 300px;margin:0;}
+.eb .eb-prod-intro-txt{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:24px;}
+.eb .eb-prod-intro-txt>div:first-child{display:flex;flex-direction:column;gap:20px;}
+.eb .eb-recorrido{border-top:1px solid var(--eb-line);padding-top:14px;display:flex;flex-direction:column;gap:10px;}
+.eb .eb-recorrido-line{font-family:var(--eb-mono);font-size:14px;line-height:1.6;letter-spacing:-.01em;color:#141412;max-width:52ch;text-wrap:pretty;}
+.eb .eb-producto{margin:52px 0 0;display:flex;flex-direction:column;gap:0;}
+.eb .eb-prod-row{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start;border-top:1px solid var(--eb-ink);padding:26px 0 52px;}
+.eb .eb-prod-l{flex:1 1 290px;min-width:0;display:flex;flex-direction:column;gap:16px;}
+.eb .eb-prod-head{display:flex;align-items:baseline;gap:12px;}
+.eb .eb-prod-title{font-family:var(--eb-mono-med);font-size:17px;font-weight:500;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
+.eb .eb-prod-tono{height:4px;width:64px;}
+.eb .eb-prod-vienen{display:flex;flex-direction:column;gap:6px;}
+.eb .eb-prod-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.eb .eb-prod-chip{font-family:var(--eb-mono);font-size:10.5px;letter-spacing:.04em;color:var(--eb-ink);border:1px solid rgba(26,26,24,.3);border-radius:2px;padding:5px 8px;}
+.eb .eb-prod-notas{display:flex;flex-direction:column;gap:13px;border-top:1px solid var(--eb-line-soft);padding-top:15px;}
+.eb .eb-prod-notas p{margin:0;font-family:var(--eb-sans);font-size:14px;line-height:1.58;color:var(--eb-body);max-width:52ch;text-wrap:pretty;}
+.eb .eb-prod-r{flex:2 1 520px;min-width:0;}
+.eb .eb-screens{display:flex;gap:22px;align-items:flex-start;overflow-x:auto;}
+.eb .eb-screen{margin:0;flex:0 0 232px;display:flex;flex-direction:column;gap:10px;}
+.eb .eb-screen-img{width:100%;border:1px solid rgba(26,26,24,.2);background-color:#fff;background-size:100% auto;background-repeat:no-repeat;background-position:top center;}
+.eb .eb-screen figcaption{font-family:var(--eb-sans);font-size:12px;line-height:1.45;color:var(--eb-dim);text-wrap:pretty;}
+.eb .eb-prod-footnote{margin:8px 0 0;font-family:var(--eb-mono);font-size:11px;letter-spacing:.06em;color:var(--eb-dim);text-wrap:pretty;}
+
+/* STAGE 10 · validación */
+.eb .eb-val-row{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;border-bottom:1px solid var(--eb-line);padding:26px 0;}
+.eb .eb-val-row:first-child{border-top:1px solid var(--eb-ink);}
+.eb .eb-val-l{flex:1 1 230px;min-width:0;display:flex;flex-direction:column;gap:9px;}
+.eb .eb-val-title{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
+.eb .eb-val-tag{align-self:flex-start;font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-width:1px;border-style:solid;border-radius:2px;padding:4px 8px;}
+.eb .eb-val-scale{display:flex;flex-direction:column;gap:6px;padding-top:6px;}
+.eb .eb-val-bar{height:7px;display:block;}
+.eb .eb-val-r{flex:2 1 400px;min-width:0;display:flex;flex-direction:column;gap:0;}
+.eb .eb-val-txt{margin:0 0 12px;font-family:var(--eb-sans);font-size:14.5px;line-height:1.55;color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-val-porque{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:baseline;padding:12px 0 0;border-top:1px solid var(--eb-line-soft);font-family:var(--eb-sans);font-size:14.5px;line-height:1.55;}
+
+/* STAGE 11 · timeline y cierre */
+.eb .eb-timeline-bar{height:5px;width:100%;border-bottom:1px solid rgba(26,26,24,.22);background:linear-gradient(90deg,#2166ac 0%,#4393c3 26%,#d1e5f0 46%,#fddbc7 56%,#d6604d 78%,#b2181f 100%);}
+.eb .eb-timeline{display:flex;gap:0;align-items:stretch;padding-top:0;}
+.eb .eb-hito{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:9px;padding:0 18px 0 0;}
+.eb .eb-hito-dot{height:14px;width:14px;flex:none;border-radius:50%;margin-top:-4px;}
+.eb .eb-hito-fase{font-family:var(--eb-mono-med);font-size:14px;font-weight:500;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
+.eb .eb-hito-det{font-family:var(--eb-sans);font-size:12.5px;line-height:1.5;color:var(--eb-body);text-wrap:pretty;}
+.eb .eb-cierre{margin:96px 0 0;font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(24px,3.4vw,44px);line-height:1.24;letter-spacing:-.02em;color:#141412;max-width:24ch;text-wrap:pretty;}
+
+/* responsivo · plegado a una columna */
+@media(max-width:900px){
+  .eb .eb-two,.eb .eb-cover,.eb .eb-prod-intro,.eb .eb-prod-row{gap:32px;}
+  .eb .eb-two-r{border-left:none;padding-left:0;border-top:1px solid var(--eb-line);padding-top:22px;}
+  .eb .eb-fuentes-grid{grid-template-columns:1fr;min-width:0;}
+  .eb .eb-fuentes-line,.eb .eb-fuentes-conn{display:none;}
+  .eb .eb-fuentes-mid{min-height:auto;padding:12px 0;}
+  .eb .eb-fuentes-out{padding-left:0;}
+  .eb .eb-capa-row{grid-template-columns:1fr;gap:16px;}
+  .eb .eb-eslab-head,.eb .eb-eslab-row{grid-template-columns:1fr;gap:14px;}
+  .eb .eb-eslab-mid-col{align-items:flex-start;}
+  .eb .eb-decision,.eb .eb-criterio,.eb .eb-val-row{gap:20px;}
+  .eb .eb-timeline{flex-direction:column;gap:24px;}
+  .eb .eb-hito{padding:0;}
+  .eb .eb-dim-head,.eb .eb-dim-row,.eb .eb-dim-total{grid-template-columns:1fr;gap:8px;}
+  .eb .eb-contraste-head,.eb .eb-contraste-row{grid-template-columns:1fr;gap:6px;}
+  .eb .eb-contraste-head .right,.eb .eb-contraste-row .right{text-align:left;}
+}
 `;
