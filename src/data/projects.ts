@@ -480,31 +480,20 @@ export const projects: Project[] = [
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Placeholders — próximos case studies (visibles como "En preparación")
+  // En preparación — TAAM. Bases del diseño propuestas; sistema de diseño
+  // en construcción. El case study se abrirá cuando el DS esté cerrado.
   // ────────────────────────────────────────────────────────────────────────
   {
     id: 4,
-    slug: 'tribu-impulsa',
-    title: 'Tribu Impulsa',
-    year: '2025',
-    category: 'Product design',
-    categoryId: 'ux-ui',
-    description: 'Plataforma chilena de emprendimiento y networking.',
-    available: false,
-    headerLabel: 'Proyecto 07',
-    stages: [],
-  },
-  {
-    id: 5,
-    slug: 'vivit-accesibilidad',
-    title: 'Vivit — Accesibilidad',
-    year: '2025',
-    category: 'Investigación UX',
+    slug: 'the-artists-art-market',
+    title: 'The Artists Art Market',
+    year: '2026',
+    category: 'Sistema de diseño · UI',
     categoryId: 'ux-ui',
     description:
-      'Benchmark consolidado de mejores prácticas en extensiones de accesibilidad web.',
+      'Sitio web y sistema de diseño para una galería de arte contemporáneo en Berlín.',
     available: false,
-    headerLabel: 'Proyecto 08',
+    headerLabel: 'Proyecto 07',
     stages: [],
   },
 

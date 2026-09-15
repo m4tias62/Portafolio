@@ -822,10 +822,11 @@ export default function SitemapIneCaseStudy({ onBack }: { onBack: () => void }) 
 function StageHead({ n, title, step }: { n: string; title: string; step: string }) {
   return (
     <div className="si-stagehead">
-      <span className="mono uc small acc bold">Stage {n}</span>
-      <span className="mono uc small dim">·</span>
-      <span className="mono uc small">{title}</span>
-      <span className="si-stagehead-rule" />
+      <span className="si-stagehead-l">
+        <span className="mono uc small acc bold">Stage {n}</span>
+        <span className="mono uc small dim">·</span>
+        <span className="mono uc small">{title}</span>
+      </span>
       <span className="mono uc small dim">{step}</span>
     </div>
   );
@@ -862,11 +863,10 @@ const CSS = `
 .si .acc{color:var(--si-acc);}
 
 /* stages */
-.si .si-stage{max-width:var(--si-max);padding:clamp(48px,7vw,96px) 0;border-top:1px solid var(--si-line);}
-.si .si-stage:first-of-type{padding-top:clamp(56px,9vw,120px);border-top:none;}
+.si .si-stage{max-width:var(--si-max);padding:0 0 clamp(48px,7vw,96px);}
 .si .si-stage.last{padding-bottom:24px;}
-.si .si-stagehead{display:flex;align-items:baseline;gap:12px;margin-bottom:clamp(26px,3.4vw,40px);flex-wrap:nowrap;}
-.si .si-stagehead-rule{flex:1 1 auto;height:1px;background:var(--si-line);}
+.si .si-stagehead{display:flex;align-items:baseline;justify-content:space-between;gap:20px;border-top:1px solid var(--si-ink);padding-top:12px;margin-bottom:clamp(26px,3.4vw,40px);flex-wrap:wrap;}
+.si .si-stagehead-l{display:inline-flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
 
 /* dos columnas · cuerpo + pull-quote */
 .si .si-two{display:flex;flex-wrap:wrap;gap:clamp(24px,3.4vw,48px);margin-bottom:clamp(32px,4vw,56px);}

@@ -242,7 +242,7 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
           Sin conteo, sin bajada — la card ya comunica de qué se trata. */}
       <section className="px-[80px] py-[48px] border-b border-[#8a8a85]">
         <div className="mb-[32px]">
-          <BackButton onClick={onBack} />
+          <BackButton onClick={onBack} label="Volver al listado" />
         </div>
         <p
           className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[#0f0f0e] leading-[1.1]"

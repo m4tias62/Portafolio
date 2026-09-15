@@ -333,7 +333,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
       {/* Content */}
       <div ref={contentRef} className="pl-[188px] pr-[80px] py-[48px]">
         <div className="mb-[32px]">
-          <BackButton onClick={onBack} />
+          <BackButton onClick={onBack} label="Volver al listado" />
         </div>
         <div className="mb-[48px]">
           <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase mb-2">

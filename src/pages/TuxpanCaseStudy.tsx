@@ -174,7 +174,7 @@ export default function TuxpanCaseStudy({ onBack }: { onBack: () => void }) {
 
       <div ref={contentRef} className="tx-content">
         <div style={{ marginBottom: 32 }}>
-          <BackButton onClick={onBack} />
+          <BackButton onClick={onBack} label="Volver al listado" />
         </div>
 
         {/* Header — formato del portafolio */}

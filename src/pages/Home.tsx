@@ -447,22 +447,23 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
             }}
           >
             <h1
-              className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.15] tracking-[-0.5px]"
-              style={{ fontSize: 'clamp(24px, 2.9vw, 40px)', maxWidth: 'min(46ch, 92vw)' }}
+              className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.18] tracking-[-0.4px]"
+              style={{ fontSize: 'clamp(22px, 2.5vw, 34px)', maxWidth: 'min(46ch, 92vw)' }}
             >
-              <span className="block">Diseño en la intersección del criterio,</span>
-              <span className="block">la restricción y la curiosidad</span>
+              «Diseña quien concibe cursos de acción destinados a cambiar situaciones existentes por otras preferidas.»
             </h1>
-            <blockquote className="pl-[22px] border-l-2 border-[#0f0f0e] max-w-[44ch]">
-              <p
-                className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#3a3a38] leading-[1.6]"
-                style={{ fontSize: 'clamp(14px, 1.15vw, 16px)' }}
-              >
-                Las restricciones no limitan el diseño: lo definen. La solución nunca reside en la
-                aplicación mecánica de una fórmula, sino en el criterio para conectar lo que las
-                reglas del sistema no pueden prever.
-              </p>
-            </blockquote>
+            <p
+              className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[#3a3a38] leading-[1.5] tracking-[0.5px] uppercase"
+              style={{ fontSize: 'clamp(11px, 0.85vw, 13px)' }}
+            >
+              — Herbert Simon, <span className="italic normal-case tracking-normal">The Sciences of the Artificial</span>
+            </p>
+            <p
+              className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#3a3a38] leading-[1.4] max-w-[44ch] mt-[8px]"
+              style={{ fontSize: 'clamp(14px, 1.15vw, 17px)' }}
+            >
+              {'Diseñar en la intersección del criterio, la restricción y\u00A0la\u00A0curiosidad.'}
+            </p>
           </div>
         </section>
 
@@ -516,10 +517,13 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
               </div>
               <blockquote className="pl-[22px] border-l-2 border-[#0f0f0e] flex-1 min-w-[260px] max-w-[42ch] self-center">
                 <p
-                  className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#0f0f0e] leading-[1.55] text-balance"
+                  className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#0f0f0e] leading-[1.5] text-balance"
                   style={{ fontSize: 'clamp(16px, 1.4vw, 20px)' }}
                 >
-                  Diseño como puente entre el problema y la solución — no como decoración.
+                  «Nada en la vida es para temer, todo es para comprender. Ahora es el momento de comprender más, para temer menos.»
+                </p>
+                <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[11px] text-[#3a3a38] tracking-[1.2px] leading-[1.5] mt-3 uppercase">
+                  — Marie Curie
                 </p>
               </blockquote>
             </div>
