@@ -4,6 +4,7 @@ import BackButton from '@/components/BackButton';
 import EdubigCaseStudy from '@/pages/EdubigCaseStudy';
 import TuxpanCaseStudy from '@/pages/TuxpanCaseStudy';
 import SitemapIneCaseStudy from '@/pages/SitemapIneCaseStudy';
+import Censo2024CaseStudy from '@/pages/Censo2024CaseStudy';
 import MdaDataBar from '@/components/figures/MdaDataBar';
 import { getProjectById, type FigureKey, type Stage } from '@/data/projects';
 
@@ -308,6 +309,10 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
 
   if (project && project.slug === 'sitemap-ine') {
     return <SitemapIneCaseStudy onBack={onBack} />;
+  }
+
+  if (project && project.slug === 'censo-2024') {
+    return <Censo2024CaseStudy onBack={onBack} />;
   }
 
   if (!project) {

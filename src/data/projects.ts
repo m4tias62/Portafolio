@@ -235,38 +235,7 @@ export const projects: Project[] = [
     available: true,
     thumbnail: censoPropuesta1,
     headerLabel: 'Proyecto 02',
-    stages: [
-      {
-        id: 1,
-        label: 'Etapa 1 — Propuesta rotunda',
-        text:
-          'Como diseñador freelance en Globallys, me pidieron proponer variantes visuales para la infografía Resultados Generales del Censo 2024 del Instituto Nacional de Estadísticas. El brief era puramente formal — no hubo requisito de contenido. Esta primera propuesta parte del bloque pink como ancla: la cifra total de población domina la parte superior y el resto de los datos se organizan en tarjetas alrededor. Lectura rotunda, casi de campaña.',
-        image: censoPropuesta1,
-        imageCaption:
-          'Propuesta 1 — Resultados generales. Bloque pink como ancla visual dominante.',
-        figureAspect: 1700 / 2800,
-      },
-      {
-        id: 2,
-        label: 'Etapa 2 — Propuesta sobria',
-        text:
-          'Misma información, otro tono. Se elimina el bloque de color, las siluetas humanas suplantan al donut de género, y la comparación histórica pasa de tabla estática a gráficos de línea y barras. La pieza se siente informe institucional en vez de póster de campaña.',
-        image: censoPropuesta2,
-        imageCaption:
-          'Propuesta 2 — variante editorial. Sin bloque de color; gráficos de tiempo para la comparación entre censos.',
-        figureAspect: 1700 / 2800,
-      },
-      {
-        id: 3,
-        label: 'Etapa 3 — Propuesta modular',
-        text:
-          'Variante regional pensada para escalar a las dieciséis regiones (Arica y Parinacota como piloto). El bloque pink se reformula como contenedor del nombre de región. Suma stats de hogar y un código QR con CTA de escaneo. La pieza deja de ser póster y empieza a comportarse como interfaz de acceso.',
-        image: censoPropuesta3,
-        imageCaption:
-          'Propuesta 3 — variante regional con QR de acceso extendido.',
-        figureAspect: 1700 / 2800,
-      },
-    ],
+    stages: [],
   },
 
   // ────────────────────────────────────────────────────────────────────────
