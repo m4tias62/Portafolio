@@ -57,6 +57,7 @@ import sitemapMockup from '@/assets/sitemap-ine/mockup.png';
 
 import edubigThumb from '@/imports/edubig/portada.png';
 import tuxpanThumb from '@/assets/tuxpan/tuxpan-thumb.png';
+import enormeThumb from '@/assets/enorme/enorme-thumb.jpg';
 
 import type { CategoryId } from '@/data/categories';
 
@@ -481,6 +482,26 @@ export const projects: Project[] = [
     available: true,
     thumbnail: tuxpanThumb,
     headerLabel: 'Proyecto 09',
+    stages: [],
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Editorial — ENORME · Historia de Bolsillo. Case study dedicado
+  //   (EnormeCaseStudy). Libro editorial colectivo (Cataloma · FAAD UDP,
+  //   dic 2023). Matías diseñó e ilustró las décadas 1540s a 1570s.
+  // ────────────────────────────────────────────────────────────────────────
+  {
+    id: 10,
+    slug: 'enorme',
+    title: 'ENORME — Historia de Bolsillo',
+    year: '2023',
+    category: 'Diseño editorial · Libro ilustrado',
+    categoryId: 'editorial',
+    description:
+      'Libro ilustrado que reordena la historia universal en líneas de tiempo por década. Veinte diseñadores, un solo sistema visual.',
+    available: true,
+    thumbnail: enormeThumb,
+    headerLabel: 'Proyecto 10',
     stages: [],
   },
 ];
