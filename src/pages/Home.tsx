@@ -74,7 +74,7 @@ function CategoryCard({
         !narrow && !reduced
           ? 'transition-[transform,box-shadow,border-color] duration-500 ease-out hover:scale-[1.02] hover:shadow-[0_18px_60px_rgba(0,0,0,0.13)] hover:border-[#8a8a85] focus-visible:shadow-[0_18px_60px_rgba(0,0,0,0.13)]'
           : ''
-      } ${narrow ? 'w-full h-[78vh]' : ''}`}
+      } ${narrow ? 'w-full h-[62vh] min-h-[400px]' : ''}`}
       style={narrow ? undefined : { width: 'min(760px, 64vw)', height: 'min(62vh, 520px)' }}
     >
       <div className="absolute right-0 top-0 bottom-0 w-[62%] flex items-center justify-center pointer-events-none">
@@ -439,11 +439,13 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
         >
           <CKHeroOverture className="absolute inset-0" style={{}} />
           <div
-            className="absolute inset-0 z-10 flex flex-col justify-center gap-[26px] pointer-events-none"
+            className={`absolute inset-0 z-10 flex flex-col ${narrow ? 'justify-end gap-[16px]' : 'justify-center gap-[26px]'} pointer-events-none`}
             style={{
               padding: 'clamp(28px, 4.5vw, 72px)',
               background:
-                'linear-gradient(90deg, rgba(250,250,247,0.94) 0%, rgba(250,250,247,0.66) 34%, rgba(250,250,247,0.12) 56%, rgba(250,250,247,0) 66%)',
+                narrow
+                ? 'linear-gradient(0deg, rgba(250,250,247,0.97) 0%, rgba(250,250,247,0.85) 30%, rgba(250,250,247,0.4) 60%, rgba(250,250,247,0) 88%)'
+                : 'linear-gradient(90deg, rgba(250,250,247,0.94) 0%, rgba(250,250,247,0.66) 34%, rgba(250,250,247,0.12) 56%, rgba(250,250,247,0) 66%)',
             }}
           >
             <h1
