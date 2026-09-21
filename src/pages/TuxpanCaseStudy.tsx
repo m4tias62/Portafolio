@@ -440,4 +440,9 @@ const CSS = `
   .tx .eb-head{flex-direction:column;align-items:flex-start;gap:10px;}
   .tx .eb-head-r{text-align:left;}
 }
+@media(max-width:480px){
+  .tx .cover-3d{width:100%;}
+  .tx .c3d-inner img,.tx .c3d-spine{width:min(260px,70vw);}
+  .tx .cover-meta{grid-template-columns:1fr;}
+}
 `;

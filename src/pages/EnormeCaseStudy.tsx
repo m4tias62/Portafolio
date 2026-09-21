@@ -462,6 +462,7 @@ const CSS = `
 .en *{box-sizing:border-box;}
 .en .en-content{padding:48px 80px 48px 188px;}
 @media(max-width:900px){.en .en-content{padding:32px 24px;}}
+@media(max-width:560px){.en .en-content{padding:28px 20px;}.en .meta4{grid-template-columns:1fr;}}
 .en .en-flow{max-width:var(--e-max);}
 .en .sec{max-width:var(--e-max);padding:60px 0;border-top:1px solid var(--e-line);margin-top:8px;}
 .en .eyebrow{font-family:var(--e-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--e-mag);margin:0 0 16px;display:flex;align-items:center;gap:10px;}
