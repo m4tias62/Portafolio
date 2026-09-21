@@ -444,5 +444,8 @@ const CSS = `
   .tx .cover-3d{width:100%;}
   .tx .c3d-inner img,.tx .c3d-spine{width:min(260px,70vw);}
   .tx .cover-meta{grid-template-columns:1fr;}
+  .tx .type-row{flex-direction:column;align-items:flex-start;gap:5px;}
+  .tx .type-row .tl{width:auto;}
+  .tx .rubik{min-width:0;overflow-wrap:break-word;max-width:100%;}
 }
 `;

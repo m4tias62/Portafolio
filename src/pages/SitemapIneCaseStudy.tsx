@@ -679,8 +679,8 @@ export default function SitemapIneCaseStudy({ onBack }: { onBack: () => void }) 
             </div>
             <aside className="si-two-r">
               <p className="si-pull">
-                WCAG 2.2 AA no entró como auditoría de cierre. Entró como condición de la
-                propuesta.
+                La WCAG 2.2 AA fue una condición de la propuesta desde el inicio, no
+                algo que se revisa al final.
               </p>
             </aside>
           </div>

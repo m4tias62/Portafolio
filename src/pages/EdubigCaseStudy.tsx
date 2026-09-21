@@ -1902,7 +1902,8 @@ const CSS = `
   .eb .eb-eslab-head,.eb .eb-eslab-row{grid-template-columns:1fr;gap:14px;}
   .eb .eb-eslab-mid-col{align-items:flex-start;}
   .eb .eb-decision,.eb .eb-criterio,.eb .eb-val-row{gap:20px;}
-  .eb .eb-timeline{flex-direction:column;gap:24px;}
+  .eb .eb-timeline{flex-direction:column;gap:24px;padding-top:18px;}
+  .eb .eb-hito-dot{margin-top:0;}
   .eb .eb-hito{padding:0;}
   .eb .eb-dim-head,.eb .eb-dim-row,.eb .eb-dim-total{grid-template-columns:1fr;gap:8px;}
   .eb .eb-contraste-head,.eb .eb-contraste-row{grid-template-columns:1fr;gap:6px;}
