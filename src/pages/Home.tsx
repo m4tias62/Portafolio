@@ -82,8 +82,8 @@ function CategoryCard({
           ref={discRef}
           className="rounded-full transition-transform duration-500 ease-out"
           style={{
-            width: 'min(38vh, 300px)',
-            height: 'min(38vh, 300px)',
+            width: narrow ? 'min(48vw, 190px)' : 'min(38vh, 300px)',
+            height: narrow ? 'min(48vw, 190px)' : 'min(38vh, 300px)',
             background: category.accentColor,
           }}
         />
