@@ -15,7 +15,7 @@ type CategoryPageProps = {
  * que la que vive en Home hoy, movida acá porque ahora los proyectos viven
  * dentro de la vista de categoría (Home = carrusel de categorías, no de proyectos).
  */
-function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
+function ProjectCard({ project, onClick, narrow }: { project: Project; onClick: () => void; narrow: boolean }) {
   const disabled = !project.available;
   const hasThumbnail = Boolean(project.thumbnail);
   const hasVideo = Boolean(project.thumbnailVideo);
@@ -26,10 +26,10 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
       onClick={onClick}
       disabled={disabled}
       aria-disabled={disabled}
-      className={`flex flex-col items-start shrink-0 group text-left ${
+      className={`flex flex-col items-start shrink-0 group text-left ${narrow ? 'w-full' : ''} ${
         disabled ? 'cursor-default' : 'cursor-pointer'
       }`}
-      style={{ width: 520 }}
+      style={{ width: narrow ? '100%' : 520 }}
     >
       {/*
         Interactividad hover — misma lógica que las cards de categoría del home:
@@ -42,7 +42,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
             ? `w-full relative overflow-hidden ${boxBg} border border-[#dcdbd5]`
             : `w-full relative overflow-hidden ${boxBg} border border-[#dcdbd5] transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]`
         }
-        style={{ height: 420 }}
+        style={narrow ? { aspectRatio: '520 / 420' } : { height: 420 }}
       >
         {hasVideo && !disabled && (
           <video
@@ -105,6 +105,15 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
   const projects = projectsByCategory(categoryId);
   const [scrollProgress, setScrollProgress] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 820px)');
+    const upd = () => setNarrow(mq.matches);
+    upd();
+    mq.addEventListener('change', upd);
+    return () => mq.removeEventListener('change', upd);
+  }, []);
 
   // Progreso del carrusel horizontal
   const handleCarouselScroll = useCallback(() => {
@@ -124,7 +133,7 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
   // Wheel vertical → scroll horizontal con inercia + drag-to-scroll con umbral
   useEffect(() => {
     const el = carouselRef.current;
-    if (!el) return;
+    if (!el || narrow) return;
 
     let target = el.scrollLeft;
     let rafId: number | null = null;
@@ -217,7 +226,7 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
       el.removeEventListener('pointerup', endPress);
       el.removeEventListener('pointercancel', endPress);
     };
-  }, []);
+  }, [narrow]);
 
   function handleSeek(ratio: number, dragging: boolean = false) {
     const el = carouselRef.current;
@@ -240,28 +249,34 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
     <div className="bg-[#fafaf7] min-h-screen">
       {/* Header: botón Volver + título de la categoría, nada más.
           Sin conteo, sin bajada — la card ya comunica de qué se trata. */}
-      <section className="px-[80px] py-[48px] border-b border-[#8a8a85]">
-        <div className="mb-[32px]">
+      <section className="px-[80px] py-[48px] max-[820px]:px-5 max-[820px]:py-[28px] border-b border-[#8a8a85]">
+        <div className="mb-[32px] max-[820px]:mb-[20px]">
           <BackButton onClick={onBack} label="Volver al listado" />
         </div>
         <p
           className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[#0f0f0e] leading-[1.1]"
-          style={{ fontSize: 'clamp(32px, 3.2vw, 48px)' }}
+          style={{ fontSize: 'clamp(26px, 3.2vw, 48px)' }}
         >
           {category.label}
         </p>
       </section>
 
       {/* Carrusel de proyectos */}
-      <section className="px-[80px] py-[48px]">
-        <div className="flex flex-col gap-[48px]">
-          <div className="flex justify-center">
-            <ProgressBar progress={scrollProgress} onSeek={handleSeek} ticks={tickCount(projects.length)} />
-          </div>
+      <section className="px-[80px] py-[48px] max-[820px]:px-5 max-[820px]:py-[28px]">
+        <div className="flex flex-col gap-[48px] max-[820px]:gap-[28px]">
+          {!narrow && (
+            <div className="flex justify-center">
+              <ProgressBar progress={scrollProgress} onSeek={handleSeek} ticks={tickCount(projects.length)} />
+            </div>
+          )}
           <div
             ref={carouselRef}
-            className="flex gap-[96px] overflow-x-auto pb-4 select-none cursor-grab"
-            style={{ scrollbarWidth: 'none' }}
+            className={
+              narrow
+                ? 'flex flex-col gap-[28px]'
+                : 'flex gap-[96px] overflow-x-auto pb-4 select-none cursor-grab'
+            }
+            style={narrow ? undefined : { scrollbarWidth: 'none' }}
           >
             {projects.length === 0 ? (
               <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#8a8a85] italic">
@@ -272,6 +287,7 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
                 <ProjectCard
                   key={p.id}
                   project={p}
+                  narrow={narrow}
                   onClick={() => {
                     if (p.available) onProjectClick(p.id);
                   }}
