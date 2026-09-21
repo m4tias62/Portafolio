@@ -37,7 +37,7 @@ export default function MdaDataBar() {
       height={H}
       viewBox={`0 0 ${W} ${H}`}
       xmlns="http://www.w3.org/2000/svg"
-      style={{ display: 'block' }}
+      style={{ display: 'block', width: '100%', height: 'auto' }}
       role="img"
       aria-label="Distribución del volumen de agua asignado en Petorca: 54% Riego, 38% Otros usos, 8% Doméstico"
     >

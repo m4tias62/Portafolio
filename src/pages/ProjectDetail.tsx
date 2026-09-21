@@ -101,7 +101,7 @@ function Caption({ text }: { text: string }) {
  *     reserva la grilla para que el texto de al lado arranque siempre en la
  *     misma X.
  */
-function FigureImage({ stage }: { stage: Stage }) {
+function FigureImage({ stage, narrow }: { stage: Stage; narrow: boolean }) {
   const { width, height } = getFigureDimensions(stage.figureAspect);
 
   // Ultra-wide (foto) — full-bleed. El layout de la etapa la apila arriba del
@@ -137,7 +137,7 @@ function FigureImage({ stage }: { stage: Stage }) {
     figureBox = (
       <div
         className="bg-[#f2f1ec] relative overflow-hidden"
-        style={{ width: FIGURE_COLUMN_WIDTH, height: 460, ...FIGURE_FRAME_STYLE }}
+        style={narrow ? { width: '100%', ...FIGURE_FRAME_STYLE } : { width: FIGURE_COLUMN_WIDTH, height: 460, ...FIGURE_FRAME_STYLE }}
       >
         <Figure />
       </div>
@@ -148,7 +148,7 @@ function FigureImage({ stage }: { stage: Stage }) {
     figureBox = (
       <div
         className="bg-[#f2f1ec] relative overflow-hidden"
-        style={{ width, height, ...FIGURE_FRAME_STYLE }}
+        style={narrow ? { width: '100%', aspectRatio: `${width} / ${height}`, ...FIGURE_FRAME_STYLE } : { width, height, ...FIGURE_FRAME_STYLE }}
       >
         <video
           src={stage.video}
@@ -167,7 +167,7 @@ function FigureImage({ stage }: { stage: Stage }) {
     figureBox = (
       <div
         className="bg-[#f2f1ec] relative overflow-hidden"
-        style={{ width, height, ...FIGURE_FRAME_STYLE }}
+        style={narrow ? { width: '100%', aspectRatio: `${width} / ${height}`, ...FIGURE_FRAME_STYLE } : { width, height, ...FIGURE_FRAME_STYLE }}
       >
         <img
           src={stage.image}
@@ -181,7 +181,7 @@ function FigureImage({ stage }: { stage: Stage }) {
     figureBox = (
       <div
         className="bg-[#f2f1ec] relative flex items-center justify-center"
-        style={{ width, height, ...FIGURE_FRAME_STYLE }}
+        style={narrow ? { width: '100%', aspectRatio: `${width} / ${height}`, ...FIGURE_FRAME_STYLE } : { width, height, ...FIGURE_FRAME_STYLE }}
       >
         <span className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] text-[#8a8a85]">
           Figura {stage.id}
@@ -194,8 +194,8 @@ function FigureImage({ stage }: { stage: Stage }) {
   return (
     // Columna reservada (736) → wrapper al ancho real de la figura → caja +
     // caption. El caption queda ceñido a `figureWidth`, no a la columna.
-    <div className="shrink-0" style={{ width: FIGURE_COLUMN_WIDTH }}>
-      <div style={{ width: figureWidth }}>
+    <div className="shrink-0" style={{ width: narrow ? '100%' : FIGURE_COLUMN_WIDTH }}>
+      <div style={{ width: narrow ? '100%' : figureWidth }}>
         {figureBox}
         {caption && <Caption text={caption} />}
       </div>
@@ -210,7 +210,7 @@ function FigureImage({ stage }: { stage: Stage }) {
  * etapas. Cuando la etapa es `variant: 'quote'` el texto se presenta en
  * itálica editorial. Cuando declara `link`, se agrega un enlace externo abajo.
  */
-function StageText({ stage, horizontal = false }: { stage: Stage; horizontal?: boolean }) {
+function StageText({ stage, horizontal = false, narrow = false }: { stage: Stage; horizontal?: boolean; narrow?: boolean }) {
   const isQuote = stage.variant === 'quote';
   const label = (
     <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
@@ -256,7 +256,7 @@ function StageText({ stage, horizontal = false }: { stage: Stage; horizontal?: b
   }
 
   return (
-    <div className="flex flex-col gap-[20px] pt-8" style={{ width: 326 }}>
+    <div className="flex flex-col gap-[20px] pt-8" style={{ width: narrow ? '100%' : 326 }}>
       {label}
       {body}
       {link}
@@ -268,6 +268,15 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
   const project = getProjectById(projectId);
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 820px)');
+    const upd = () => setNarrow(mq.matches);
+    upd();
+    mq.addEventListener('change', upd);
+    return () => mq.removeEventListener('change', upd);
+  }, []);
 
   // Track page scroll to drive the vertical progress bar
   useEffect(() => {
@@ -333,15 +342,17 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
   return (
     <div className="bg-[#fafaf7] min-h-screen relative">
       {/* Vertical progress bar — fixed on left */}
-      <div
-        className="fixed left-[80px] top-[56px] z-10 flex items-center justify-center"
-        style={{ height: 'calc(100vh - 56px)', width: 28 }}
-      >
-        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(project.stages.length)} />
-      </div>
+      {!narrow && (
+        <div
+          className="fixed left-[80px] top-[56px] z-10 flex items-center justify-center"
+          style={{ height: 'calc(100vh - 56px)', width: 28 }}
+        >
+          <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(project.stages.length)} />
+        </div>
+      )}
 
       {/* Content */}
-      <div ref={contentRef} className="pl-[188px] pr-[80px] py-[48px]">
+      <div ref={contentRef} className={narrow ? 'px-5 py-[28px]' : 'pl-[188px] pr-[80px] py-[48px]'}>
         <div className="mb-[32px]">
           <BackButton onClick={onBack} label="Volver al listado" />
         </div>
@@ -372,8 +383,8 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
                   className="flex flex-col"
                   style={{ gap: 36 }}
                 >
-                  <FigureImage stage={stage} />
-                  <StageText stage={stage} horizontal />
+                  <FigureImage stage={stage} narrow={narrow} />
+                  <StageText stage={stage} horizontal narrow={narrow} />
                 </div>
               );
             }
@@ -383,11 +394,11 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
               <div
                 key={stage.id}
                 id={`stage-${stage.id}`}
-                className="flex items-start"
-                style={{ gap: FIGURE_TEXT_GAP }}
+                className={narrow ? 'flex flex-col' : 'flex items-start'}
+                style={{ gap: narrow ? 28 : FIGURE_TEXT_GAP }}
               >
-                <FigureImage stage={stage} />
-                <StageText stage={stage} />
+                <FigureImage stage={stage} narrow={narrow} />
+                <StageText stage={stage} narrow={narrow} />
               </div>
             );
           })}
