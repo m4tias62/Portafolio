@@ -592,13 +592,13 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
                 type="button"
                 onClick={copyEmail}
                 className="w-full grid items-center px-[22px] py-[18px] border-b border-[#dcdbd5] bg-transparent text-left cursor-pointer text-[#0f0f0e] hover:bg-[#eceae3] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-inset"
-                style={{ gridTemplateColumns: '120px 1fr auto' }}
+                style={narrow ? { gridTemplateColumns: '1fr auto', rowGap: 6 } : { gridTemplateColumns: '120px 1fr auto' }}
                 aria-label={copied ? 'Correo copiado al portapapeles' : `Copiar correo ${EMAIL}`}
               >
                 <span className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[12px] tracking-[1.2px] uppercase text-[#3a3a38]">
                   Email
                 </span>
-                <span className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#0f0f0e] break-all">
+                <span className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#0f0f0e] break-all" style={narrow ? { gridColumn: '1 / -1' } : undefined}>
                   {EMAIL}
                 </span>
                 <span
@@ -613,12 +613,12 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="grid items-center px-[22px] py-[18px] border-b border-[#dcdbd5] no-underline text-[#0f0f0e] hover:bg-[#eceae3] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-inset"
-                style={{ gridTemplateColumns: '120px 1fr 40px' }}
+                style={narrow ? { gridTemplateColumns: '1fr auto', rowGap: 6 } : { gridTemplateColumns: '120px 1fr 40px' }}
               >
                 <span className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[12px] tracking-[1.2px] uppercase text-[#3a3a38]">
                   LinkedIn
                 </span>
-                <span className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#0f0f0e]">
+                <span className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#0f0f0e]" style={narrow ? { gridColumn: '1 / -1' } : undefined}>
                   Perfil de LinkedIn
                 </span>
                 <span className="justify-self-end font-['IBM_Plex_Mono:Regular',sans-serif] text-[18px]" aria-hidden="true">
@@ -629,12 +629,12 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
                 href={CV_URL}
                 download
                 className="grid items-center px-[22px] py-[18px] no-underline text-[#0f0f0e] hover:bg-[#eceae3] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-inset"
-                style={{ gridTemplateColumns: '120px 1fr 40px' }}
+                style={narrow ? { gridTemplateColumns: '1fr auto', rowGap: 6 } : { gridTemplateColumns: '120px 1fr 40px' }}
               >
                 <span className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[12px] tracking-[1.2px] uppercase text-[#3a3a38]">
                   CV
                 </span>
-                <span className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#0f0f0e]">
+                <span className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#0f0f0e]" style={narrow ? { gridColumn: '1 / -1' } : undefined}>
                   Matías_Cáceres.pdf
                 </span>
                 <span className="justify-self-end font-['IBM_Plex_Mono:Regular',sans-serif] text-[18px]" aria-hidden="true">
