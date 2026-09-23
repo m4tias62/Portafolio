@@ -110,7 +110,7 @@ const CSS = `
 /* Frame — figura enmarcada 1/4/4/1 sobre blanco */
 .mm .mm-figure { margin: 44px 0 0; }
 .mm .mm-frame {
-  border-style: solid; border-color: var(--mm-rule);
+  border-style: solid; border-color: var(--mm-ink);
   border-width: var(--fw); background: #fff; padding: 7px;
 }
 .mm .mm-frame.thin { border-width: 1px; padding: 4px; }
@@ -207,7 +207,7 @@ const CSS = `
 /* Render en video del soporte + fila simétrica de fotos reales (Stage 05) */
 .mm .mm-render-video { margin: 32px 0 0; }
 .mm .mm-render-video .mm-videoframe {
-  border-style: solid; border-color: var(--mm-rule); border-width: var(--fw);
+  border-style: solid; border-color: var(--mm-ink); border-width: var(--fw);
   background: #0f0f0e; overflow: hidden; line-height: 0;
 }
 .mm .mm-render-video video { display: block; width: 100%; height: auto; }
