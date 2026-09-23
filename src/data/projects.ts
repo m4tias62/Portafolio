@@ -58,6 +58,7 @@ import sitemapMockup from '@/assets/sitemap-ine/mockup.png';
 import edubigThumb from '@/imports/edubig/portada.png';
 import tuxpanThumb from '@/assets/tuxpan/tuxpan-thumb.png';
 import enormeThumb from '@/assets/enorme/enorme-thumb.jpg';
+import maiaThumb from '@/assets/maia/hero-portada.jpg';
 
 import type { CategoryId } from '@/data/categories';
 
@@ -338,6 +339,29 @@ export const projects: Project[] = [
     available: true,
     thumbnail: edubigThumb,
     headerLabel: 'Proyecto 06',
+    stages: [],
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // MAIA — Memoria de título de Matías (Escuela de Diseño FaAAD UDP, 2025-2026).
+  //   Sistema de alfabetización digital para adultos mayores con analfabetismo
+  //   funcional digital y ansiedad tecnológica en el poniente de Santiago.
+  //   Case study dedicado (MaiaCaseStudy), 11 stages, scope CSS `.mm`.
+  //   Foco: descentrar el pulido gráfico de la app y colocar en primer plano
+  //   la etnografía, iteración honesta y estrategia de implementación.
+  // ────────────────────────────────────────────────────────────────────────
+  {
+    id: 5,
+    slug: 'maia-alfabetizacion-digital',
+    title: 'MAIA',
+    year: '2026',
+    category: 'Memoria de título · Investigación etnográfica',
+    categoryId: 'ux-ui',
+    description:
+      'Sistema de alfabetización digital para adultos mayores con analfabetismo funcional digital, testeado en terreno con la junta \"Las Dorcas\" en Cerro Navia.',
+    available: true,
+    thumbnail: maiaThumb,
+    headerLabel: 'Proyecto 08',
     stages: [],
   },
 

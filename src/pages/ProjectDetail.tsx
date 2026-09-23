@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 import EdubigCaseStudy from '@/pages/EdubigCaseStudy';
+import MaiaCaseStudy from '@/pages/MaiaCaseStudy';
 import TuxpanCaseStudy from '@/pages/TuxpanCaseStudy';
 import EnormeCaseStudy from '@/pages/EnormeCaseStudy';
 import SitemapIneCaseStudy from '@/pages/SitemapIneCaseStudy';
@@ -307,6 +308,10 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
       const targetTop = el.offsetTop + ratio * scrollable;
       window.scrollTo({ top: targetTop, behavior: dragging ? 'auto' : 'smooth' });
     }
+  }
+
+  if (project && project.slug === 'maia-alfabetizacion-digital') {
+    return <MaiaCaseStudy onBack={onBack} />;
   }
 
   if (project && project.slug === 'edubig') {
