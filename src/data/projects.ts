@@ -222,8 +222,10 @@ export const projects: Project[] = [
 
   // ────────────────────────────────────────────────────────────────────────
   // 02 · Censo 2024 · Propuestas de infografía (Globallys · INE, marzo 2025)
-  //      Tres exploraciones visuales del mismo dataset. Lorem ipsum en textos
-  //      porque el brief pidió solo propuestas visuales, sin contenido.
+  //      Cuatro exploraciones visuales del mismo dataset (la 04, vertical y
+  //      sin magenta, agregada 2026-10-08). Case study dedicado en
+  //      Censo2024CaseStudy.tsx. Cifras de maqueta en las propuestas porque
+  //      el brief pidió solo propuestas visuales.
   // ────────────────────────────────────────────────────────────────────────
   {
     id: 7,
@@ -233,7 +235,7 @@ export const projects: Project[] = [
     category: 'Infografía · Sistema visual',
     categoryId: 'datos',
     description:
-      'Tres propuestas visuales para la infografía Resultados Generales del Censo 2024 (INE).',
+      'Cuatro propuestas visuales para la infografía de resultados nacionales del Censo 2024 (INE).',
     available: true,
     thumbnail: censoPropuesta1,
     headerLabel: 'Proyecto 02',

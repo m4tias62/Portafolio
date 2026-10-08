@@ -1,23 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 
 import propuesta01 from '@/assets/censo/propuesta-01.jpg';
 import propuesta02 from '@/assets/censo/propuesta-02.jpg';
 import propuesta03 from '@/assets/censo/propuesta-03.jpg';
+import propuesta04 from '@/assets/censo/propuesta-04.jpg';
 import oficialNacional from '@/assets/censo/oficial-nacional.jpg';
 import proceso19 from '@/assets/censo/proceso-19-feb.png';
 import proceso20 from '@/assets/censo/proceso-20-feb.png';
 
 /**
  * Censo2024CaseStudy — case study dedicado del Censo 2024 (rediseñado
- * 2026-09-16 desde una maqueta de Claude Design auditada por el usuario).
+ * 2026-09-16 desde una maqueta de Claude Design auditada por el usuario;
+ * ampliado 2026-10-08 con la propuesta 04).
  *
- * Es una serie visual, no un producto: tres propuestas de infografía
- * Resultados Generales entregadas al INE, hechas en Globallys en
- * colaboración con Consuelo Correa. 9 stages agrupadas en tres marcos
- * editoriales (I · el encargo, II · el sistema y las propuestas,
- * III · cierre y comparación con lo publicado).
+ * Es una serie visual, no un producto: cuatro propuestas de infografía
+ * de resultados del Censo 2024 para el INE, hechas en Globallys. Las
+ * propuestas 01–03 en colaboración con Consuelo Correa; la 04 (Figma,
+ * pieza vertical larga, sin magenta, a pedido del INE) la hizo Matías
+ * solo. No consta si la 04 se entregó: el texto no lo afirma. 10 stages
+ * agrupadas en cuatro marcos editoriales (I · el encargo, II · el sistema
+ * y las tres propuestas, III · el pedido de cambio, IV · cierre y
+ * comparación con lo publicado).
+ *
+ * Asset P04: `propuesta-04.jpg` (1600 × 10220, render del PDF exportado
+ * de Figma a 2000 × 12774). Se muestra completa en un marco con scroll
+ * interno (`.c24-scroll`, focusable para teclado) y en recortes.
  *
  * Sistema del portafolio conservado (regla del 2026-09-11): NavBar (la
  * pone App), BackButton con label "Volver al listado", regla vertical
@@ -29,21 +38,25 @@ import proceso20 from '@/assets/censo/proceso-20-feb.png';
  * - Paleta: magenta Censo `#E5177C` (ancla cromática) + azul institucional
  *   `#1B3A6B` (estructura) + celeste `#29ABE2` (segunda serie).
  * - Encabezado de stage al patrón Edubig/INE: `border-top` completo,
- *   NN/09 a la derecha, título a la izquierda.
+ *   NN/10 a la derecha, título a la izquierda.
  * - Sin regla "Sigue N · …" al pie (lección de los case studies previos).
  * - Sin párrafo de manifiesto final (cierra en la tabla de coincidencias).
  * - Detalles recortados de las propuestas: `overflow:hidden + aspect-ratio
  *   + translateY(-X%)` — el mismo truco que la maqueta usa para ampliar
- *   secciones específicas sin duplicar assets.
+ *   secciones específicas sin duplicar assets. Los recortes de módulos
+ *   aceptan además `tx` + `zoom` (ver `cropTransform`) para aislar una
+ *   zona horizontal de la lámina.
  */
+
+const TOTAL_STAGES = 10;
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
 
 const META: { k: string; v: string; n: string }[] = [
   { k: 'Proyecto',   v: 'Infografía Resultados Generales', n: 'Censo 2024 · Chile' },
   { k: 'Cliente',    v: 'Instituto Nacional de Estadísticas', n: 'censo2024.cl' },
-  { k: 'Estudio',    v: 'Globallys', n: 'En colaboración con Consuelo Correa' },
-  { k: 'Entrega',    v: '3 propuestas visuales', n: 'Feb — Mar 2025' },
+  { k: 'Estudio',    v: 'Globallys', n: 'Propuestas 01–03 con Consuelo Correa' },
+  { k: 'Alcance',    v: '4 propuestas visuales', n: 'Feb — Mar 2025' },
 ];
 
 const INDICE: { n: string; t: string }[] = [
@@ -55,12 +68,14 @@ const INDICE: { n: string; t: string }[] = [
   { n: '06', t: 'Propuesta 01 · Tarjetas sobre blanco' },
   { n: '07', t: 'Propuesta 02 · Versalitas y series' },
   { n: '08', t: 'Propuesta 03 · Ficha regional' },
-  { n: '09', t: 'Lo que se publicó' },
+  { n: '09', t: 'Propuesta 04 · Resultados nacionales' },
+  { n: '10', t: 'Lo que se publicó' },
 ];
 
 const ROLES: [string, string][] = [
   ['Estudio', 'Globallys — dirección de la pieza, sistema visual y maquetación en InDesign.'],
-  ['Colaboración', 'Consuelo Correa — propuesta editorial, revisión de jerarquías y contrapunto en cada ronda.'],
+  ['Colaboración', 'Consuelo Correa — propuesta editorial, revisión de jerarquías y contrapunto en cada ronda de las propuestas 01 a 03.'],
+  ['Propuesta 04', 'Desarrollo individual en Figma, sobre el cambio de dirección que pidió el INE.'],
   ['Contraparte', 'INE — set de indicadores, bocetos de referencia y validación institucional.'],
 ];
 
@@ -88,13 +103,45 @@ const GIRO: { k: string; hex: string; v: string }[] = [
   { k: 'Nuestra respuesta', hex: '#E5177C', v: 'Blanco de fondo, azul institucional para estructura y el magenta del Censo reservado al dato principal.' },
 ];
 
+// Propuesta 04 — paleta muestreada del PDF exportado de Figma.
+const PALETA_P04: { name: string; hex: string; role: string }[] = [
+  { name: 'Azul marino',    hex: '#233651', role: 'Tarjetas que abren cada bloque y cifras.' },
+  { name: 'Azul titular',   hex: '#1D3B7C', role: 'Banda del titular.' },
+  { name: 'Azul',           hex: '#007EC1', role: 'Primera serie: mujeres.' },
+  { name: 'Celeste',        hex: '#00A1E8', role: 'Pirámide y evolución de la población.' },
+  { name: 'Verde oliva',    hex: '#677C18', role: 'Segunda serie: hombres.' },
+];
+
+const RECORRIDO: { n: string; t: string; v: string }[] = [
+  { n: '01', t: 'Población',                     v: 'Total y por sexo · tres tramos de edad · inmigración · índice de masculinidad · mediana de edad · pirámide' },
+  { n: '02', t: 'Viviendas',                     v: 'Total · ocupadas · desocupadas · colectivas' },
+  { n: '03', t: 'Hogares',                       v: 'Total · de personas mayores · con niños/as · hogares por vivienda · personas por hogar · unipersonales' },
+  { n: '04', t: 'Variaciones en el tiempo',      v: 'Población 1992–2024 · envejecimiento y niños' },
+  { n: '05', t: 'Concentración de la población', v: 'Habitantes por región en tabla y cadena de burbujas · cierre con QR' },
+];
+
+/**
+ * Recorte de una lámina. `ty`/`tx` son porcentajes del tamaño de la imagen
+ * (translate), `zoom` amplía desde la esquina superior izquierda. Sin `tx`
+ * ni `zoom` equivale al translateY original.
+ */
+type Recorte = { src: string; aspect: number; ty: string; tx?: string; zoom?: number; alt: string; caption: string };
+
+function cropTransform(c: { ty: string; tx?: string; zoom?: number }): CSSProperties {
+  if (!c.tx && !c.zoom) return { transform: `translateY(${c.ty})` };
+  return {
+    transform: `scale(${c.zoom ?? 1}) translate(${c.tx ?? '0%'}, ${c.ty})`,
+    transformOrigin: '0 0',
+  };
+}
+
 type Modulo = {
   n: string;
   title: string;
   grado: 'Literal' | 'Adaptado';
   gradoColor: 'pink' | 'azul';
-  nuestra: { src: string; aspect: number; ty: string; alt: string; caption: string };
-  oficial: { src: string; aspect: number; ty: string; alt: string; caption: string };
+  nuestra: Recorte;
+  oficial: Recorte;
   desc: string;
 };
 
@@ -129,6 +176,18 @@ const MODULOS: Modulo[] = [
     oficial: { src: oficialNacional, aspect: 2.2, ty: '-78%', alt: 'Lámina publicada: evolución de censos con burbujas y línea de índice', caption: 'Publicada' },
     desc: 'La propuesta 02 sacó la comparación de la tabla y la convirtió en dos gráficos lado a lado: índice de envejecimiento como línea con marcadores y población como barras, ambos con los cuatro censos en el eje. La publicada usa exactamente esa pareja — línea con valores sobre cada punto, población en burbujas escaladas — y destaca 2024 en celeste.',
   },
+  {
+    n: '06', title: 'Edad en tres tramos', grado: 'Adaptado', gradoColor: 'azul',
+    nuestra: { src: propuesta04, aspect: 1.45, ty: '-13.12%', tx: '-5%', zoom: 1.15, alt: 'Propuesta 04: donut de edad en tres tramos con tarjetas de color por tramo', caption: 'Propuesta 04' },
+    oficial: { src: oficialNacional, aspect: 1.45, ty: '-11.2%', tx: '-47%', zoom: 1.905, alt: 'Lámina publicada: donuts de población por sexo y por tramos de edad', caption: 'Publicada' },
+    desc: 'Las propuestas 01 a 03 trabajaban la edad en cuatro grupos. La 04 la reagrupa en tres tramos — 0 a 14, 15 a 60 y 60 o más — dentro de un solo donut, con cada tramo etiquetado en una tarjeta de su color. La publicada usa la misma división en tres y el mismo anillo, con los cortes en 15 a 64 y 65 o más.',
+  },
+  {
+    n: '07', title: 'Viviendas por estado de ocupación', grado: 'Adaptado', gradoColor: 'azul',
+    nuestra: { src: propuesta04, aspect: 1.75, ty: '-44.75%', tx: '-7%', zoom: 1.15, alt: 'Propuesta 04: total de viviendas ramificado en ocupadas, desocupadas y colectivas', caption: 'Propuesta 04' },
+    oficial: { src: oficialNacional, aspect: 1.75, ty: '-38.3%', alt: 'Lámina publicada: secciones de viviendas y hogares lado a lado', caption: 'Publicada' },
+    desc: 'Ninguna de las tres primeras propuestas tenía viviendas. La 04 abre la sección con el total en una tarjeta azul marino y la ramifica en ocupadas, desocupadas y colectivas. La publicada también abre con la cifra en banda azul — viviendas particulares, 7.638.396 — y resuelve la ocupación como donut: 88,1% ocupadas, 11,9% desocupadas. A su lado, Hogares incluye el promedio de hogares por vivienda, otro indicador que entre nuestras propuestas solo aparecía en la 04.',
+  },
 ];
 
 type Coincidencia = {
@@ -140,47 +199,69 @@ type Coincidencia = {
 };
 
 const COINCIDENCIAS: Coincidencia[] = [
+  // ── Literal
   { t: 'Bloque magenta del dato principal', grado: 'Literal', color: 'pink',
-    nuestra: 'Población censada en rectángulo magenta pleno, arriba a la izquierda, texto blanco.',
-    oficial: 'Idéntico, con la cifra definitiva: 18.480.432.' },
+    nuestra: 'Propuestas 01 a 03: población censada en rectángulo magenta pleno, arriba a la izquierda, texto blanco. La 04 lo cambia por una tarjeta azul marino.',
+    oficial: 'Idéntico al de las propuestas 01 a 03, con la cifra definitiva: 18.480.432.' },
   { t: 'Donut de población por sexo', grado: 'Literal', color: 'pink',
-    nuestra: 'Anillo de dos gajos, azul institucional y celeste, con Hombres / Mujeres etiquetados y % destacado.',
+    nuestra: 'Anillo de dos gajos, azul institucional y celeste, con Hombres / Mujeres etiquetados y % destacado. La 04 lo divide en dos donuts con avatar.',
     oficial: 'Mismo anillo y mismos dos azules; 48,5% y 51,5%.' },
   { t: 'Índice de envejecimiento', grado: 'Literal', color: 'pink',
     nuestra: 'Pictograma de personas mayores + etiqueta en versalitas + número grande a la derecha.',
     oficial: 'Mismo módulo, valor 79 y glosa explicativa bajo la cifra.' },
   { t: 'Promedio de personas por hogar', grado: 'Literal', color: 'pink',
-    nuestra: 'Icono de casa con familia, etiqueta en dos líneas y cifra grande (1,5 en maqueta).',
+    nuestra: 'Icono de casa con familia, etiqueta en dos líneas y cifra grande (1,5 en maqueta), en la 03 y otra vez en la 04.',
     oficial: 'Mismo módulo dentro de Hogares; 2,8.' },
+  { t: 'Titular y logos', grado: 'Literal', color: 'pink',
+    nuestra: 'Titular a la izquierda, INE y CENSO 2024 alineados al borde derecho. Las propuestas 01 a 03 dicen «Resultados generales»; la 04, «Principales resultados nacionales».',
+    oficial: 'Misma línea superior; el titular publicado es «Resultados nacionales».' },
+  { t: 'Marco de tarjeta y etiquetas mono', grado: 'Literal', color: 'pink',
+    nuestra: 'Propuestas 01 a 03: tarjetas de borde fino celeste agrupando módulos, etiquetas en versalitas azules sobre blanco.',
+    oficial: 'Mismo recurso como estructura de toda la lámina, con secciones tituladas.' },
+  // ── Adaptado
+  { t: 'Edad como cifra única', grado: 'Adaptado', color: 'azul',
+    nuestra: 'Propuesta 04: «Mediana de edad» en tarjeta con avatar y cifra grande (35 años, de maqueta).',
+    oficial: '«Promedio de edad» con pictograma y cifra grande: 38,1.' },
+  { t: 'Promedio de hogares por vivienda', grado: 'Adaptado', color: 'azul',
+    nuestra: 'Solo en la propuesta 04: pictograma de casa y cifra en tarjeta azul, junto a personas por hogar.',
+    oficial: 'Mismo indicador en el bloque Hogares, con icono y cifra a la derecha: 1,0.' },
   { t: 'Hogares unipersonales y de personas mayores', grado: 'Adaptado', color: 'azul',
-    nuestra: 'Los dos porcentajes como gráfico circular con etiqueta al pie, en un solo bloque de hogares.',
+    nuestra: 'Propuesta 03: los dos porcentajes como gráfico circular con etiqueta al pie, en un solo bloque de hogares. La 04 los reparte entre una tarjeta y un gráfico de barras.',
     oficial: 'Se mantienen juntos y en el mismo orden, resueltos como donuts magenta y naranja: 21,8% y 11,6%.' },
   { t: 'Total de hogares destacado', grado: 'Adaptado', color: 'azul',
-    nuestra: 'Cifra en magenta con icono de casa, encabezando el bloque.',
+    nuestra: 'Propuesta 03: cifra en magenta con icono de casa. Propuesta 04: tarjeta azul marino con icono, abriendo el bloque.',
     oficial: '«Hogares censados» en banda azul plena: 6.596.527.' },
+  { t: 'Viviendas por estado de ocupación', grado: 'Adaptado', color: 'azul',
+    nuestra: 'Solo en la propuesta 04: total de viviendas en tarjeta azul marino y tres ramas — ocupadas, desocupadas y colectivas.',
+    oficial: '«Viviendas particulares» en banda azul (7.638.396) y donut de ocupación: 88,1% y 11,9%.' },
   { t: 'Tramos de edad en anillo', grado: 'Adaptado', color: 'azul',
-    nuestra: 'Donut segmentado por grupos de edad con globos de porcentaje alrededor.',
-    oficial: 'Mismo donut con globos, reagrupado en tres tramos: 0 a 14, 15 a 64, 65 y más.' },
+    nuestra: 'Propuestas 01 a 03: donut con cuatro grupos de edad y globos de porcentaje. Propuesta 04: un donut con tres tramos — 0 a 14, 15 a 60, 60 o más.',
+    oficial: 'Donut con globos y tres tramos: 0 a 14, 15 a 64, 65 y más.' },
   { t: 'Serie histórica como gráfico', grado: 'Adaptado', color: 'azul',
-    nuestra: 'Propuesta 02: línea con marcadores para el índice y barras para la población, cuatro censos en el eje.',
-    oficial: 'La misma pareja de gráficos: línea con valores sobre los puntos y población en burbujas, con 2024 destacado.' },
-  { t: 'Titular y logos', grado: 'Literal', color: 'pink',
-    nuestra: 'Titular en azul institucional a la izquierda, INE y CENSO 2024 alineados al borde derecho.',
-    oficial: 'Misma línea superior; el titular pasa a «Resultados nacionales».' },
-  { t: 'Marco de tarjeta y etiquetas mono', grado: 'Literal', color: 'pink',
-    nuestra: 'Tarjetas de borde fino celeste agrupando módulos, etiquetas en versalitas azules sobre blanco.',
-    oficial: 'Mismo recurso como estructura de toda la lámina, con secciones tituladas.' },
+    nuestra: 'Propuesta 02: línea con marcadores para el índice y barras para la población. Propuesta 04: dos gráficos de línea, población por un lado, envejecimiento y niños por otro.',
+    oficial: 'La pareja de la 02: línea con valores sobre los puntos y población en burbujas, con 2024 destacado.' },
+  { t: 'Bloques en secuencia', grado: 'Adaptado', color: 'azul',
+    nuestra: 'Propuesta 04: Población, Viviendas, Hogares, Variaciones en el tiempo y Concentración, en ese orden.',
+    oficial: 'Población, Viviendas, Hogares y Evolución Censos, en el mismo orden, como secciones de una sola lámina.' },
+  // ── Se soltó
   { t: 'Pirámide quinquenal', grado: 'Se soltó', color: 'gris',
-    nuestra: 'Media lámina para la pirámide de 17 tramos, hombres y mujeres enfrentados.',
+    nuestra: 'Media lámina para la pirámide de 17 tramos en las propuestas 01 y 02; la 04 la mantiene en barras horizontales.',
     oficial: 'No aparece: la edad se resume en tres tramos y un promedio de 38,1.' },
   { t: 'Razón hombre-mujer', grado: 'Se soltó', color: 'gris',
-    nuestra: 'Módulo con dos pictogramas: por cada 100 mujeres hay 112,1 hombres.',
+    nuestra: 'Módulo con dos pictogramas: por cada 100 mujeres hay 112,1 hombres. La 04 lo convierte en «índice de masculinidad» con dos multitudes.',
     oficial: 'Fuera de la lámina; queda solo el reparto porcentual del donut.' },
+  { t: 'Inmigración internacional', grado: 'Se soltó', color: 'gris',
+    nuestra: 'Solo en la propuesta 04: tarjeta con pictograma y porcentaje (12%, de maqueta).',
+    oficial: 'No aparece en la lámina.' },
   { t: 'QR al detalle', grado: 'Se soltó', color: 'gris',
-    nuestra: 'QR al pie en las tres propuestas, con marco naranja en la 02.',
+    nuestra: 'QR al pie en las cuatro propuestas, con marco naranja en la 02.',
     oficial: 'Reemplazado por la URL en texto: www.censo2024.cl.' },
+  { t: 'Paleta y formato de la 04', grado: 'Se soltó', color: 'gris',
+    nuestra: 'Azul marino, azul y verde oliva, sin magenta, en una columna vertical para recorrer con scroll — a pedido del INE.',
+    oficial: 'Vuelve a una lámina de una sola vista, con magenta en el dato principal y naranja como acento en los donuts.' },
+  // ── Otro camino
   { t: 'Ficha regional', grado: 'Otro camino', color: 'gris',
-    nuestra: 'Plantilla repetible dieciséis veces, con el nombre de región en el bloque magenta.',
+    nuestra: 'Propuesta 03: plantilla repetible dieciséis veces, con el nombre de región en el bloque magenta. Propuesta 04: las regiones entran a la lámina nacional, en tabla y cadena de burbujas.',
     oficial: 'No se publicó como lámina; el detalle por región vive en el explorador del sitio.' },
 ];
 
@@ -220,7 +301,7 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
         className="fixed left-[80px] top-[56px] z-10 flex items-center justify-center max-[900px]:hidden"
         style={{ height: 'calc(100vh - 56px)', width: 28 }}
       >
-        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(9)} />
+        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(TOTAL_STAGES)} />
       </div>
 
       <div ref={contentRef} className="c24-content">
@@ -240,7 +321,7 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
             <span className="c24-crumb">Censo 2024 — Resultados Generales</span>
           </div>
 
-          <h1 className="c24-h1">Tres propuestas para una sola lámina</h1>
+          <h1 className="c24-h1">Cuatro propuestas para una sola lámina</h1>
 
           <div className="c24-hook">
             <div>
@@ -254,10 +335,10 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
             <div>
               <div className="c24-hooklabel c24-azul">Promesa</div>
               <p>
-                No una infografía, sino un sistema con tres salidas: tarjetas sobre
-                blanco, versalitas con series y ficha regional. Misma retícula, misma
-                familia tipográfica, tres grados de densidad para que el INE eligiera
-                con la pieza puesta.
+                Primero, un sistema con tres salidas: tarjetas sobre blanco, versalitas
+                con series y ficha regional — misma retícula, tres grados de densidad.
+                Después, a pedido del INE, una cuarta que dejó el magenta y ordenó el
+                contenido en un recorrido vertical por bloques.
               </p>
             </div>
           </div>
@@ -273,7 +354,7 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
           </dl>
 
           <div className="c24-indice">
-            <div className="c24-indice-label">Índice · 9 stages</div>
+            <div className="c24-indice-label">Índice · {TOTAL_STAGES} stages</div>
             <div className="c24-indice-grid">
               {INDICE.map((s) => (
                 <div className="c24-indice-row" key={s.n}>
@@ -318,9 +399,10 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
               antes de que saliera del estudio.
             </p>
             <p>
-              Ese ida y vuelta explica por qué la entrega fueron tres propuestas y no
-              una: cada una defiende una jerarquía distinta del mismo contenido, y las
-              tres comparten retícula para que la comparación fuera honesta.
+              Ese ida y vuelta explica por qué la primera ronda fueron tres propuestas y
+              no una: cada una defiende una jerarquía distinta del mismo contenido, y las
+              tres comparten retícula para que la comparación fuera honesta. La cuarta,
+              que vino después, la desarrollé solo.
             </p>
           </div>
 
@@ -341,7 +423,8 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
             Siete bloques obligatorios. Las propuestas se maquetaron con las cifras
             nacionales disponibles en ese momento y con valores de maqueta donde el
             dato aún no estaba cerrado — por eso en las láminas aparece 17.574.003 y
-            una comparación con cifras repetidas.
+            una comparación con cifras repetidas. La propuesta 04 sumó después
+            viviendas, inmigración y concentración por región.
           </p>
           <div className="c24-inv">
             {INVENTARIO.map((i) => (
@@ -552,26 +635,116 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
         </section>
 
         {/* ─── MARCO III ──────────────────────────────────────────────── */}
-        <div className="c24-marco">Marco III · Cierre</div>
+        <div className="c24-marco">Marco III · El pedido de cambio</div>
 
-        {/* ─── STAGE 09 ───────────────────────────────────────────────── */}
+        {/* ─── STAGE 09 · P4 ──────────────────────────────────────────── */}
+        <section className="c24-stage">
+          <StageHead n="09" title="Propuesta 04 · Principales resultados nacionales" accent="azul" />
+          <div className="c24-two">
+            <p>
+              Después de las tres primeras propuestas, el INE pidió cambiar de
+              dirección: dejar el magenta y pasar a un formato vertical largo. La
+              cuarta propuesta la desarrollé solo, en Figma. La paleta vuelve al azul —
+              marino para la estructura, azul y celeste para las series — y suma un
+              verde oliva como segunda serie. La pieza es una columna de proporción
+              cercana a 1:6, pensada para leerse con scroll.
+            </p>
+            <p>
+              El formato cambió también la forma de ordenar el contenido. En vez de una
+              retícula de tarjetas que se lee de un vistazo, la pieza avanza por bloques,
+              cada uno abierto por una tarjeta azul marino, y una línea punteada los hila
+              de arriba abajo. Viviendas aparece aquí por primera vez y la edad se
+              reagrupa en tres tramos. Las cifras siguen siendo de maqueta.
+            </p>
+          </div>
+
+          <figure className="c24-fig">
+            <div className="c24-frame c24-scroll-frame">
+              <div
+                className="c24-scroll"
+                tabIndex={0}
+                role="region"
+                aria-label="Propuesta 04 completa. Área desplazable."
+              >
+                <img
+                  src={propuesta04}
+                  alt="Propuesta 04: infografía vertical «Principales resultados nacionales» en azul marino, azul y verde oliva, con bloques de población, viviendas, hogares, variaciones en el tiempo y concentración por región"
+                  loading="lazy"
+                />
+              </div>
+              <div className="mono uc small dim c24-scroll-hint" aria-hidden="true">Desliza dentro del marco ↓</div>
+            </div>
+            <figcaption>
+              <span className="mono uc small c24-azul">Fig. 06</span>
+              <span>Propuesta 04 — pieza completa, 2000 × 12.774 px. Avatares ilustrados, una multitud isométrica y una línea punteada que conecta cada bloque.</span>
+            </figcaption>
+          </figure>
+
+          <div className="c24-paleta">
+            {PALETA_P04.map((c) => (
+              <div className="c24-swatch" key={c.hex}>
+                <div className="c24-swatch-chip" style={{ background: c.hex }} />
+                <div className="c24-swatch-body">
+                  <div className="c24-swatch-name">{c.name}</div>
+                  <div className="mono small dim">{c.hex}</div>
+                  <div className="c24-swatch-role">{c.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mono uc small dim c24-rec-head">Recorrido de la pieza · 5 bloques</div>
+          <div className="c24-inv c24-inv-tight">
+            {RECORRIDO.map((r) => (
+              <div className="c24-inv-row" key={r.n}>
+                <div className="c24-inv-l">
+                  <span className="mono small dim">{r.n}</span>
+                  <span className="c24-inv-t">{r.t}</span>
+                </div>
+                <div className="c24-inv-v mono">{r.v}</div>
+              </div>
+            ))}
+          </div>
+
+          <figure className="c24-fig c24-fig-detail">
+            <div className="c24-frame c24-detail-frame">
+              <div className="c24-detail-crop" style={{ aspectRatio: '1.436' }}>
+                <img src={propuesta04} alt="Detalle: bloque de concentración de la población con tabla de habitantes por región y cadena de burbujas" style={{ transform: 'translateY(-75.15%)' }} />
+              </div>
+            </div>
+            <figcaption className="c24-fig-detail-cap">Detalle · concentración de la población: tabla por región y cadena de burbujas (valores de maqueta). Las regiones entran en la lámina nacional en lugar de ir en fichas separadas.</figcaption>
+          </figure>
+        </section>
+
+        {/* ─── MARCO IV ───────────────────────────────────────────────── */}
+        <div className="c24-marco">Marco IV · Cierre</div>
+
+        {/* ─── STAGE 10 ───────────────────────────────────────────────── */}
         <section className="c24-stage last">
-          <StageHead n="09" title="Lo que se publicó" />
+          <StageHead n="10" title="Lo que se publicó" />
           <p className="c24-lead">
             El INE publicó su infografía de Resultados nacionales en{' '}
             <a href="https://censo2024.cl" target="_blank" rel="noopener noreferrer">
               censo2024.cl
             </a>
             , ya con las cifras definitivas: 18.480.432 personas censadas, índice de
-            envejecimiento 79 y promedio de edad 38,1. Puesta al lado de nuestras
-            propuestas, la continuidad es módulo por módulo: catorce decisiones
+            envejecimiento 79 y promedio de edad 38,1. Puesta al lado de las cuatro
+            propuestas, la continuidad es módulo por módulo: veinte decisiones
             reaparecen, se adaptan o se soltaron.
+          </p>
+          <p className="c24-lead">
+            Con la propuesta 04 a la vista, la lámina publicada se lee en dos capas. El
+            lenguaje visual coincide con la propuesta 01: bloque magenta para el dato
+            principal, donuts en azul y celeste, tarjetas de borde fino sobre blanco. La
+            organización del contenido coincide con la 04: el titular «nacionales», la
+            sección de viviendas, el promedio de hogares por vivienda, la edad en tres
+            tramos y el orden Población → Viviendas → Hogares → Evolución.
           </p>
 
           <figure className="c24-fig">
             <div className="c24-frame c24-compare">
               <div>
-                <div className="mono uc small dim c24-compare-head">Propuesta Globallys</div>
+                <div className="mono uc small dim c24-compare-head">Propuesta 01 · Globallys</div>
                 <img src={propuesta01} alt="Propuesta 01 de Globallys" />
               </div>
               <div>
@@ -580,7 +753,7 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
               </div>
             </div>
             <figcaption>
-              <span className="mono uc small c24-pink">Fig. 06</span>
+              <span className="mono uc small c24-pink">Fig. 07</span>
               <span>Comparación lado a lado: la propuesta 01 y la lámina de Resultados nacionales publicada por el INE.</span>
             </figcaption>
           </figure>
@@ -591,7 +764,8 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
             bloque del dato principal, el donut de población por sexo, el índice de
             envejecimiento con pictograma, el módulo de hogares y la serie histórica
             aparecen en la lámina publicada con la misma solución gráfica que probamos
-            en las propuestas.
+            en las propuestas 01 a 03. La propuesta 04 suma dos más: la edad en tres
+            tramos y la sección de viviendas.
           </p>
 
           <div className="c24-modulos">
@@ -607,7 +781,7 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
                   <div className="c24-modulo-side">
                     <div className="c24-frame c24-detail-frame">
                       <div className="c24-detail-crop" style={{ aspectRatio: String(m.nuestra.aspect) }}>
-                        <img src={m.nuestra.src} alt={m.nuestra.alt} style={{ transform: `translateY(${m.nuestra.ty})` }} />
+                        <img src={m.nuestra.src} alt={m.nuestra.alt} style={cropTransform(m.nuestra)} />
                       </div>
                     </div>
                     <div className="mono uc small dim c24-modulo-lbl">{m.nuestra.caption}</div>
@@ -615,7 +789,7 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
                   <div className="c24-modulo-side">
                     <div className="c24-frame c24-detail-frame">
                       <div className="c24-detail-crop" style={{ aspectRatio: String(m.oficial.aspect) }}>
-                        <img src={m.oficial.src} alt={m.oficial.alt} style={{ transform: `translateY(${m.oficial.ty})` }} />
+                        <img src={m.oficial.src} alt={m.oficial.alt} style={cropTransform(m.oficial)} />
                       </div>
                     </div>
                     <div className="mono uc small dim c24-modulo-lbl">{m.oficial.caption}</div>
@@ -627,8 +801,8 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
           </div>
 
           <figcaption className="c24-modulos-cap">
-            <span className="mono uc small c24-pink">Fig. 07</span>
-            <span>Cinco módulos comparados: recortes de nuestras propuestas junto al mismo módulo en la lámina publicada.</span>
+            <span className="mono uc small c24-pink">Fig. 08</span>
+            <span>Siete módulos comparados: recortes de las propuestas junto al mismo módulo en la lámina publicada.</span>
           </figcaption>
 
           <div className="c24-balance">
@@ -647,7 +821,7 @@ export default function Censo2024CaseStudy({ onBack }: { onBack: () => void }) {
 
           <div className="c24-footer">
             <span>Globallys</span>
-            <span>Con Consuelo Correa</span>
+            <span>Propuestas 01–03 con Consuelo Correa</span>
             <span>2025</span>
             <span>
               <a href="https://censo2024.cl" target="_blank" rel="noopener noreferrer">censo2024.cl</a>
@@ -665,7 +839,7 @@ function StageHead({ n, title, accent = 'pink' }: { n: string; title: string; ac
   return (
     <div className="c24-stagehead">
       <span className={'mono uc small bold ' + (accent === 'azul' ? 'c24-azul' : 'c24-pink')}>
-        {n}/09
+        {n}/{String(TOTAL_STAGES).padStart(2, '0')}
       </span>
       <h2 className="c24-stage-title">{title}</h2>
     </div>
@@ -792,6 +966,15 @@ const CSS = `
 .c24 .c24-detail-crop{overflow:hidden;}
 .c24 .c24-detail-crop img{display:block;width:100%;height:auto;}
 .c24 .c24-fig-detail-cap{margin-top:10px;font-family:var(--c24-mono);font-size:11px;line-height:1.5;color:var(--c24-dim);}
+
+/* STAGE 09 · propuesta 04: pieza larga en marco con scroll interno */
+.c24 .c24-scroll-frame{padding:clamp(16px,3vw,32px) clamp(16px,3vw,32px) 14px;display:flex;flex-direction:column;align-items:center;}
+.c24 .c24-scroll{width:100%;max-width:560px;height:min(72vh,820px);overflow-y:auto;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.12);scrollbar-width:thin;scrollbar-color:var(--c24-azul) transparent;}
+.c24 .c24-scroll:focus-visible{outline:2px solid var(--c24-azul);outline-offset:4px;}
+.c24 .c24-scroll img{display:block;width:100%;height:auto;}
+.c24 .c24-scroll-hint{margin-top:12px;}
+.c24 .c24-rec-head{margin-top:clamp(28px,3.5vw,40px);}
+.c24 .c24-inv.c24-inv-tight{margin-top:12px;}
 
 /* STAGE 09 · comparación */
 .c24 .c24-compare{padding:clamp(16px,3vw,32px);display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:clamp(16px,2.5vw,28px);align-items:start;}
