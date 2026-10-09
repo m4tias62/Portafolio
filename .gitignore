@@ -18,3 +18,7 @@ logs/
 # beside it.
 /.plugins/
 /.opencode-skills/
+
+# Archivos temporales y material de trabajo
+_tmp_*
+Claude outputs/
