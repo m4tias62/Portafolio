@@ -635,7 +635,7 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
                   CV
                 </span>
                 <span className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#0f0f0e]" style={narrow ? { gridColumn: '1 / -1' } : undefined}>
-                  Matías_Cáceres.pdf
+                  cv-matias-caceres.pdf
                 </span>
                 <span className="justify-self-end font-['IBM_Plex_Mono:Regular',sans-serif] text-[18px]" aria-hidden="true">
                   ↓
