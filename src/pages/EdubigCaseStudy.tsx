@@ -277,8 +277,8 @@ const DIMENSIONES: Dim[] = [
 ];
 
 const USOS_EJE: { tono: string; estado: string; donde: string }[] = [
-  { tono: '#2166ac', estado: 'Frío · dato sin traducir', donde: 'Card en estado default dentro de la lista general. Todavía no sabe nada de vos.' },
-  { tono: '#d6604d', estado: 'Cálido · en foco', donde: 'Hover sobre la card: cruza al lado cálido porque revela más información que la lista. Era #f4a582 hasta la auditoría de contraste de la stage 08.2' },
+  { tono: '#2166ac', estado: 'Frío · dato sin traducir', donde: 'Card en estado default dentro de la lista general. Todavía no sabe nada de ti.' },
+  { tono: '#d6604d', estado: 'Cálido · en foco', donde: 'Hover sobre la card: cruza al lado cálido porque revela más información que la lista. Era #f4a582 hasta la auditoría de contraste de la etapa 08.2' },
   { tono: '#d6604d', estado: 'Cálido · traducido', donde: 'Cards de la shortlist que devuelve el Test de Calce, armadas contra las necesidades declaradas.' },
   { tono: '#b2181f', estado: 'Cálido · extremo', donde: 'Isologo y marca. El punto de llegada de la traducción.' },
 ];
@@ -306,7 +306,7 @@ const FRAMES_TRAD: FrameTraduccion[] = [
     url: scHomeLista,
     alt: 'Home mobile con lista de colegios en cards de borde azul',
     recorte: 'Vista superior · corta tras la primera card',
-    nota: 'La lista general. Cards de borde frío: el colegio está ahí porque vos lo buscaste, no porque el sistema lo eligió para vos.',
+    nota: 'La lista general. Cards de borde frío: el colegio está ahí porque tú lo buscaste, no porque el sistema lo eligió para ti.',
   },
   {
     estado: 'Puente · el traductor operando', tono: '#9a9a92',
@@ -570,7 +570,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
 
         {/* ─── STAGE 01 · COVER ───────────────────────────────────────── */}
         <section id="eb-stage-01" className="eb-stage">
-          <StageHead n="01" title="Cover" step="01 / 11" />
+          <StageHead n="01" title="Portada" step="01 / 11" />
           <div className="eb-cover">
             <div className="eb-cover-txt">
               <p className="eb-hook-a">
@@ -596,6 +596,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 <div><dt>Rol</dt><dd>MVP completo — dato, diseño, producto y sistema</dd></div>
                 <div><dt>Colaboración</dt><dd>Israel Rubilar — dataset nacional, desde la fase de escala</dd></div>
                 <div><dt>Estado</dt><dd>En construcción · <span className="mono">nov-2026</span></dd></div>
+                <div><dt>MVP</dt><dd><a href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>edu-big.vercel.app ↗</a><br /><span style={{ color: 'var(--eb-dim)', fontSize: 12 }}>En desarrollo — versión Pudahuel</span></dd></div>
                 <div><dt>Escala</dt><dd><span className="mono">57</span> colegios validados <span className="arrow">→</span> <span className="mono">7.168</span> en schema</dd></div>
               </dl>
             </div>
@@ -1299,7 +1300,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               <p>
                 La prueba de que el eje es estado y no estilo: es el mismo componente de card en las dos
                 puntas, y su temperatura cambia sola con el origen del dato. Frío cuando lo encontraste
-                vos navegando una lista; cálido cuando el sistema lo trajo para tu familia — y recién ahí
+                tú navegando una lista; cálido cuando el sistema lo trajo para tu familia — y recién ahí
                 aparecen las chips de calce y las acciones, porque hay contra qué contrastarlo. En el
                 medio, la pantalla de espera dice literalmente <em>Traduciendo tus respuestas</em> — el
                 concepto rector no aparece en un manifiesto sino en el microcopy de un loader.
@@ -1411,7 +1412,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 Las pantallas se recorren en <strong>orden narrativo, no por menú.</strong>
               </p>
               <p className="p-soft">
-                Al margen de cada una queda anotada la decisión de las stages anteriores que ahí se vuelve
+                Al margen de cada una queda anotada la decisión de las etapas anteriores que ahí se vuelve
                 visible. Sin esa anotación el screen no prueba nada: es una captura.
               </p>
               <div className="eb-recorrido">
@@ -1585,7 +1586,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
 function StageHead({ n, title, step }: { n: string; title: string; step: string }) {
   return (
     <div className="eb-stagehead">
-      <span className="mono uc small bold">Stage {n} · {title}</span>
+      <span className="mono uc small bold">Etapa {n} · {title}</span>
       <span className="mono uc small dim">{step}</span>
     </div>
   );

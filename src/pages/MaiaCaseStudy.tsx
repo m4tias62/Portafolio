@@ -574,7 +574,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
           {/* ── Stage 01 · El problema ─────────────────────────────────── */}
           <section className="mm-stage" id="stage-01">
             <div className="mm-stagehead">
-              <span className="stage-label">Stage 01</span>
+              <span className="stage-label">Etapa 01</span>
               <span className="stage-count">01 / 09</span>
             </div>
             <h2>La exclusión invisible</h2>
@@ -599,7 +599,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
 
           {/* ── Stage 02 · Metodología etnográfica ─────────────────────── */}
           <section className="mm-stage" id="stage-02">
-            <div className="mm-stagehead"><span className="stage-label">Stage 02</span><span className="stage-count">02 / 09</span></div>
+            <div className="mm-stagehead"><span className="stage-label">Etapa 02</span><span className="stage-count">02 / 09</span></div>
             <h2>Metodología etnográfica — descender a la biografía</h2>
             <div className="mm-two">
               <p className="mm-hook">Visibilizar la experiencia cotidiana del analfabetismo digital funcional, no solo medirla.</p>
@@ -645,7 +645,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
 
           {/* ── Stage 03 · Fundamento teórico ──────────────────────────── */}
           <section className="mm-stage" id="stage-03">
-            <div className="mm-stagehead"><span className="stage-label">Stage 03</span><span className="stage-count">03 / 09</span></div>
+            <div className="mm-stagehead"><span className="stage-label">Etapa 03</span><span className="stage-count">03 / 09</span></div>
             <h2>La ansiedad tecnológica no es una anécdota</h2>
             <div className="mm-two">
               <p className="mm-hook">La parálisis no es aptitud. Es indefensión aprendida.</p>
@@ -676,7 +676,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
 
           {/* ── Stage 04 · El usuario ──────────────────────────────────── */}
           <section className="mm-stage" id="stage-04">
-            <div className="mm-stagehead"><span className="stage-label">Stage 04</span><span className="stage-count">04 / 09</span></div>
+            <div className="mm-stagehead"><span className="stage-label">Etapa 04</span><span className="stage-count">04 / 09</span></div>
             <h2>El Navegante Condicionado</h2>
             <div className="mm-two">
               <p className="mm-hook">No es “analfabeto digital”. Vive una <em>inclusión condicionada</em>.</p>
@@ -698,7 +698,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
 
           {/* ── Stage 05 · El concepto ─────────────────────────────────── */}
           <section className="mm-stage" id="stage-05">
-            <div className="mm-stagehead"><span className="stage-label">Stage 05</span><span className="stage-count">05 / 09</span></div>
+            <div className="mm-stagehead"><span className="stage-label">Etapa 05</span><span className="stage-count">05 / 09</span></div>
             <h2>El concepto — andamiaje cognitivo y calma háptica</h2>
             <div className="mm-two">
               <p className="mm-hook">La solución no es enseñar a usar una app. Es construir un ecosistema donde equivocarse no cueste nada.</p>
@@ -708,7 +708,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
               </blockquote>
             </div>
             <div className="mm-body">
-              <p>MAIA se define como un ecosistema de andamiaje cognitivo para la cuarta edad que combina la <strong>calma háptica de la madera</strong> con una <strong>interfaz empática</strong>, permitiendo que el usuario “aprenda haciendo” sin riesgos reales — apoyado en la inteligencia cristalizada que el Stage 03 identificó como intacta.</p>
+              <p>MAIA se define como un ecosistema de andamiaje cognitivo para la cuarta edad que combina la <strong>calma háptica de la madera</strong> con una <strong>interfaz empática</strong>, permitiendo que el usuario “aprenda haciendo” sin riesgos reales — apoyado en la inteligencia cristalizada que la Etapa 03 identificó como intacta.</p>
               <p>Esta síntesis llegó después de cinco iteraciones de prototipo — de tarjetas NFC sin pantalla a un tutorial en video, a un simulador con voz robótica — cada una descartada por una razón distinta hasta llegar al soporte físico y la app protegida que se describen a continuación. El hallazgo más determinante de ese proceso: un primer soporte tipo mueble fue rechazado por el 77 % de las usuarias testeadas por “innecesariamente grande”, lo que derivó en la mesa portátil de madera natural actual.</p>
             </div>
             <figure className="mm-render-video">
@@ -722,7 +722,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
 
           {/* ── Stage 06 · Criterios de diseño ─────────────────────────── */}
           <section className="mm-stage" id="stage-06">
-            <div className="mm-stagehead"><span className="stage-label">Stage 06</span><span className="stage-count">06 / 09</span></div>
+            <div className="mm-stagehead"><span className="stage-label">Etapa 06</span><span className="stage-count">06 / 09</span></div>
             <h2>Criterios de diseño</h2>
             <div className="mm-two">
               <p className="mm-hook">Cada decisión de interfaz responde a una cita, no a una convención de UI.</p>
@@ -803,7 +803,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
 
           {/* ── Stage 07 · Testeo sistemático ──────────────────────────── */}
           <section className="mm-stage" id="stage-07">
-            <div className="mm-stagehead"><span className="stage-label">Stage 07</span><span className="stage-count">07 / 09</span></div>
+            <div className="mm-stagehead"><span className="stage-label">Etapa 07</span><span className="stage-count">07 / 09</span></div>
             <h2>Testeo sistemático — “Las Dorcas” en Cerro Navia</h2>
             <div className="mm-two">
               <p className="mm-hook">La confianza no se pide. Se hereda de quien ya la tiene.</p>
@@ -876,7 +876,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
 
           {/* ── Stage 08 · Estrategia de implementación ────────────────── */}
           <section className="mm-stage" id="stage-08">
-            <div className="mm-stagehead"><span className="stage-label">Stage 08</span><span className="stage-count">08 / 09</span></div>
+            <div className="mm-stagehead"><span className="stage-label">Etapa 08</span><span className="stage-count">08 / 09</span></div>
             <h2>Estrategia de implementación — la solución se hereda</h2>
             <div className="mm-two">
               <p className="mm-hook">La verdadera escala del proyecto no está en el kit. Está en cómo se entrega.</p>
@@ -947,7 +947,7 @@ export default function MaiaCaseStudy({ onBack }: Props) {
 
           {/* ── Stage 09 · Cierre ───────────────────────────────────────── */}
           <section className="mm-stage" id="stage-09">
-            <div className="mm-stagehead"><span className="stage-label">Stage 09</span><span className="stage-count">09 / 09</span></div>
+            <div className="mm-stagehead"><span className="stage-label">Etapa 09</span><span className="stage-count">09 / 09</span></div>
             <h2>Cierre</h2>
             <div className="mm-two">
               <p className="mm-hook">Este proyecto no resolvió la brecha digital. Enseñó a mirarla de cerca.</p>

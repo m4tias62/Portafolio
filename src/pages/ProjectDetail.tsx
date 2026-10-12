@@ -371,6 +371,11 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
           >
             {project.title}
           </p>
+          {project.credits && (
+            <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[14px] leading-[1.5] text-[#3a3a38] mt-3 max-w-[60ch]">
+              {project.credits}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-[80px]">

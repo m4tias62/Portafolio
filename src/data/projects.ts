@@ -118,6 +118,12 @@ export type Project = {
   categoryId: CategoryId;
   /** Bajada corta que aparece en la card del carrusel. */
   description: string;
+  /** Rol de Matías en el proyecto — línea Mono bajo la bajada de la card. */
+  role?: string;
+  /** Estado o resultado en pocas palabras (MVP en línea, publicado, entregable…). */
+  status?: string;
+  /** Créditos / colaboración — se muestran bajo el título en el detalle stage-based. */
+  credits?: string;
   /** Si false, la card aparece como "En preparación" y no es navegable. */
   available: boolean;
   /** Thumbnail para la card del carrusel. Si se omite, la card muestra placeholder. */
@@ -155,6 +161,9 @@ export const projects: Project[] = [
     categoryId: 'datos',
     description:
       'Sistema visual de nubes de puntos sobre las tendencias laborales del diseñador UDP a lo largo de tres décadas.',
+    role: 'Datos e instalación · proyecto colectivo',
+    status: 'Pieza de cierre del Taller Data UDP, 2024',
+    credits: 'Proyecto colectivo del Taller Data UDP. Datos, sistema visual e instalación se desarrollaron en equipo.',
     available: true,
     thumbnail: labosferaEsfera,
     thumbnailVideo: '/labosfera-instalacion.mp4',
@@ -234,6 +243,8 @@ export const projects: Project[] = [
     categoryId: 'datos',
     description:
       'Tres propuestas visuales para la infografía Resultados Generales del Censo 2024 (INE).',
+    role: 'Diseño de información · vía Globallys, con Consuelo Correa',
+    status: 'Tres propuestas visuales',
     available: true,
     thumbnail: censoPropuesta1,
     headerLabel: 'Proyecto 02',
@@ -252,6 +263,9 @@ export const projects: Project[] = [
     categoryId: 'datos',
     description:
       'Crisis hídrica en Petorca leída a través del mercado de derechos de aprovechamiento del agua.',
+    role: 'Datos e instalación · con Jacinta Barrenechea',
+    status: 'Exposición universitaria, 2023',
+    credits: 'Proyecto en dupla con Jacinta Barrenechea Castillo. Investigación, datos, sistema visual e instalación fueron trabajo conjunto.',
     available: true,
     thumbnail: mdaDiscoManchas,
     thumbnailVideo: '/mercado-del-agua-hero.mp4',
@@ -335,7 +349,9 @@ export const projects: Project[] = [
     category: 'Product design',
     categoryId: 'ux-ui',
     description:
-      'Plataforma de decisión escolar para familias de la comuna de Pudahuel.',
+      'Traduce seis fuentes oficiales de datos escolares para que una familia elija colegio.',
+    role: 'Producto, datos y sistema',
+    status: 'MVP en línea · lanzamiento nov-2026',
     available: true,
     thumbnail: edubigThumb,
     headerLabel: 'Proyecto 06',
@@ -359,6 +375,8 @@ export const projects: Project[] = [
     categoryId: 'ux-ui',
     description:
       'Sistema de alfabetización digital para adultos mayores con analfabetismo funcional digital, testeado en terreno con la junta \"Las Dorcas\" en Cerro Navia.',
+    role: 'Investigación etnográfica y diseño',
+    status: 'Memoria de título · app iterada tras testeo en terreno',
     available: true,
     thumbnail: maiaThumb,
     headerLabel: 'Proyecto 08',
@@ -383,7 +401,9 @@ export const projects: Project[] = [
     category: 'Arquitectura de información',
     categoryId: 'ux-ui',
     description:
-      'Rediseño del árbol de contenidos del portal del Censo 2024 del INE — validado, documentado e implementado.',
+      'Árbol de contenidos propuesto para el portal del Censo 2024 del INE, con su kit de validación.',
+    role: 'Arquitectura de información · vía Globallys',
+    status: 'Entregable de Fase 1 · comparable con el sitio publicado',
     available: true,
     thumbnail: sitemapTree,
     thumbnailVideo: '/sitemap-ine-recorrido.mp4',
@@ -503,6 +523,8 @@ export const projects: Project[] = [
     categoryId: 'editorial',
     description:
       'Serie de tres ebooks descargables para captación de leads B2B — diagramación, ilustración y arte final.',
+    role: 'Diseño editorial',
+    status: 'Serie de tres títulos entregada',
     available: true,
     thumbnail: tuxpanThumb,
     headerLabel: 'Proyecto 09',
@@ -523,6 +545,8 @@ export const projects: Project[] = [
     categoryId: 'editorial',
     description:
       'Libro ilustrado que reordena la historia universal en líneas de tiempo por década. Veinte diseñadores, un solo sistema visual.',
+    role: 'Diseño e ilustración · décadas 1540–1570',
+    status: 'Publicado por Editorial Cataloma, 2023',
     available: true,
     thumbnail: enormeThumb,
     headerLabel: 'Proyecto 10',
@@ -532,7 +556,9 @@ export const projects: Project[] = [
 
 /** Devuelve los proyectos que pertenecen a una categoría dada. */
 export function projectsByCategory(categoryId: CategoryId): Project[] {
-  return projects.filter(p => p.categoryId === categoryId);
+  // Solo proyectos navegables: los «En preparación» quedan fuera del índice
+  // (siguen en este archivo para retomarlos cuando estén listos).
+  return projects.filter(p => p.categoryId === categoryId && p.available);
 }
 
 /** Búsqueda por id — usada por ProjectDetail para saber qué proyecto renderizar. */

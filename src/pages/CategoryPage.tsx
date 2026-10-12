@@ -95,6 +95,11 @@ function ProjectCard({ project, onClick, narrow }: { project: Project; onClick: 
         >
           {project.description}
         </p>
+        {!disabled && (project.role || project.status) && (
+          <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] leading-[1.5] text-[#3a3a38] mt-2 max-w-[460px]">
+            {[project.role, project.status].filter(Boolean).join(' · ')}
+          </p>
+        )}
       </div>
     </button>
   );

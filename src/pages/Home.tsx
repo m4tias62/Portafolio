@@ -15,7 +15,7 @@ const SLIDE_INDEX: Record<string, number> = { projects: 1, about: 4, contact: 5 
 
 const LINKEDIN_URL = 'https://www.linkedin.com/in/matias-caceres-maureira-9b6051259/';
 const CV_URL = '/cv-matias-caceres.pdf';
-const EMAIL = 'matias.caceres4@mail.udp.cl';
+const EMAIL = 'matiascmaureira3@gmail.com';
 
 function fallbackCopy(text: string) {
   const ta = document.createElement('textarea');
