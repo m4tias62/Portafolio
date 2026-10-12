@@ -636,12 +636,12 @@ export default function MaiaCaseStudy({ onBack }: Props) {
             <div className="mm-two">
               <p className="mm-hook">Visibilizar la experiencia cotidiana del analfabetismo digital funcional, no solo medirla.</p>
               <blockquote className="mm-quote">
-                <p>“El obstáculo no está en la alfabetización básica, sino en la comprensión funcional del entorno digital.”</p>
-                <cite>Reflexión sobre Pedro (68), intentando activar permisos en su teléfono</cite>
+                <p>“Desgraciadamente no entiendo, entonces me hace sentir un poco mal. O sea, me hace sentir un poquito más ignorante.”</p>
+                <cite>Pedro (68) · Entrevista etnográfica, Pudahuel</cite>
               </blockquote>
             </div>
             <div className="mm-body">
-              <p>Metodología autoetnográfica (Chang, 2008; Ellis, Adams &amp; Bochner, 2011), con el objetivo declarado de visibilizar las experiencias cotidianas del analfabetismo digital funcional para generar conocimiento cualitativo. Observación participativa de <strong>María (66, madre)</strong>, <strong>Pedro (68, padre)</strong> y <strong>Manuela (83, abuela)</strong>, triangulando diarios de campo, entrevistas semi-estructuradas y registro audiovisual.</p>
+              <p>Metodología autoetnográfica (Chang, 2008; Ellis, Adams &amp; Bochner, 2011), con el objetivo declarado de visibilizar las experiencias cotidianas del analfabetismo digital funcional para generar conocimiento cualitativo. Observación participativa de <strong>María (66)</strong>, <strong>Pedro (68)</strong> y <strong>Manuela (83)</strong>, triangulando diarios de campo, entrevistas semi-estructuradas y registro audiovisual.</p>
               <p>Marco ético: uso de nombres reales con consentimiento explícito. La cercanía como valor y como riesgo — reflexividad explícita para evitar la autoindulgencia del investigador.</p>
             </div>
             <div className="mm-triptych" style={{ marginTop: 32 }}>
