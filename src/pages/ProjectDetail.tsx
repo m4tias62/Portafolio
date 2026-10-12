@@ -8,11 +8,13 @@ import EnormeCaseStudy from '@/pages/EnormeCaseStudy';
 import SitemapIneCaseStudy from '@/pages/SitemapIneCaseStudy';
 import Censo2024CaseStudy from '@/pages/Censo2024CaseStudy';
 import MdaDataBar from '@/components/figures/MdaDataBar';
+import NextProject from '@/components/NextProject';
 import { getProjectById, type FigureKey, type Stage } from '@/data/projects';
 
 type ProjectDetailProps = {
   projectId: number;
   onBack: () => void;
+  onProjectClick: (id: number) => void;
 };
 
 /**
@@ -265,7 +267,7 @@ function StageText({ stage, horizontal = false, narrow = false }: { stage: Stage
   );
 }
 
-export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
+export default function ProjectDetail({ projectId, onBack, onProjectClick }: ProjectDetailProps) {
   const project = getProjectById(projectId);
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -310,28 +312,24 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
     }
   }
 
-  if (project && project.slug === 'maia-alfabetizacion-digital') {
-    return <MaiaCaseStudy onBack={onBack} />;
-  }
-
-  if (project && project.slug === 'edubig') {
-    return <EdubigCaseStudy onBack={onBack} />;
-  }
-
-  if (project && project.slug === 'ebooks-tuxpan') {
-    return <TuxpanCaseStudy onBack={onBack} />;
-  }
-
-  if (project && project.slug === 'enorme') {
-    return <EnormeCaseStudy onBack={onBack} />;
-  }
-
-  if (project && project.slug === 'sitemap-ine') {
-    return <SitemapIneCaseStudy onBack={onBack} />;
-  }
-
-  if (project && project.slug === 'censo-2024') {
-    return <Censo2024CaseStudy onBack={onBack} />;
+  // Case studies dedicados (componente propio por slug). Todos reciben la
+  // banda «Siguiente proyecto» al pie.
+  const DEDICATED: Record<string, ComponentType<{ onBack: () => void }>> = {
+    'maia-alfabetizacion-digital': MaiaCaseStudy,
+    edubig: EdubigCaseStudy,
+    'ebooks-tuxpan': TuxpanCaseStudy,
+    enorme: EnormeCaseStudy,
+    'sitemap-ine': SitemapIneCaseStudy,
+    'censo-2024': Censo2024CaseStudy,
+  };
+  const Dedicated = project ? DEDICATED[project.slug] : undefined;
+  if (project && Dedicated) {
+    return (
+      <>
+        <Dedicated onBack={onBack} />
+        <NextProject currentId={project.id} onProjectClick={onProjectClick} />
+      </>
+    );
   }
 
   if (!project) {
@@ -414,6 +412,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
           })}
         </div>
       </div>
+      <NextProject currentId={project.id} onProjectClick={onProjectClick} />
     </div>
   );
 }

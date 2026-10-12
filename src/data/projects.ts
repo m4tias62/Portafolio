@@ -571,6 +571,11 @@ export function featuredProjects(): Project[] {
   return projects.filter(p => p.featured && p.available);
 }
 
+/** Búsqueda por slug — usada por el enrutado por hash (#/proyecto/<slug>). */
+export function getProjectBySlug(slug: string): Project | undefined {
+  return projects.find(p => p.slug === slug);
+}
+
 /** Búsqueda por id — usada por ProjectDetail para saber qué proyecto renderizar. */
 export function getProjectById(id: number): Project | undefined {
   return projects.find(p => p.id === id);
