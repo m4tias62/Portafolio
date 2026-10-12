@@ -69,7 +69,7 @@ export default function App() {
           onBack={backToHome}
         />
       ) : (
-        <Home onCategoryClick={handleCategoryClick} scrollTo={scrollTo} />
+        <Home onCategoryClick={handleCategoryClick} onProjectClick={handleProjectClick} scrollTo={scrollTo} />
       )}
     </div>
   );

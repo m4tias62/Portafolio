@@ -3,15 +3,18 @@ import imgPresentation from '@/imports/Prototipo/556ea8de7896ac0e95b5d5e013e9d3d
 import ProgressBar from '@/components/ProgressBar';
 import CKHeroOverture from '@/components/CKHeroOverture';
 import { categories, type Category, type CategoryId } from '@/data/categories';
+import { featuredProjects, type Project } from '@/data/projects';
 
 type HomeProps = {
   onCategoryClick: (id: CategoryId) => void;
+  onProjectClick: (id: number) => void;
   scrollTo?: string;
 };
 
 // Los links de la NavBar (proyectos/sobre mí/contacto) mapean a un índice de
 // slide del carrusel horizontal — el Home ya no scrollea en vertical.
-const SLIDE_INDEX: Record<string, number> = { projects: 1, about: 4, contact: 5 };
+// 0 hero · 1 destacados · 2–4 categorías · 5 sobre mí · 6 contacto
+const SLIDE_INDEX: Record<string, number> = { projects: 1, about: 5, contact: 6 };
 
 const LINKEDIN_URL = 'https://www.linkedin.com/in/matias-caceres-maureira-9b6051259/';
 const CV_URL = '/cv-matias-caceres.pdf';
@@ -108,7 +111,62 @@ function CategoryCard({
   );
 }
 
-export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
+/**
+ * Card compacta para el slide «Proyectos destacados». Mismo lenguaje que el
+ * ProjectCard de CategoryPage (borde, hover, eyebrow Mono, línea rol · estado)
+ * pero dimensionada para que tres quepan en un viewport.
+ */
+function FeaturedCard({ project, onClick, narrow, reduced }: { project: Project; onClick: () => void; narrow: boolean; reduced: boolean }) {
+  const fitClass = project.thumbnailFit === 'contain' ? 'object-contain bg-white' : 'object-cover';
+  return (
+    <button
+      onClick={onClick}
+      aria-label={`Ver caso: ${project.title}`}
+      className="group flex flex-col text-left cursor-pointer min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fafaf7]"
+    >
+      <div
+        className={`w-full relative overflow-hidden bg-[#ebeae4] border border-[#dcdbd5] ${
+          !reduced ? 'transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]' : ''
+        }`}
+        style={narrow ? { aspectRatio: '4 / 3' } : { height: 'min(30vh, 280px)' }}
+      >
+        {project.thumbnailVideo && !reduced ? (
+          <video
+            src={project.thumbnailVideo}
+            poster={project.thumbnail}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            className={`absolute inset-0 w-full h-full ${fitClass} pointer-events-none`}
+          />
+        ) : project.thumbnail ? (
+          <img src={project.thumbnail} alt="" draggable={false} className={`absolute inset-0 w-full h-full ${fitClass}`} />
+        ) : null}
+      </div>
+      <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.43px] leading-[1.47] uppercase text-[#8a8a85] pt-3">
+        {project.category} — {project.year}
+      </p>
+      <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[20px] leading-[1.2] tracking-[-0.2px] mt-1 text-[#0f0f0e]">
+        {project.title}
+        <span className="inline-block ml-2 transition-transform duration-300 group-hover:translate-x-[5px]" aria-hidden="true">→</span>
+      </p>
+      <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[14px] leading-[1.5] mt-1 text-[#3a3a38]">
+        {project.description}
+      </p>
+      {(project.role || project.status) && (
+        <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] leading-[1.5] text-[#3a3a38] mt-2">
+          {[project.role, project.status].filter(Boolean).join(' · ')}
+        </p>
+      )}
+    </button>
+  );
+}
+
+export default function Home({ onCategoryClick, onProjectClick, scrollTo }: HomeProps) {
+  const featured = featuredProjects();
   const trackRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [narrow, setNarrow] = useState(false);
@@ -434,12 +492,12 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
           data-slide
           aria-label="Inicio"
           className={`relative shrink-0 overflow-hidden bg-[#fafaf7] ${
-            narrow ? 'w-full h-[70vh] min-h-[420px]' : 'w-full h-full'
+            narrow ? 'w-full min-h-[78vh] flex flex-col justify-end' : 'w-full h-full'
           }`}
         >
           <CKHeroOverture className="absolute inset-0" style={{}} />
           <div
-            className={`absolute inset-0 z-10 flex flex-col ${narrow ? 'justify-end gap-[16px]' : 'justify-center gap-[26px]'} pointer-events-none`}
+            className={`${narrow ? 'relative pt-[38vh]' : 'absolute inset-0'} z-10 flex flex-col ${narrow ? 'justify-end gap-[14px]' : 'justify-center gap-[20px]'} pointer-events-none`}
             style={{
               padding: 'clamp(28px, 4.5vw, 72px)',
               background:
@@ -452,24 +510,68 @@ export default function Home({ onCategoryClick, scrollTo }: HomeProps) {
               className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.18] tracking-[-0.4px]"
               style={{ fontSize: 'clamp(22px, 2.5vw, 34px)', maxWidth: 'min(46ch, 92vw)' }}
             >
-              «Diseña quien concibe cursos de acción destinados a cambiar situaciones existentes por otras preferidas.»
+              Diseñador UX/UI. Me mueve investigar con usuarios y convertir lo que aprendo en estructuras claras.
             </h1>
             <p
-              className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[#3a3a38] leading-[1.5] tracking-[0.5px] uppercase"
-              style={{ fontSize: 'clamp(11px, 0.85vw, 13px)' }}
+              className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#3a3a38] leading-[1.5] max-w-[56ch]"
+              style={{ fontSize: 'clamp(15px, 1.15vw, 17px)' }}
             >
-              — Herbert Simon, <span className="italic normal-case tracking-normal">The Sciences of the Artificial</span>
+              Colaboro con Globallys, consultora de accesibilidad digital, en arquitectura de información, benchmark e
+              investigación, por ejemplo para el portal del Censo 2024 del INE. En paralelo diseño Edubig, una
+              plataforma de decisión escolar.
             </p>
             <p
-              className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#3a3a38] leading-[1.4] max-w-[44ch] mt-[8px]"
-              style={{ fontSize: 'clamp(14px, 1.15vw, 17px)' }}
+              className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#0f0f0e] leading-[1.5] max-w-[56ch]"
+              style={{ fontSize: 'clamp(15px, 1.15vw, 17px)' }}
             >
-              {'Diseñar en la intersección del criterio, la restricción y\u00A0la\u00A0curiosidad.'}
+              Busco un rol junior en UX/UI o Product Design, en Santiago (remoto o presencial) o remoto para equipos
+              internacionales.
+            </p>
+            <p
+              className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#8a8a85] leading-[1.45] max-w-[52ch] mt-[6px]"
+              style={{ fontSize: 'clamp(12px, 0.9vw, 14px)' }}
+            >
+              «Diseña quien concibe cursos de acción destinados a cambiar situaciones existentes por otras preferidas.»{' '}
+              <span className="font-['IBM_Plex_Mono:Regular',sans-serif] not-italic uppercase tracking-[0.5px] text-[11px]">
+                — Herbert Simon
+              </span>
             </p>
           </div>
         </section>
 
-        {/* 1–3 · CATEGORÍAS */}
+        {/* 1 · PROYECTOS DESTACADOS */}
+        <section
+          aria-roledescription="slide"
+          data-slide
+          aria-label="Proyectos destacados"
+          className={`relative shrink-0 bg-[#fafaf7] ${narrow ? 'w-full' : 'h-full'}`}
+          style={narrow ? undefined : { width: 'min(1180px, 88vw)' }}
+        >
+          <div
+            className={`${narrow ? '' : 'absolute inset-0'} flex flex-col justify-center gap-[clamp(18px,3vh,32px)]`}
+            style={{ padding: narrow ? '8px 0' : 'clamp(16px, 2.4vw, 40px)' }}
+          >
+            <h2
+              className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.1] tracking-[-0.4px]"
+              style={{ fontSize: 'clamp(24px, 2.2vw, 32px)' }}
+            >
+              Proyectos destacados
+            </h2>
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: narrow ? '1fr' : `repeat(${featured.length}, minmax(0, 1fr))`,
+                gap: narrow ? 36 : 'clamp(20px, 2.4vw, 40px)',
+              }}
+            >
+              {featured.map(p => (
+                <FeaturedCard key={p.id} project={p} narrow={narrow} reduced={reduced} onClick={() => onProjectClick(p.id)} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 2–4 · CATEGORÍAS */}
         {categories.map((c) => (
           <CategoryCard
             key={c.id}

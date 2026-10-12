@@ -124,6 +124,8 @@ export type Project = {
   status?: string;
   /** Créditos / colaboración — se muestran bajo el título en el detalle stage-based. */
   credits?: string;
+  /** Si true, el proyecto aparece en el slide «Proyectos destacados» del Home (en el orden de este archivo). */
+  featured?: boolean;
   /** Si false, la card aparece como "En preparación" y no es navegable. */
   available: boolean;
   /** Thumbnail para la card del carrusel. Si se omite, la card muestra placeholder. */
@@ -352,6 +354,7 @@ export const projects: Project[] = [
       'Traduce seis fuentes oficiales de datos escolares para que una familia elija colegio.',
     role: 'Producto, datos y sistema',
     status: 'MVP en línea · lanzamiento nov-2026',
+    featured: true,
     available: true,
     thumbnail: edubigThumb,
     headerLabel: 'Proyecto 06',
@@ -377,6 +380,7 @@ export const projects: Project[] = [
       'Sistema de alfabetización digital para adultos mayores con analfabetismo funcional digital, testeado en terreno con la junta \"Las Dorcas\" en Cerro Navia.',
     role: 'Investigación etnográfica y diseño',
     status: 'Memoria de título · app iterada tras testeo en terreno',
+    featured: true,
     available: true,
     thumbnail: maiaThumb,
     headerLabel: 'Proyecto 08',
@@ -404,6 +408,7 @@ export const projects: Project[] = [
       'Árbol de contenidos propuesto para el portal del Censo 2024 del INE, con su kit de validación.',
     role: 'Arquitectura de información · vía Globallys',
     status: 'Entregable de Fase 1 · comparable con el sitio publicado',
+    featured: true,
     available: true,
     thumbnail: sitemapTree,
     thumbnailVideo: '/sitemap-ine-recorrido.mp4',
@@ -559,6 +564,11 @@ export function projectsByCategory(categoryId: CategoryId): Project[] {
   // Solo proyectos navegables: los «En preparación» quedan fuera del índice
   // (siguen en este archivo para retomarlos cuando estén listos).
   return projects.filter(p => p.categoryId === categoryId && p.available);
+}
+
+/** Proyectos destacados del Home — solo navegables. */
+export function featuredProjects(): Project[] {
+  return projects.filter(p => p.featured && p.available);
 }
 
 /** Búsqueda por id — usada por ProjectDetail para saber qué proyecto renderizar. */
