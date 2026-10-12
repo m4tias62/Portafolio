@@ -440,6 +440,22 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
     return () => window.removeEventListener('keydown', onKey);
   }, [narrow, curIndex]);
 
+  // Tab (teclado): si el foco cae en un elemento de un slide fuera de vista,
+  // el carrusel se mueve a ese slide para que el foco siempre sea visible.
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el || narrow) return;
+    const onFocusIn = (e: FocusEvent) => {
+      const slide = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-slide]');
+      if (!slide || slide.parentElement !== el) return;
+      const slides = Array.from(el.querySelectorAll<HTMLElement>(':scope > [data-slide]'));
+      const idx = slides.indexOf(slide);
+      if (idx >= 0 && idx !== curIndex()) goToRef.current(idx);
+    };
+    el.addEventListener('focusin', onFocusIn);
+    return () => el.removeEventListener('focusin', onFocusIn);
+  }, [narrow, curIndex]);
+
   // Navegación desde la NavBar → salta al slide correspondiente.
   useEffect(() => {
     const idx = scrollTo ? SLIDE_INDEX[scrollTo] ?? 0 : 0;
@@ -470,6 +486,9 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
       {/* Track del carrusel */}
       <div
         ref={trackRef}
+        role={narrow ? undefined : 'region'}
+        aria-roledescription={narrow ? undefined : 'carrusel'}
+        aria-label={narrow ? undefined : 'Portafolio — usa las flechas ← → para avanzar entre secciones'}
         className={
           narrow
             ? 'flex flex-col gap-[28px] px-5 pt-[24px] pb-[60px]'

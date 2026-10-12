@@ -482,6 +482,12 @@ export default function CKHeroOverture({
         c.parent(host);
         p.pixelDensity(Math.min(2, window.devicePixelRatio || 1));
         initializeSystem();
+        // prefers-reduced-motion: se simula el sistema fuera de pantalla hasta
+        // una composición madura y se deja un único cuadro estático.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          for (let i = 0; i < 420; i++) p.draw();
+          p.noLoop();
+        }
       };
 
       p.draw = () => {
