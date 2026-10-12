@@ -617,9 +617,10 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
                 </div>
                 <p
                   className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-black tracking-[1.2px] leading-[1.5] mt-[10px]"
-                  style={{ textAlign: 'justify', textAlignLast: 'justify' }}
                 >
-                  Diseñador · Universidad Diego Portales · Santiago de Chile
+                  Diseñador · Santiago de Chile
+                  <br />
+                  Universidad Diego Portales
                 </p>
               </div>
               <div className="flex-1 min-w-[260px] max-w-[62ch] flex flex-col gap-[clamp(20px,2.4vw,32px)]">
