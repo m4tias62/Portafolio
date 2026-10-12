@@ -353,7 +353,7 @@ export const projects: Project[] = [
     description:
       'Traduce seis fuentes oficiales de datos escolares para que una familia elija colegio.',
     role: 'Producto, datos y sistema',
-    status: 'MVP en línea · lanzamiento nov-2026',
+    status: 'MVP en línea · en construcción',
     featured: true,
     available: true,
     thumbnail: edubigThumb,

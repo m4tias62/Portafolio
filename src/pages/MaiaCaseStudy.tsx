@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import BackButton from '@/components/BackButton';
+import CaseSummary from '@/components/CaseSummary';
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 
 // ── Retratos y terreno (B&N) ─────────────────────────────────────────────
@@ -87,6 +88,22 @@ const CSS = `
   text-transform: uppercase; color: #fff; background: #5f8f5f;
   padding: 6px 11px; border-radius: 999px;
 }
+
+/* Resumen «En 2 minutos», marco teórico operativo y cambios tras el testeo */
+.mm .mm-summary { margin: 36px 0 0; }
+.mm .mm-ops { margin: 28px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; max-width: 72ch; }
+.mm .mm-ops li { font: 400 16px/1.55 var(--f-sans); color: var(--mm-ink); padding-left: 16px; border-left: 2px solid var(--mm-rule); }
+.mm .mm-ops strong { font-family: var(--f-mono-m); font-weight: 500; font-size: 13px; letter-spacing: .02em; color: var(--mm-navy); }
+.mm .mm-details { margin: 24px 0 0; }
+.mm .mm-details > summary { cursor: pointer; font: 500 12px/1.4 var(--f-mono-m); letter-spacing: .12em; text-transform: uppercase; color: var(--mm-navy); width: fit-content; }
+.mm .mm-details > summary:focus-visible { outline: 2px solid var(--mm-ink); outline-offset: 4px; }
+.mm .mm-changes { margin: 56px 0 0; padding-top: 28px; border-top: 1px solid var(--mm-navy); max-width: 78ch; }
+.mm .mm-changes h3 { margin: 0; font: 500 clamp(20px,2vw,26px)/1.2 var(--f-mono-m); color: var(--mm-navy); }
+.mm .mm-changes-lead { margin: 12px 0 0; font: 400 16px/1.55 var(--f-sans); color: var(--mm-mute); }
+.mm .mm-changes ol { margin: 20px 0 0; padding-left: 22px; display: grid; gap: 14px; }
+.mm .mm-changes li { font: 400 16px/1.55 var(--f-sans); color: var(--mm-ink); }
+.mm .mm-changes li::marker { font-family: var(--f-mono-m); color: var(--mm-orange); }
+.mm .mm-changes strong { color: var(--mm-navy); }
 
 /* Hero */
 .mm .mm-hero { padding: 64px 0 0; }
@@ -537,6 +554,21 @@ export default function MaiaCaseStudy({ onBack }: Props) {
               Diego Portales.
             </p>
 
+            <CaseSummary
+              className="mm-summary"
+              items={[
+                { label: 'Problema', text: 'En el poniente de Santiago, muchas personas mayores tienen celular e internet, pero no entienden la lógica de las interfaces y se culpan a sí mismas cuando fallan.' },
+                { label: 'Qué hice', text: 'Investigación etnográfica en terreno y diseño de un sistema para practicar sin riesgo: una app de simulación con asistente por voz, un soporte físico de madera y un folleto para la casa.' },
+                { label: 'Resultado', text: 'Testeado con la junta Las Dorcas en Cerro Navia: tras la sesión, el 66 % de las usuarias con ansiedad tecnológica alta se dispuso a intentar la tarea sola. Es un prototipo de alta fidelidad, no un producto.' },
+              ]}
+              links={[
+                { label: 'El usuario', targetId: 'stage-04' },
+                { label: 'Criterios de diseño', targetId: 'stage-06' },
+                { label: 'Testeo y cambios', targetId: 'stage-07' },
+                { label: 'Cierre', targetId: 'stage-09' },
+              ]}
+            />
+
             <figure className="mm-figure">
               <div className="mm-frame mm-frame-cover">
                 <img src={heroPortada} alt="Portada del proyecto MAIA — collage etnográfico con tratamiento navy sobre las usuarias del proyecto." />
@@ -654,10 +686,19 @@ export default function MaiaCaseStudy({ onBack }: Props) {
                 <cite>Aplicación de Seligman, 1975, al contexto digital</cite>
               </blockquote>
             </div>
+            <ul className="mm-ops">
+              <li><strong>Indefensión aprendida (Seligman):</strong> el error no se castiga; un toque fuera de lugar activa una guía, no una falla.</li>
+              <li><strong>Carga cognitiva (Sweller):</strong> la voz reemplaza al texto para no saturar la memoria visual.</li>
+              <li><strong>Inteligencia cristalizada:</strong> metáforas de objetos conocidos («La Casa»: la cuenta es la puerta, la contraseña es la llave).</li>
+              <li><strong>Autoeficacia (Bandura):</strong> practicar en simulación para ganar confianza antes de la tarea real.</li>
+            </ul>
+            <details className="mm-details">
+              <summary>Ver marco teórico completo</summary>
             <div className="mm-body">
               <p>Marco teórico. Ansiedad computacional (Brosnan, 1998), carga cognitiva intrínseca vs. extrínseca (Sweller, 1988), indefensión aprendida (Seligman, 1975), autoeficacia percibida (Bandura, 1997) e inteligencia cristalizada vs. fluida (Cattell-Horn-Carroll). El ciclo de indefensión —acción, fallo, culpa— explica por qué un usuario se retira de una tarea digital antes de intentarla de nuevo.</p>
               <p>El paradigma de la Neurodiversidad (Walker, 2014) aplicado a la vejez: no es un déficit a curar, es una variación cognitiva que el entorno debe acomodar. De aquí se define el <em>vacío de implementación</em>: el desajuste entre la arquitectura de la información de los servicios actuales y la arquitectura neurobiológica del adulto mayor.</p>
             </div>
+            </details>
             <div className="mm-triptych" style={{ marginTop: 44 }}>
               <figure>
                 <div className="mm-frame">
@@ -871,6 +912,17 @@ export default function MaiaCaseStudy({ onBack }: Props) {
                 </div>
                 <figcaption>Fig. 07c · El contexto: sesiones realizadas en el salón de la comunidad. Archivo del autor.</figcaption>
               </figure>
+            </div>
+
+            <div className="mm-changes" id="maia-cambios">
+              <h3>Qué cambié tras el testeo</h3>
+              <p className="mm-changes-lead">Los resultados del protocolo aplicado en Las Dorcas, sistematizados en la memoria, llevaron a cuatro cambios concretos.</p>
+              <ol>
+                <li><strong>Soporte.</strong> El primero, tipo mueble, era frío y no transmitía el concepto: el 77 % lo rechazó en una iteración temprana. Lo reemplacé por un soporte ergonómico de madera natural, cálido al tacto y a la vista.</li>
+                <li><strong>Velocidad de la instrucción.</strong> La hice más rápida. Como monitor del testeo vi que la espera entre instrucción y acción aumentaba la ansiedad: las usuarias interrumpían al asistente y accionaban antes de que terminara.</li>
+                <li><strong>Íconos.</strong> Más reconocibles, basados en objetos y gestos que las usuarias ya conocen (inteligencia cristalizada).</li>
+                <li><strong>Voz del agente.</strong> Una identificación visual de cuándo habla el asistente que guía la simulación.</li>
+              </ol>
             </div>
           </section>
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
+import CaseSummary from '@/components/CaseSummary';
 
 import logo from '@/assets/edubig/logo.png';
 import tarjeta from '@/assets/edubig/tarjeta-colegio.png';
@@ -479,7 +480,7 @@ const VALIDACION: CapaVal[] = [
     porque: 'Lo que un método conocido puede encontrar no se le pregunta a una familia. Hacerle gastar una sesión en un problema que una heurística detecta sola es gastar su tiempo y el mío.',
   },
   {
-    n: 'Capa 03', titulo: 'Testeo real al lanzamiento', estado: 'nov-2026', tinta: '#8a1a20', borde: 'rgba(178,24,31,0.44)',
+    n: 'Capa 03', titulo: 'Testeo real al lanzamiento', estado: 'Próximo', tinta: '#8a1a20', borde: 'rgba(178,24,31,0.44)',
     muestra: 'Muestra amplia y orgánica', ancho: '100%', tono: '#b2181f',
     texto: 'La distribución está garantizada: Israel publica sobre educación chilena para una audiencia directa de familias buscando colegio. El lanzamiento es el testeo.',
     porque: 'La iteración se hace desde uso real y no desde tareas de laboratorio. Testear tarde con distribución real es mejor apuesta que testear temprano con muestra fabricada: es costo-oportunidad, no excusa.',
@@ -492,7 +493,7 @@ const HITOS: Hito[] = [
   { fase: 'MVP Pudahuel', estado: 'Hecho', detalle: '57 colegios desplegados en Vercel y diseño móvil terminado. Construido punta a punta, del cruce de datos a la última pantalla.', tono: '#2166ac' },
   { fase: 'Sistema de diseño', estado: 'Hecho', detalle: 'Tokens corregidos a WCAG 2.2 AA, documento navegable y JSON en formato W3C DTCG.', tono: '#4393c3' },
   { fase: 'Schema nacional', estado: 'En curso', detalle: '340 campos declarados por prioridad; el dataset de 7.168 colegios se arma con Israel.', tono: '#d6604d' },
-  { fase: 'Publicación', estado: 'nov-2026', detalle: 'Salida como observatorio abierto de trayectorias escolares.', tono: '#b2181f' },
+  { fase: 'Publicación', estado: 'Próximo', detalle: 'Salida como observatorio abierto de trayectorias escolares.', tono: '#b2181f' },
   { fase: 'Observatorio', estado: 'Después', detalle: 'Crecer y refinarse con uso real, sin esperar a estar perfecto para salir.', tono: '#8a1a20' },
 ];
 
@@ -588,14 +589,13 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               <p className="eb-lead">
                 Plataforma abierta de datos escolares para familias chilenas. Comparar, recomendar y explorar
                 colegios con el contexto que hace legible cada dato: los indicadores se leen contra colegios
-                parecidos y la metodología queda a la vista. En construcción; lanzamiento apuntado a noviembre
-                de 2026.
+                parecidos y la metodología queda a la vista. En construcción.
               </p>
 
               <dl className="eb-meta">
                 <div><dt>Rol</dt><dd>MVP completo — dato, diseño, producto y sistema</dd></div>
                 <div><dt>Colaboración</dt><dd>Israel Rubilar — dataset nacional, desde la fase de escala</dd></div>
-                <div><dt>Estado</dt><dd>En construcción · <span className="mono">nov-2026</span></dd></div>
+                <div><dt>Estado</dt><dd>En construcción · MVP Pudahuel en línea</dd></div>
                 <div><dt>MVP</dt><dd><a href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>edu-big.vercel.app ↗</a><br /><span style={{ color: 'var(--eb-dim)', fontSize: 12 }}>En desarrollo — versión Pudahuel</span></dd></div>
                 <div><dt>Escala</dt><dd><span className="mono">57</span> colegios validados <span className="arrow">→</span> <span className="mono">7.168</span> en schema</dd></div>
               </dl>
@@ -618,6 +618,22 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             </figure>
           </div>
         </section>
+
+        <div style={{ margin: '0 0 72px' }}>
+          <CaseSummary
+            items={[
+              { label: 'Problema', text: 'Las familias chilenas eligen colegio entre seis portales oficiales que no dialogan entre sí, con datos que nadie les explica cómo leer.' },
+              { label: 'Qué hice', text: 'Diseñé y construí el MVP completo, del cruce de datos al producto: un Test de Calce que devuelve tres colegios afines, con cada indicador comparado contra colegios de contexto similar y la metodología a la vista.' },
+              { label: 'Estado', text: 'MVP en línea con 57 colegios de Pudahuel; en escala a 7.168 colegios con un dataset nacional.' },
+            ]}
+            links={[
+              { label: 'Cinco decisiones', targetId: 'eb-stage-06' },
+              { label: 'El producto', targetId: 'eb-stage-09' },
+              { label: 'Validación', targetId: 'eb-stage-10' },
+              { label: 'Probar el MVP', href: 'https://edu-big.vercel.app/' },
+            ]}
+          />
+        </div>
 
         {/* ─── STAGE 02 · LA PREGUNTA ─────────────────────────────────── */}
         <section id="eb-stage-02" className="eb-stage">
