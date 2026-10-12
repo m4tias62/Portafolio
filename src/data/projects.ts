@@ -130,6 +130,8 @@ export type Project = {
   featured?: boolean;
   /** Video de portada bajo el título en el detalle stage-based (ruta pública). */
   coverVideo?: string;
+  /** Póster del video de portada (ruta pública). Si falta, usa `thumbnail`. */
+  coverPoster?: string;
   /** Decisiones de diseño (Tensión → Resolución → Costo), al final del detalle stage-based. */
   decisions?: { title: string; tension: string; resolution: string; cost: string }[];
   /** Si false, la card aparece como "En preparación" y no es navegable. */
@@ -172,7 +174,8 @@ export const projects: Project[] = [
     role: 'Datos e instalación · proyecto colectivo',
     status: 'Pieza de cierre del Taller Data UDP, 2024',
     credits: 'Proyecto colectivo del Taller Data UDP, con María Caro, Valentina Cooper, Benjamín Ramírez y Tomás Zambrano. Datos, sistema visual e instalación se desarrollaron en equipo.',
-    coverVideo: '/labosfera-instalacion.mp4',
+    coverVideo: '/labosfera-instalacion-2.mp4',
+    coverPoster: '/labosfera-instalacion-2-poster.jpg',
     decisions: [
       {
         title: 'Contemplación antes que consulta',

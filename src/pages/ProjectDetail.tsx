@@ -395,12 +395,15 @@ export default function ProjectDetail({ projectId, onBack, onProjectClick }: Pro
           )}
           {project.coverVideo && (
             <div
-              className="mt-[32px] overflow-hidden bg-[#0f0f0e]"
-              style={{ borderWidth: '1px 4px 4px 1px', borderStyle: 'solid', borderColor: '#0f0f0e', maxWidth: 1100 }}
+              className={`mt-[32px] overflow-hidden bg-[#0f0f0e] ${narrow ? 'block' : 'inline-block align-top'}`}
+              style={{ borderWidth: '1px 4px 4px 1px', borderStyle: 'solid', borderColor: '#0f0f0e', maxWidth: narrow ? undefined : 960 }}
             >
+              {/* Desktop: alto acotado (máx. 68vh / 620px) y ancho según la proporción
+                  del video — un video vertical queda angosto, uno horizontal no se
+                  desborda. Móvil: ancho completo. */}
               <video
                 src={project.coverVideo}
-                poster={project.thumbnail}
+                poster={project.coverPoster ?? project.thumbnail}
                 autoPlay={!reducedMotion}
                 muted
                 loop
@@ -408,7 +411,8 @@ export default function ProjectDetail({ projectId, onBack, onProjectClick }: Pro
                 controls={reducedMotion}
                 preload="metadata"
                 aria-label={`Video de ${project.title}`}
-                className="block w-full h-auto"
+                className={narrow ? 'block w-full h-auto' : 'block w-auto h-auto max-w-full'}
+                style={narrow ? undefined : { maxHeight: 'min(68vh, 620px)' }}
               />
             </div>
           )}
