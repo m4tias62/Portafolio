@@ -590,10 +590,10 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
           className={`relative shrink-0 bg-[#fafaf7] overflow-hidden ${
             narrow ? 'w-full' : 'h-full'
           }`}
-          style={narrow ? undefined : { width: 'min(1100px, 88vw)' }}
+          style={narrow ? undefined : { width: '100%' }}
         >
           <div
-            className="absolute inset-0 flex flex-col justify-center gap-[22px] overflow-y-auto max-[820px]:static"
+            className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[1100px] flex flex-col justify-center gap-[22px] overflow-y-auto max-[820px]:static max-[820px]:translate-x-0"
             style={{ padding: 'clamp(28px, 4vw, 56px)' }}
           >
             <div className="flex gap-[clamp(28px,5vw,64px)] items-start flex-wrap">
@@ -674,10 +674,10 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
           className={`relative shrink-0 bg-[#fafaf7] overflow-hidden ${
             narrow ? 'w-full' : 'h-full'
           }`}
-          style={narrow ? undefined : { width: 'min(1100px, 88vw)' }}
+          style={narrow ? undefined : { width: '100%' }}
         >
           <div
-            className="absolute inset-0 flex flex-col justify-center gap-[24px] overflow-y-auto max-[820px]:static"
+            className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[1100px] flex flex-col justify-center gap-[24px] overflow-y-auto max-[820px]:static max-[820px]:translate-x-0"
             style={{ padding: 'clamp(28px, 4vw, 56px)' }}
           >
             <h2
@@ -750,14 +750,6 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
           </div>
         </section>
 
-        {/* Espaciador final: permite centrar el ultimo slide (Contacto) */}
-        {!narrow && (
-          <div
-            aria-hidden="true"
-            className="shrink-0"
-            style={{ width: 'calc((100vw - min(1100px, 88vw)) / 2)' }}
-          />
-        )}
       </div>
     </div>
   );
