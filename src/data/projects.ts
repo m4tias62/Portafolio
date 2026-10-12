@@ -74,6 +74,8 @@ export type FigureKey = 'mda-data-bar';
 export type Stage = {
   id: number;
   label: string;
+  /** Titular-insight de la etapa. Si existe, `label` pasa a etiqueta pequeña encima. */
+  headline?: string;
   text: string;
   /** Ruta de imagen (importada con Vite). Si se omite, el layout es centrado. */
   image?: string;
@@ -126,6 +128,10 @@ export type Project = {
   credits?: string;
   /** Si true, el proyecto aparece en el slide «Proyectos destacados» del Home (en el orden de este archivo). */
   featured?: boolean;
+  /** Video de portada bajo el título en el detalle stage-based (ruta pública). */
+  coverVideo?: string;
+  /** Decisiones de diseño (Tensión → Resolución → Costo), al final del detalle stage-based. */
+  decisions?: { title: string; tension: string; resolution: string; cost: string }[];
   /** Si false, la card aparece como "En preparación" y no es navegable. */
   available: boolean;
   /** Thumbnail para la card del carrusel. Si se omite, la card muestra placeholder. */
@@ -165,7 +171,22 @@ export const projects: Project[] = [
       'Sistema visual de nubes de puntos sobre las tendencias laborales del diseñador UDP a lo largo de tres décadas.',
     role: 'Datos e instalación · proyecto colectivo',
     status: 'Pieza de cierre del Taller Data UDP, 2024',
-    credits: 'Proyecto colectivo del Taller Data UDP. Datos, sistema visual e instalación se desarrollaron en equipo.',
+    credits: 'Proyecto colectivo del Taller Data UDP, con María Caro, Valentina Cooper, Benjamín Ramírez y Tomás Zambrano. Datos, sistema visual e instalación se desarrollaron en equipo.',
+    coverVideo: '/labosfera-instalacion.mp4',
+    decisions: [
+      {
+        title: 'Contemplación antes que consulta',
+        tension: 'Treinta años de datos y 266 egresados piden precisión, pero el visitante de una exposición tiene segundos y ninguna pregunta formulada.',
+        resolution: 'Cada egresado es un punto y cada periodo una esfera que respira; los hitos deforman su trayectoria. La lectura es por constelaciones, no por cifras.',
+        cost: 'La pieza no sirve para consultar un dato exacto: renuncia a la lectura analítica para ganar la comprensión de conjunto.',
+      },
+      {
+        title: 'Un dataset propio, por triangulación',
+        tension: 'No existía una base con las trayectorias laborales de los egresados de Diseño UDP.',
+        resolution: 'Se construyó cruzando MI FUTURO, bases internas de la escuela, LinkedIn como fuente auxiliar y una encuesta directa, anclando cada periodo a un hito histórico.',
+        cost: 'La muestra depende de quién tiene perfil público o respondió la encuesta: 266 egresados, no el universo completo.',
+      },
+    ],
     available: true,
     thumbnail: labosferaEsfera,
     thumbnailVideo: '/labosfera-instalacion.mp4',
@@ -174,6 +195,7 @@ export const projects: Project[] = [
       {
         id: 1,
         label: 'Etapa 1 — Pregunta',
+        headline: '¿Cómo moldea la escuela la carrera de sus egresados?',
         text:
           '¿Cómo han impactado los ciclos estudiantiles y el contexto nacional-universitario histórico en las tendencias laborales del diseñador UDP? Proyecto colaborativo del Taller Data de la Universidad Diego Portales que estudia cómo los ritmos internos de la escuela — cambios de malla, hitos institucionales, transformaciones del país — moldean las trayectorias profesionales de sus egresados.',
         image: labosferaPregunta,
@@ -183,6 +205,7 @@ export const projects: Project[] = [
       {
         id: 2,
         label: 'Etapa 2 — Método',
+        headline: 'La base no existía: hubo que construirla',
         text:
           'Cuatro pasos: cifras de matriculados y titulados 1995-2024 vía la plataforma MI FUTURO del MINEDUC y bases internas de la escuela; búsqueda de egresados por periodos quinquenales usando LinkedIn como fuente auxiliar; tendencias laborales relevadas por encuesta directa; hitos históricos investigados vía Google. Un dataset propio construido por triangulación de fuentes.',
         image: labosferaMetodo,
@@ -192,6 +215,7 @@ export const projects: Project[] = [
       {
         id: 3,
         label: 'Etapa 3 — Los datos',
+        headline: '266 egresados, seis periodos, un hito por periodo',
         text:
           'El dataset se divide en tres partes: cifras de la escuela (30 registros anuales), egresados (266 individuos categorizados como gráficos, industriales, empleados o emprendedores), y áreas de trabajo con hitos históricos. Cada periodo quinquenal se ancla en un evento contextual — apertura de la Biblioteca de Santiago, gratuidad, pandemia — cruzado con la data de titulación.',
         image: labosferaDatos,
@@ -202,6 +226,7 @@ export const projects: Project[] = [
       {
         id: 4,
         label: 'Etapa 4 — Sistema visual',
+        headline: 'Cada egresado es un punto; cada periodo, una esfera',
         text:
           'Cada individuo se representa como un punto en el espacio. Cada periodo, como una esfera de puntos que respira; los hitos históricos deforman su trayectoria. Alrededor, esferas de colores marcan las categorías profesionales — editorial, digital, ilustración, moda, gestión, interacción, interiores, producto, branding. La lectura es contemplativa, no analítica: los datos aparecen como constelaciones.',
         image: labosferaEsfera,
@@ -212,6 +237,7 @@ export const projects: Project[] = [
       {
         id: 5,
         label: 'Etapa 5 — Instalación',
+        headline: 'Treinta años que se recorren con botones físicos',
         text:
           'Mesa oscura, vidrio templado, botonera de madera. El visitante avanza por los seis periodos pulsando botones físicos — la esfera se reorganiza, los hitos se activan, las categorías cambian de peso. Corre en TouchDesigner sobre Arduino. Presentada como pieza de cierre del Taller Data UDP, noviembre 2024.',
         image: labosferaMueble,
@@ -222,6 +248,7 @@ export const projects: Project[] = [
       {
         id: 6,
         label: 'Etapa 6 — Pipeline',
+        headline: 'Cinco disciplinas técnicas en una sola pieza',
         text:
           'Encuesta + MIFUTURO.cl → base de datos → periodo 1995-2019 → ingresos y egresos + áreas de trabajo → TouchDesigner para la lógica generativa → After Effects para el post + Arduino para el input físico + materia y trabajo manual para el mueble. Cinco disciplinas técnicas convergiendo en una pieza.',
         image: labosferaPipeline,
@@ -268,6 +295,21 @@ export const projects: Project[] = [
     role: 'Datos e instalación · con Jacinta Barrenechea',
     status: 'Exposición universitaria, 2023',
     credits: 'Proyecto en dupla con Jacinta Barrenechea Castillo. Investigación, datos, sistema visual e instalación fueron trabajo conjunto.',
+    coverVideo: '/mercado-del-agua-hero.mp4',
+    decisions: [
+      {
+        title: 'Un disco que encarna el dato',
+        tension: 'Un mapa de puntos con tres capas (derechos, camiones aljibe, ilegalidades) es preciso, pero frío: se lee como un informe.',
+        resolution: 'Un disco elíptico separado funciona como el agua misma: pasa del verde a manchas rojas a medida que se acumulan las ilegalidades.',
+        cost: 'Desde el disco no se puede cuantificar nada; la precisión queda delegada al mapa y a las barras de usos.',
+      },
+      {
+        title: 'Medir por volumen, no por registros',
+        tension: 'La base cuenta registros (cada derecho o denuncia es una fila), pero un registro de riego y uno doméstico no mueven la misma cantidad de agua.',
+        resolution: 'El reparto se presentó por volumen asignado: riego 54 %, otros usos 38 %, doméstico 8 %.',
+        cost: 'Hay dos métricas distintas sobre el mismo fenómeno, y eso obliga a explicar la diferencia en vez de mostrar un solo número.',
+      },
+    ],
     available: true,
     thumbnail: mdaDiscoManchas,
     thumbnailVideo: '/mercado-del-agua-hero.mp4',
@@ -276,6 +318,7 @@ export const projects: Project[] = [
       {
         id: 1,
         label: 'Etapa 1 — Contexto',
+        headline: 'En Petorca hay agua, pero no para la población',
         text:
           'En Petorca hay agua, pero el promedio de distribución para la población llega a veinte litros por persona: un ochenta por ciento menos del mínimo establecido por la OMS. La crisis hídrica de la comuna tiene tanto causas naturales — sequía, cambio climático — como de mercado: la acumulación privada de derechos de aprovechamiento del agua por parte de la industria agropecuaria.',
         image: mdaMesa,
@@ -285,6 +328,7 @@ export const projects: Project[] = [
       {
         id: 2,
         label: 'Etapa 2 — El mercado',
+        headline: 'Un mercado que amplifica su propia escasez',
         text:
           'En Chile el agua se compra y se vende. Quienes poseen más derechos de aprovechamiento obtienen más agua y, a la vez, más compras del Estado, que intenta compensar mediante camiones aljibe la escasez que la industria misma provoca en la población. Un ciclo que se retroalimenta: la privatización del recurso amplifica su propia escasez.',
         image: mdaVisualizacion,
@@ -295,6 +339,7 @@ export const projects: Project[] = [
       {
         id: 3,
         label: 'Etapa 3 — Los datos',
+        headline: 'Tres bases públicas cruzadas sobre un mapa',
         text:
           'Co-relacionamos tres bases públicas de la Dirección General de Aguas: catastro de derechos de aprovechamiento, denuncias por extracción ilegal y rutas de camiones aljibe en la V Región. El cruce ubica cada uso sobre el mapa. Medido por volumen asignado, el reparto en Petorca hace rotundo el diagnóstico.',
         figureKey: 'mda-data-bar',
@@ -302,6 +347,7 @@ export const projects: Project[] = [
       {
         id: 4,
         label: 'Etapa 4 — Pipeline',
+        headline: 'De los datos de la DGA a la sala de exposición',
         text:
           'De las bases DGA a la pieza: los datos alimentan una visualización preliminar en TouchDesigner, luego pasan por After Effects para su post-producción, y de ahí se bifurcan en dos salidas — la animación del disco y los datos ya legibles — que se recomponen en la visualización final.',
         image: mdaPipeline,
@@ -312,6 +358,7 @@ export const projects: Project[] = [
       {
         id: 5,
         label: 'Etapa 5 — Sistema visual',
+        headline: 'El disco no ilustra los datos: los encarna',
         text:
           'La cuenca del río Petorca aparece como un mapa de puntos codificados por color: verde para derechos de aprovechamiento, morado para camiones aljibe, rojo para extracciones ilegales. Sobre el mapa, un disco elíptico separado funciona como metáfora: es el agua misma, que pasa de un verde vivo a manchas rojas cuando las ilegalidades se acumulan. El disco no ilustra los datos: los encarna.',
         image: mdaDiscoVerde,
@@ -321,6 +368,7 @@ export const projects: Project[] = [
       {
         id: 6,
         label: 'Etapa 6 — Instalación',
+        headline: 'Leer el agua, no un panel de control',
         text:
           'En la exposición universitaria la pieza se montó como mesa oscura con proyección del mapa y sus leyendas, y el disco físico separado en un soporte vertical. El visitante lee la información leyendo el disco: cuando el rojo crece, sabe que las denuncias están ganando. La lectura no es panel-de-control: es contemplativa.',
         image: mdaSalaRojo,
@@ -330,6 +378,7 @@ export const projects: Project[] = [
       {
         id: 7,
         label: 'Etapa 7 — Cierre',
+        headline: 'Una canción sobre el río',
         text:
           '«Hace mucho tiempo / había vida en mí / venían los pajaritos / hace mucho tiempo / crecían las flores». Canción sobre el río escrita por estudiantes de la escuela Carlos Ariztia de Trapiche.',
         image: mdaDiscoRojoCerca,

@@ -220,6 +220,14 @@ function StageText({ stage, horizontal = false, narrow = false }: { stage: Stage
       {stage.label}
     </p>
   );
+  const headline = stage.headline && (
+    <p
+      className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[#0f0f0e] leading-[1.2] tracking-[-0.2px] text-balance"
+      style={{ fontSize: 'clamp(20px, 1.6vw, 24px)' }}
+    >
+      {stage.headline}
+    </p>
+  );
   const body = (
     <p
       className={
@@ -252,6 +260,7 @@ function StageText({ stage, horizontal = false, narrow = false }: { stage: Stage
     return (
       <div className="flex flex-col gap-[16px]" style={{ maxWidth: 640 }}>
         {label}
+        {headline}
         {body}
         {link}
       </div>
@@ -261,6 +270,7 @@ function StageText({ stage, horizontal = false, narrow = false }: { stage: Stage
   return (
     <div className="flex flex-col gap-[20px] pt-8" style={{ width: narrow ? '100%' : 326 }}>
       {label}
+      {headline}
       {body}
       {link}
     </div>
@@ -272,6 +282,15 @@ export default function ProjectDetail({ projectId, onBack, onProjectClick }: Pro
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const [narrow, setNarrow] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const upd = () => setReducedMotion(mq.matches);
+    upd();
+    mq.addEventListener('change', upd);
+    return () => mq.removeEventListener('change', upd);
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 820px)');
@@ -374,6 +393,25 @@ export default function ProjectDetail({ projectId, onBack, onProjectClick }: Pro
               {project.credits}
             </p>
           )}
+          {project.coverVideo && (
+            <div
+              className="mt-[32px] overflow-hidden bg-[#0f0f0e]"
+              style={{ borderWidth: '1px 4px 4px 1px', borderStyle: 'solid', borderColor: '#0f0f0e', maxWidth: 1100 }}
+            >
+              <video
+                src={project.coverVideo}
+                poster={project.thumbnail}
+                autoPlay={!reducedMotion}
+                muted
+                loop
+                playsInline
+                controls={reducedMotion}
+                preload="metadata"
+                aria-label={`Video de ${project.title}`}
+                className="block w-full h-auto"
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-[80px]">
@@ -411,6 +449,42 @@ export default function ProjectDetail({ projectId, onBack, onProjectClick }: Pro
             );
           })}
         </div>
+
+        {project.decisions && project.decisions.length > 0 && (
+          <section aria-labelledby="decisiones" className="mt-[96px] pt-[32px] border-t border-[#dcdbd5]" style={{ maxWidth: 1100 }}>
+            <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] text-[#8a8a85] tracking-[1.43px] leading-[1.47] uppercase">
+              Decisiones de diseño
+            </p>
+            <h2
+              id="decisiones"
+              className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[#0f0f0e] leading-[1.15] mt-2"
+              style={{ fontSize: 'clamp(22px, 2vw, 28px)' }}
+            >
+              Lo que se eligió y lo que costó
+            </h2>
+            <div className="mt-[32px] flex flex-col gap-[40px]">
+              {project.decisions.map((d, i) => (
+                <article key={d.title} className="flex flex-col gap-[16px]">
+                  <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[15px] text-[#0f0f0e]">
+                    {String(i + 1).padStart(2, '0')} · {d.title}
+                  </p>
+                  <dl className="grid gap-[20px] m-0" style={{ gridTemplateColumns: narrow ? '1fr' : 'repeat(3, minmax(0, 1fr))' }}>
+                    {[
+                      ['Tensión', d.tension],
+                      ['Resolución', d.resolution],
+                      ['Costo', d.cost],
+                    ].map(([k, v]) => (
+                      <div key={k} className="border-l border-[#dcdbd5] pl-[16px]">
+                        <dt className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.2px] uppercase text-[#8a8a85]">{k}</dt>
+                        <dd className="m-0 mt-[8px] font-['IBM_Plex_Sans:Regular',sans-serif] text-[15px] leading-[1.6] text-[#0f0f0e]">{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
       <NextProject currentId={project.id} onProjectClick={onProjectClick} />
     </div>
