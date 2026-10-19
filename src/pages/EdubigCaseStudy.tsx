@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 import CaseSummary from '@/components/CaseSummary';
@@ -13,38 +13,38 @@ import personaMartin from '@/assets/edubig/persona-martin.png';
 import personaTomas from '@/assets/edubig/persona-tomas-francisca.png';
 
 import scHomeLista from '@/assets/edubig/screen-home-lista.jpg';
-import scMapa from '@/assets/edubig/screen-mapa.jpg';
 import scFichaTop from '@/assets/edubig/screen-ficha-top.jpg';
-import scFichaAcademico from '@/assets/edubig/screen-ficha-academico.jpg';
-import scFichaBienestar from '@/assets/edubig/screen-ficha-bienestar.jpg';
 import scQ1 from '@/assets/edubig/screen-q1.jpg';
-import scQ2 from '@/assets/edubig/screen-q2.jpg';
-import scQ3 from '@/assets/edubig/screen-q3.jpg';
-import scQ4 from '@/assets/edubig/screen-q4.jpg';
-import scQ5a from '@/assets/edubig/screen-q5a.jpg';
-import scQ5b from '@/assets/edubig/screen-q5b.jpg';
 import scLoading from '@/assets/edubig/screen-loading.jpg';
 import scShortlist from '@/assets/edubig/screen-shortlist.jpg';
 import scCompTop from '@/assets/edubig/screen-comparacion-top.jpg';
 import scCompCuerpo from '@/assets/edubig/screen-comparacion-cuerpo.jpg';
+import v2CompararEsc from '@/assets/edubig/v2-comparar-escritorio.jpg';
+import v2CompararDetalle from '@/assets/edubig/v2-comparar-detalle.jpg';
+import v2CompararMovil from '@/assets/edubig/v2-comparar-movil.jpg';
+import v2Home from '@/assets/edubig/v2-home-escritorio.jpg';
+import v2Ficha from '@/assets/edubig/v2-ficha-escritorio.jpg';
+import v2Shortlist from '@/assets/edubig/v2-shortlist-movil.jpg';
+import v2Q5 from '@/assets/edubig/v2-test-q5-movil.jpg';
+import v2Flujo1 from '@/assets/edubig/v2-flujo-1-mapa.jpg';
+import v2Flujo2 from '@/assets/edubig/v2-flujo-2-test.jpg';
+import v2Flujo3 from '@/assets/edubig/v2-flujo-3-ficha.jpg';
+import v2Flujo4 from '@/assets/edubig/v2-flujo-4-comparar.jpg';
+
 
 /**
- * EdubigCaseStudy — case study dedicado de Edubig (rediseñado 2026-09-14).
+ * EdubigCaseStudy — case study dedicado de Edubig.
  *
- * Traspasa a React la maqueta que se hizo en Claude Design (`eduBIG Case
- * Study.dc.html`, auditada en contenido y forma por el usuario). Estructura
- * editorial en 11 stages numeradas, con figuras enmarcadas (borde asimétrico
- * 1/4/4/1) y una interacción por pestañas para las tres personas.
+ * Versión condensada (2026-10-19): 8 etapas pensadas para una lectura de
+ * reclutador (portada + En 2 minutos, problema, idea, tres decisiones, del
+ * flujo a la pantalla, Comparar a fondo, sistema y forma de trabajo, estado).
+ * El detalle del caso anterior (rediseño del 2026-09-14) se conserva en
+ * desplegables <details className="eb-det">.
  *
  * Sistema del portafolio conservado (regla del 2026-09-11): NavBar (la pone
  * App), BackButton, regla vertical (ProgressBar) y el indent `pl-[188px]` que
- * usan todos los detalles de proyecto. Fuentes oficiales IBM Plex Mono/Sans
- * — nombres EXACTOS registrados en `src/index.css`. Todo el CSS propio vive
- * bajo `.eb` para no filtrarse al resto del sitio.
- *
- * Los dos videos del proyecto (pipeline en 16:9, recorrido del Test de Calce
- * en 9:16) ya viven en `public/` y se cargan aquí en reemplazo de los stubs
- * de la maqueta.
+ * usan todos los detalles de proyecto. Fuentes oficiales IBM Plex Mono/Sans.
+ * Todo el CSS propio vive bajo `.eb` para no filtrarse al resto del sitio.
  */
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
@@ -285,11 +285,11 @@ const USOS_EJE: { tono: string; estado: string; donde: string }[] = [
 ];
 
 const USOS_CUAL: { tono: string; estado: string; donde: string }[] = [
-  { tono: '#2f7d32', estado: 'Salud', donde: 'Áreas de carrera de destino de los egresados.' },
-  { tono: '#2b4fc4', estado: 'Ingeniería', donde: 'Misma serie, categoría sin jerarquía respecto de las otras.' },
-  { tono: '#c0392b', estado: 'Cs. Sociales', donde: 'El rojo acá no significa «peor»: significa un área distinta.' },
-  { tono: '#7b52c9', estado: 'Educación', donde: 'Cuarta categoría de la distribución de matrícula.' },
-  { tono: '#5a5a55', estado: 'Otras', donde: 'Agrupa la cola larga de áreas con matrícula menor.' },
+  { tono: '#007d79', estado: 'Colegio 1', donde: 'El primero que agregó la familia. 4,99:1 sobre blanco.' },
+  { tono: '#6929c4', estado: 'Colegio 2', donde: 'Cada colegio conserva su color mientras siga en la comparación.' },
+  { tono: '#d3354f', estado: 'Colegio 3', donde: 'El máximo en el celular.' },
+  { tono: '#012749', estado: 'Colegio 4', donde: 'Solo en escritorio.' },
+  { tono: '#1F1F1F', estado: 'Sus similares', donde: 'Marca neutra: la referencia no compite con los colegios.' },
 ];
 
 type FrameTraduccion = {
@@ -373,86 +373,6 @@ const CRITERIOS: Criterio[] = [
   },
 ];
 
-type Screen = { url: string; alt: string; ratio: string; recorte: string; pie: string };
-type Bloque = {
-  n: string;
-  titulo: string;
-  tono: string;
-  vienen: string[];
-  notas: string[];
-  screens: Screen[];
-};
-
-const PRODUCTO: Bloque[] = [
-  {
-    n: '01', titulo: 'Home · lista y mapa', tono: '#2166ac',
-    vienen: ['Decisión 01 · Acompañar antes que listar', 'Carolina · el mapa como interfaz'],
-    notas: [
-      'El CTA primario es el Test de Calce; la exploración manual queda disponible bajo «o explora por tu cuenta». La lista no desaparece, deja de ser la puerta.',
-      'Los chips de filtro nacen fríos y se calientan al seleccionarse: sin filtro el dato es imparcial, con filtro la búsqueda ya se adaptó a una necesidad declarada.',
-      'Lista y mapa son dos vistas del mismo resultado, no dos secciones. Carolina elige por proximidad y necesita verla espacialmente; el mapa es su entrada, la lista es la de quien ya sabe qué comparar.',
-    ],
-    screens: [
-      { url: scHomeLista, alt: 'Home en móvil con lista de colegios y chips de filtro', ratio: '390 / 845', recorte: 'Vista Lista · corta dentro del listado', pie: 'Cards en estado frío: todavía no sabe nada de la familia.' },
-      { url: scMapa, alt: 'Home en móvil, vista Mapa: pines de colegios en Pudahuel con el popup de Escuela Albert Einstein', ratio: '390 / 670', recorte: 'Vista Mapa · mismo set de filtros', pie: 'El toggle Lista / Mapa no cambia de pantalla: cambia de lenguaje sobre los mismos resultados. El pin abre nombre, RBD, comuna y la entrada a la ficha.' },
-    ],
-  },
-  {
-    n: '02', titulo: 'Ficha del colegio', tono: '#2166ac',
-    vienen: ['Decisión 03 · Comparación contra grupo GSE', 'Decisión 04 · Series IDPS separadas', 'Tomás y Francisca · etiquetas contextuales'],
-    notas: [
-      'Módulo Académico: la brecha SIMCE se dibuja en escala fija de ±56 puntos, la misma en todas las fichas. Una escala que se autoajusta hace que una diferencia de 4 puntos se vea igual que una de 40.',
-      'Módulo Bienestar: las tres series —este colegio, colegios similares, promedio nacional— se leen separadas. Colapsarlas en un puntaje habría producido un número más cómodo y menos cierto.',
-    ],
-    screens: [
-      { url: scFichaTop, alt: 'Ficha de colegio en móvil: encabezado y resumen «Lo esencial»', ratio: '390 / 845', recorte: 'Encabezado · Lo esencial', pie: 'Escuela Alexander Graham Bell. El resumen ya trae cada dimensión con su etiqueta de contexto, no un puntaje.' },
-      { url: scFichaAcademico, alt: 'Módulo Académico de la ficha: brechas SIMCE en Lectura y Matemática', ratio: '390 / 845', recorte: 'Módulo Académico · brechas SIMCE', pie: 'Lectura y Matemática en escala fija ±56, con el signo de la brecha visible por curso.' },
-      { url: scFichaBienestar, alt: 'Módulo Bienestar de la ficha: series IDPS separadas', ratio: '390 / 845', recorte: 'Módulo Bienestar · series IDPS', pie: 'Cada dimensión con sus barras separadas: este colegio y colegios similares, nunca un score único.' },
-    ],
-  },
-  {
-    n: '03', titulo: 'Test de Calce · Q1–Q5', tono: '#fddbc7',
-    vienen: ['Decisión 05 · Nota de legitimación', 'SC 2.5.8 · Objetivos de 44px', 'Martín · responder desde el teléfono'],
-    notas: [
-      'La barra de progreso se va calentando a medida que la familia responde: no cuenta cuánto falta, muestra cuánto sabe ya el sistema de esa familia.',
-      'En las preguntas moralmente cargadas —inclusión, prioridad— se aplica la Nota de legitimación: el texto valida explícitamente todas las respuestas posibles antes de dejar avanzar. No hay perfil incorrecto.',
-      'Cada opción es un bloque de ancho completo con 44px de alto mínimo. El umbral WCAG 2.2 pide 24px; acá se duplica porque un toque errado no es cosmético: contamina la shortlist.',
-    ],
-    screens: [
-      { url: scQ1, alt: 'Q1 del Test de Calce: pregunta de copago', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q1 · Copago. El filtro de gratuidad entra primero, no en filtros avanzados.' },
-      { url: scQ2, alt: 'Q2 del Test de Calce: pregunta de inclusión, paso 2', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q2 · Inclusión. Aquí opera la Nota de legitimación.' },
-      { url: scQ3, alt: 'Q3 del Test de Calce: nivel educativo', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q3 · Nivel.' },
-      { url: scQ4, alt: 'Q4 del Test de Calce: distancia al domicilio', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q4 · Distancia. Criterio número uno de Carolina.' },
-      { url: scQ5a, alt: 'Q5 del Test de Calce: prioridad, paso 1', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q5 · Prioridad. Bienestar y Convivencia solo para ponderar.' },
-      { url: scQ5b, alt: 'Q5 paso 2: ponderación de Bienestar', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Q5 · Paso 2. Las dimensiones siguen nombradas una por una.' },
-    ],
-  },
-  {
-    n: '04', titulo: 'Traducción y shortlist', tono: '#d6604d',
-    vienen: ['Decisión 02 · Motor determinístico', 'SC 1.4.1 · El color nunca va solo'],
-    notas: [
-      'La espera se llama traducción porque eso es lo que ocurre: reglas explícitas y ponderaciones públicas corriendo sobre las respuestas. No hay modelo que no pueda explicar su resultado.',
-      'Las cards de la shortlist nacen cálidas: el sistema ya conoce a la familia. La temperatura nunca es la única señal — el encabezado lo dice en palabras y cada card suma chips de calce que no existen en la lista general.',
-    ],
-    screens: [
-      { url: scLoading, alt: 'Pantalla de carga: traducción en curso', ratio: '390 / 845', recorte: 'Pantalla completa', pie: 'Loading · el eje cruza de frío a cálido durante el cálculo.' },
-      { url: scShortlist, alt: 'Shortlist de colegios que calzan con cards de borde cálido', ratio: '390 / 845', recorte: 'Vista superior · corta tras la primera card', pie: 'Shortlist · «Estos son los colegios que calzan con tu familia».' },
-    ],
-  },
-  {
-    n: '05', titulo: 'Comparación', tono: '#b2181f',
-    vienen: ['Tomás y Francisca · el comparador es su feature killer', 'Estado · fuera del MVP'],
-    notas: [
-      'Máximo tres colegios en móvil y cuatro en escritorio. El límite no es técnico: por encima de eso la tabla deja de ser comparable de un vistazo y vuelve al problema que el producto vino a resolver.',
-      'No está en el MVP: es un prototipo para la versión siguiente. La estructura ya está resuelta y se implementa con el nuevo dataset nacional; los campos que se ven acá son los que el schema tiene que garantizar.',
-    ],
-    screens: [
-      { url: scCompTop, alt: 'Comparación en móvil: tres colegios en columnas y resumen esencial', ratio: '390 / 845', recorte: 'Encabezado · tres columnas + Lo esencial', pie: 'Tres colegios, columnas de ancho igual y el toggle «solo diferencias».' },
-      { url: scCompCuerpo, alt: 'Comparación en móvil: cuerpo de la tabla con trayectoria universitaria', ratio: '390 / 845', recorte: 'Cuerpo de tabla · trayectoria universitaria', pie: 'Prototipo: la estructura está resuelta y se implementa con el nuevo dataset.' },
-    ],
-  },
-];
-
 type CapaVal = {
   n: string;
   titulo: string;
@@ -474,27 +394,89 @@ const VALIDACION: CapaVal[] = [
     porque: 'Validar iteraciones intermedias produce ruido —falsos positivos por novedad, falsos negativos por incompletitud— y ese ruido habría contaminado las cinco decisiones fuertes que vinieron después.',
   },
   {
-    n: 'Capa 02', titulo: 'Auditoría heurística antes del testeo real', estado: 'En curso', tinta: '#1a1a18', borde: 'rgba(26,26,24,0.34)',
+    n: 'Capa 02', titulo: 'Análisis heurístico del prototipo 1', estado: 'Cerrada', tinta: '#1a1a18', borde: 'rgba(26,26,24,0.34)',
     muestra: 'Métodos, no personas', ancho: '38%', tono: '#4393c3',
-    texto: 'Contraste y objetivos táctiles cerrados en WCAG 2.2 AA, heurísticas de Nielsen sobre el recorrido completo, arquitectura de información revisada, un solo nombre para cada cosa —«colegios similares» en todas las pantallas— y documentado qué información se muestra de entrada y qué queda un toque más adentro.',
+    texto: 'Contraste y objetivos táctiles en WCAG 2.2 AA, heurísticas de Nielsen sobre el recorrido completo, arquitectura de información revisada y un solo nombre para cada cosa —«colegios similares» en todas las pantallas—. De este análisis salieron los cambios del prototipo 2 en datos, flujo y diseño.',
     porque: 'Lo que un método conocido puede encontrar no se le pregunta a una familia. Hacerle gastar una sesión en un problema que una heurística detecta sola es gastar su tiempo y el mío.',
   },
   {
-    n: 'Capa 03', titulo: 'Testeo real al lanzamiento', estado: 'Próximo', tinta: '#8a1a20', borde: 'rgba(178,24,31,0.44)',
-    muestra: 'Muestra amplia y orgánica', ancho: '100%', tono: '#b2181f',
-    texto: 'La distribución está garantizada: Israel publica sobre educación chilena para una audiencia directa de familias buscando colegio. El lanzamiento es el testeo.',
-    porque: 'La iteración se hace desde uso real y no desde tareas de laboratorio. Testear tarde con distribución real es mejor apuesta que testear temprano con muestra fabricada: es costo-oportunidad, no excusa.',
+    n: 'Capa 03', titulo: 'Testeo con usuarios reales', estado: 'Fase actual', tinta: '#8a1a20', borde: 'rgba(178,24,31,0.44)',
+    muestra: 'Familias reales', ancho: '100%', tono: '#b2181f',
+    texto: 'Con el prototipo 2 completo, la fase actual es probarlo con usuarios reales. Israel publica sobre educación chilena para una audiencia directa de familias que buscan colegio.',
+    porque: 'Las dos capas anteriores dejaron resuelto lo que un método conocido encuentra solo. Así, el testeo gasta la atención de las familias en lo que solo ellas pueden mostrar.',
   },
 ];
 
 type Hito = { fase: string; estado: string; detalle: string; tono: string };
 
 const HITOS: Hito[] = [
-  { fase: 'MVP Pudahuel', estado: 'Hecho', detalle: '57 colegios desplegados en Vercel y diseño móvil terminado. Construido punta a punta, del cruce de datos a la última pantalla.', tono: '#2166ac' },
-  { fase: 'Sistema de diseño', estado: 'Hecho', detalle: 'Tokens corregidos a WCAG 2.2 AA, documento navegable y JSON en formato W3C DTCG.', tono: '#4393c3' },
-  { fase: 'Schema nacional', estado: 'En curso', detalle: '340 campos declarados por prioridad; el dataset de 7.168 colegios se arma con Israel.', tono: '#d6604d' },
-  { fase: 'Publicación', estado: 'Próximo', detalle: 'Salida como observatorio abierto de trayectorias escolares.', tono: '#b2181f' },
-  { fase: 'Observatorio', estado: 'Después', detalle: 'Crecer y refinarse con uso real, sin esperar a estar perfecto para salir.', tono: '#8a1a20' },
+  { fase: 'Prototipo 1 · MVP Pudahuel', estado: 'Hecho', detalle: '57 colegios, solo celular. Del cruce de datos a la última pantalla.', tono: '#2166ac' },
+  { fase: 'Análisis heurístico', estado: 'Hecho', detalle: 'WCAG 2.2 AA, heurísticas de Nielsen y arquitectura de información sobre el prototipo 1.', tono: '#4393c3' },
+  { fase: 'Prototipo 2 · versión nacional', estado: 'Hecho', detalle: 'Datos (8.250 colegios), flujo (FigJam) y diseño (celular y escritorio) rehechos.', tono: '#d6604d' },
+  { fase: 'Testeo con usuarios', estado: 'Fase actual', detalle: 'Probar el prototipo 2 con familias reales.', tono: '#b2181f' },
+  { fase: 'Lanzamiento y observatorio', estado: 'Después', detalle: 'Crecer y refinarse con uso real, sin esperar a estar perfecto para salir.', tono: '#8a1a20' },
+];
+
+// ─── DATOS DE LA VERSIÓN CONDENSADA (2026-10-19) ──────────────────────────
+
+const FLUJOS: { id: string; titulo: string; url: string; alt: string; nota: string }[] = [
+  { id: 'mapa', titulo: '1 · Mapa general', url: v2Flujo1, alt: 'Diagrama 1 · Mapa general del sitio: puntos de entrada, Home, exploración y conexiones con el Test, la ficha y Comparar', nota: 'Cómo se llega al sitio y cómo se conectan la Home, la exploración, el Test, la ficha y Comparar. Azul es nuevo respecto del prototipo 1; violeta, decidido y pendiente.' },
+  { id: 'test', titulo: '2 · Test de Calce', url: v2Flujo2, alt: 'Diagrama 2 · Test de Calce: preguntas Q1 a Q5 y el motor con sus dos capas', nota: 'Las cinco preguntas y el motor: descarta, puntúa y ofrece ampliar la distancia si quedan menos de tres colegios.' },
+  { id: 'ficha', titulo: '3 · Ficha', url: v2Flujo3, alt: 'Diagrama 3 · Ficha del colegio: cabecera, Lo esencial y módulos en orden fijo', nota: 'Cabecera, «Lo esencial» y los módulos en orden fijo. En violeta, lo decidido que aún no está en el sitio.' },
+  { id: 'comparar', titulo: '4 · Comparar', url: v2Flujo4, alt: 'Diagrama 4 · Comparar colegios: entradas, cuántos colegios hay, agregar colegio y grupos en acordeón', nota: 'Cuántos colegios hay, cómo se agrega otro, escritorio o celular y los grupos en orden fijo.' },
+];
+
+type DecisionV2 = { n: string; ambito: string; titulo: string; tension: string; resolucion: string; costo: string };
+
+const TRES_DECISIONES: DecisionV2[] = [
+  {
+    n: '01', ambito: 'Contexto', titulo: 'Comparar con colegios parecidos, no rankear',
+    tension: 'Contra el promedio nacional gana el colegio con alumnos de mayor nivel socioeconómico, no el que mejor trabaja.',
+    resolucion: 'Cada indicador se lee contra colegios del mismo grupo socioeconómico, con la comparación oficial de la Agencia de Calidad. No hay ranking nacional.',
+    costo: 'Desaparece la respuesta a «¿cuál es el mejor colegio de Chile?». La pregunta queda sin contestar a propósito.',
+  },
+  {
+    n: '02', ambito: 'Arquitectura', titulo: 'Acompañar antes que listar',
+    tension: 'Un buscador con filtros asume que la familia sabe qué criterios aplicar. La investigación mostró que llega sin saber qué preguntar.',
+    resolucion: 'El acceso principal es el Test de Calce: cinco preguntas y tres colegios que calzan, con sus razones a la vista. Explorar y comparar siguen a un toque.',
+    costo: 'Se antepone un cuestionario a la búsqueda libre, y el producto asume la responsabilidad de haber acotado bien.',
+  },
+  {
+    n: '03', ambito: 'Datos', titulo: 'Decir solo lo que el dato sostiene',
+    tension: 'Un +6 se lee como ventaja aunque, para la Agencia, sea un empate. Y un colegio sin datos tiende a desaparecer.',
+    resolucion: 'Verde o mostaza solo cuando la diferencia es significativa; si no, «a la par». El colegio sin datos aparece igual y lo dice. El motor del test usa reglas explícitas, no un modelo opaco.',
+    costo: 'Menos titulares llamativos: muchos colegios quedan «a la par».',
+  },
+];
+
+const PASOS_COMPARAR: { n: string; paso: string; texto: string }[] = [
+  { n: '01', paso: 'Referencias', texto: 'Revisé dashboards y tablas comparativas para sacar los patrones que sirven a una familia.' },
+  { n: '02', paso: 'Reglas', texto: 'Los convertí en un brief de decisiones cerradas: la misma escala para todos, la referencia siempre rotulada «sus similares», sin coronas ni máximos resaltados y el color nunca solo.' },
+  { n: '03', paso: 'Diseño', texto: 'Claude Design generó la propuesta a partir de ese brief y de datos reales de cinco colegios.' },
+  { n: '04', paso: 'Código', texto: 'La implementé en el sitio y llevé sus reglas a la ficha y al sistema de interacción completo.' },
+];
+
+const CIFRAS: { cifra: string; texto: string }[] = [
+  { cifra: '5,74:1', texto: 'contraste del texto secundario. Antes daba 4,49:1 sobre los fondos grises.' },
+  { cifra: '3,7:1', texto: 'borde cálido en hover. Antes daba 2,0:1: el estado existía y no se veía.' },
+  { cifra: '44 px', texto: 'objetivo táctil mínimo en todo el sitio. WCAG 2.2 pide 24.' },
+  { cifra: '0', texto: 'errores de axe-core en Comparar, la ficha y la Home.' },
+];
+
+type Pantalla = { url: string; alt: string; pie: string; ancho?: boolean };
+
+const PANTALLAS_MVP: Pantalla[] = [
+  { url: scHomeLista, alt: 'MVP de Pudahuel en el celular: lista de colegios con chips de filtro', pie: 'Home con lista y mapa.' },
+  { url: scQ1, alt: 'MVP: primera pregunta del Test de Calce, sobre copago', pie: 'Test de Calce, Q1.' },
+  { url: scShortlist, alt: 'MVP: shortlist de colegios que calzan, en cards de borde cálido', pie: 'Shortlist de tres colegios.' },
+  { url: scFichaTop, alt: 'MVP: ficha de colegio con el resumen «Lo esencial»', pie: 'Ficha con «Lo esencial».' },
+];
+
+const PANTALLAS_NACIONAL: Pantalla[] = [
+  { url: v2Home, alt: 'Versión nacional en escritorio: Home con el Test de Calce y la tarjeta «¿Dónde buscas colegio?»', pie: 'Home: el Test y la búsqueda por comuna, nombre o ubicación.', ancho: true },
+  { url: v2Ficha, alt: 'Versión nacional en escritorio: ficha del Liceo Augusto D Halmar en dos columnas', pie: 'Ficha en dos columnas: identidad fija, módulos a la derecha.', ancho: true },
+  { url: v2Q5, alt: 'Versión nacional en el celular: quinta pregunta del Test de Calce', pie: 'Test de Calce, Q5.' },
+  { url: v2Shortlist, alt: 'Versión nacional en el celular: shortlist con tres colegios de Ñuñoa', pie: 'Shortlist con las razones del calce.' },
 ];
 
 // ─── COMPONENTE ────────────────────────────────────────────────────────────
@@ -505,6 +487,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const video1Ref = useRef<HTMLVideoElement>(null);
   const video2Ref = useRef<HTMLVideoElement>(null);
+  const video3Ref = useRef<HTMLVideoElement>(null);
 
   // Mismo motor de progreso/scroll que ProjectDetail — navegador consistente.
   useEffect(() => {
@@ -521,8 +504,9 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
   }, []);
 
   // Autoplay al entrar en viewport, silenciado — política de navegadores.
+  // Los videos solo corren si están a la vista.
   useEffect(() => {
-    const vids = [video1Ref.current, video2Ref.current].filter(Boolean) as HTMLVideoElement[];
+    const vids = [video1Ref.current, video2Ref.current, video3Ref.current].filter(Boolean) as HTMLVideoElement[];
     if (!vids.length) return;
     const io = new IntersectionObserver(
       (entries) => {
@@ -558,7 +542,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
         className="fixed left-[80px] top-[56px] z-10 flex items-center justify-center max-[900px]:hidden"
         style={{ height: 'calc(100vh - 56px)', width: 28 }}
       >
-        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(13)} />
+        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(8)} />
       </div>
 
       <div ref={contentRef} className="eb-content">
@@ -569,9 +553,9 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
           </span>
         </div>
 
-        {/* ─── STAGE 01 · COVER ───────────────────────────────────────── */}
+        {/* ─── 01 · PORTADA ───────────────────────────────────────────── */}
         <section id="eb-stage-01" className="eb-stage">
-          <StageHead n="01" title="Portada" step="01 / 11" />
+          <StageHead n="01" title="Portada" step="01 / 08" />
           <div className="eb-cover">
             <div className="eb-cover-txt">
               <p className="eb-hook-a">
@@ -587,33 +571,26 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               </div>
 
               <p className="eb-lead">
-                Plataforma abierta de datos escolares para familias chilenas. Comparar, recomendar y explorar
-                colegios con el contexto que hace legible cada dato: los indicadores se leen contra colegios
-                parecidos y la metodología queda a la vista. En construcción.
+                Plataforma abierta para que las familias chilenas encuentren, exploren y comparen colegios.
+                Cada dato se lee contra colegios parecidos, nunca en un ranking.
               </p>
 
               <dl className="eb-meta">
-                <div><dt>Rol</dt><dd>MVP completo — dato, diseño, producto y sistema</dd></div>
-                <div><dt>Colaboración</dt><dd>Israel Rubilar — dataset nacional, desde la fase de escala</dd></div>
-                <div><dt>Estado</dt><dd>En construcción · MVP Pudahuel en línea</dd></div>
-                <div><dt>MVP</dt><dd><a href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>edu-big.vercel.app ↗</a><br /><span style={{ color: 'var(--eb-dim)', fontSize: 12 }}>En desarrollo — versión Pudahuel</span></dd></div>
-                <div><dt>Escala</dt><dd><span className="mono">57</span> colegios validados <span className="arrow">→</span> <span className="mono">7.168</span> en schema</dd></div>
+                <div><dt>Rol</dt><dd>Diseño de producto, datos y sistema, de punta a punta</dd></div>
+                <div><dt>Equipo</dt><dd>Israel Rubilar, analista de datos · Matías Cáceres, diseñador</dd></div>
+                <div><dt>Escala</dt><dd><span className="mono">57</span> colegios <span className="arrow">→</span> <span className="mono">8.250</span></dd></div>
+                <div><dt>Fase actual</dt><dd>Testeo con usuarios del prototipo 2</dd></div>
+                <div><dt>Prototipo 2 · nacional</dt><dd><a href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link">edubig-chile.vercel.app ↗</a><br /><span style={{ color: 'var(--eb-dim)', fontSize: 12 }}>8.250 colegios · celular y escritorio</span></dd></div>
+                <div><dt>Prototipo 1 · MVP Pudahuel</dt><dd><a href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link">edu-big.vercel.app ↗</a><br /><span style={{ color: 'var(--eb-dim)', fontSize: 12 }}>57 colegios · solo celular</span></dd></div>
               </dl>
             </div>
 
-            <figure className="eb-fig">
-              <div className="eb-frame eb-frame-logo">
-                <img src={logo} alt="Isologo eduBIG: dos cápsulas superpuestas, 011 en pixel sobre azul y eB sobre rojo" />
+            <figure className="eb-fig eb-cover-fig">
+              <div className="eb-frame eb-frame-img">
+                <img src={v2CompararEsc} alt="Comparar colegios en escritorio: cuatro colegios de Ñuñoa en columnas, cada uno con su color y número, y el bloque «Lo que más cambia entre estos colegios»" />
               </div>
               <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 01 · Isologo</span>
-                <p>
-                  Dos cápsulas superpuestas dibujadas como los dos estados de un toggle.{' '}
-                  <span className="mono cold">011</span> en Pixelify Sans es el dato tal como sale de la
-                  máquina: frío, binario, ilegible para cualquiera.{' '}
-                  <span className="mono warm">eB</span> en Work Sans es lo que la familia recibe. La forma
-                  del logo es el concepto.
-                </p>
+                <span className="eb-figlabel">Fig. 01 · Comparar colegios, prototipo 2</span>
               </figcaption>
             </figure>
           </div>
@@ -622,37 +599,36 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
         <div style={{ margin: '0 0 72px' }}>
           <CaseSummary
             items={[
-              { label: 'Problema', text: 'Las familias chilenas eligen colegio entre seis portales oficiales que no dialogan entre sí, con datos que nadie les explica cómo leer.' },
-              { label: 'Qué hice', text: 'Diseñé y construí el MVP completo, del cruce de datos al producto: un Test de Calce que devuelve tres colegios afines, con cada indicador comparado contra colegios de contexto similar y la metodología a la vista.' },
-              { label: 'Estado', text: 'MVP en línea con 57 colegios de Pudahuel; en escala a 7.168 colegios con un dataset nacional.' },
+              { label: 'Problema', text: 'Las familias eligen colegio entre seis portales oficiales que no dialogan entre sí, con datos que nadie les explica cómo leer.' },
+              { label: 'Qué hice', text: 'Diseñé y construí Edubig de punta a punta, del cruce de datos a la interfaz: un Test de Calce que devuelve tres colegios afines, una exploración por comuna y un comparador donde cada colegio se mide contra colegios parecidos al suyo.' },
+              { label: 'Fase actual', text: 'El prototipo 2 está completo: 8.250 colegios, flujo rehecho en FigJam y diseño para celular y escritorio, todo a partir de un análisis heurístico del prototipo 1 (MVP de Pudahuel). Ahora viene el testeo con usuarios reales.' },
             ]}
             links={[
-              { label: 'Cinco decisiones', targetId: 'eb-stage-06' },
-              { label: 'El producto', targetId: 'eb-stage-09' },
-              { label: 'Validación', targetId: 'eb-stage-10' },
-              { label: 'Probar el MVP', href: 'https://edu-big.vercel.app/' },
+              { label: 'Tres decisiones', targetId: 'eb-stage-04' },
+              { label: 'Del flujo a la pantalla', targetId: 'eb-stage-05' },
+              { label: 'Comparar a fondo', targetId: 'eb-stage-06' },
+              { label: 'Probar el prototipo 2', href: 'https://edubig-chile.vercel.app/' },
+              { label: 'Ver el prototipo 1', href: 'https://edu-big.vercel.app/' },
             ]}
           />
         </div>
 
-        {/* ─── STAGE 02 · LA PREGUNTA ─────────────────────────────────── */}
+        {/* ─── 02 · EL PROBLEMA ───────────────────────────────────────── */}
         <section id="eb-stage-02" className="eb-stage">
-          <StageHead n="02" title="La pregunta" step="02 / 11" />
+          <StageHead n="02" title="El problema" step="02 / 08" />
           <div className="eb-two">
             <div className="eb-two-l">
               <p className="p-strong">
-                Una familia elige el colegio de su hijo. A su alcance hay seis fuentes oficiales: directorio
-                Mineduc, SIMCE y IDPS de la Agencia de Calidad, denuncias Supereduc, geolocalización, PAES.
-                Casi ninguna familia las abre, y las que lo hacen encuentran datos que nadie les explicó
-                cómo leer.
+                Una familia que elige colegio tiene seis fuentes oficiales a su alcance: el directorio del
+                Mineduc, el SIMCE y el IDPS de la Agencia de Calidad, las denuncias de la Superintendencia, la
+                ubicación y la PAES. Casi nadie las abre, y quien lo hace encuentra siglas sin explicación.
               </p>
               <p className="p-soft">
-                El problema no es la falta de información. Es la distancia entre el dato oficial y la
-                pregunta real de una familia: <em>¿este colegio es un buen lugar para mi hijo?</em>
+                Falta traducción, no información: <em>¿este colegio es un buen lugar para mi hijo?</em>
               </p>
             </div>
             <div className="eb-two-r">
-              <p className="eb-pull">La decisión de eduBIG fue no construir un séptimo portal. Tampoco un ranking. Un traductor.</p>
+              <p className="eb-pull">No un séptimo portal ni un ranking. Un traductor.</p>
             </div>
           </div>
 
@@ -685,85 +661,19 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 <div className="eb-fuentes-out">
                   <span className="eb-col-label">Salida · una conclusión legible</span>
                   <img src={tarjeta} alt="TarjetaColegio de eduBIG: Colegio Alexander Graham Bell, educación pública, básica, a 850 m, con etiquetas gratuito, programa PIE, SIMCE sobre su GSE, convivencia alta y sin denuncias" className="eb-tarjeta" />
-                  <span className="eb-fdet" style={{ maxWidth: 276 }}>Etiquetas contextuales, no puntaje. Comparado contra su grupo GSE; metodología pública.</span>
+                  <span className="eb-fdet" style={{ maxWidth: 276 }}>Etiquetas con contexto, no un puntaje.</span>
                 </div>
               </div>
             </div>
             <figcaption className="eb-fcap">
               <span className="eb-figlabel">Fig. 02 · Seis entradas, una salida</span>
-              <p>
-                Las seis fuentes no se suman ni se promedian en un puntaje: se cruzan y salen como la{' '}
-                <span className="mono">TarjetaColegio</span> del producto — <em>SIMCE sobre su GSE</em>,{' '}
-                <em>convivencia alta</em>, <em>a 850 m de tu casa</em>. El nodo del medio no es un motor
-                de ranking: es el punto donde el mismo dato se dice de otra manera.
-              </p>
+              <p>Las fuentes no se suman en un puntaje: se cruzan y salen como frases que una familia puede usar.</p>
             </figcaption>
           </figure>
-        </section>
 
-        {/* ─── STAGE 03 · ROL Y FORMA DE TRABAJAR ─────────────────────── */}
-        <section id="eb-stage-03" className="eb-stage">
-          <StageHead n="03" title="Rol y forma de trabajar" step="03 / 11" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                Dirección de diseño, producto y sistema — y en el MVP también la ingeniería de datos: lo
-                construí entero yo, del cruce de los seis datasets a la última pantalla. Israel Rubilar,
-                analista institucional que publica sobre educación en Chile con alcance directo a familias,
-                entró después de ver el MVP funcionando: con él decidimos escalar a todo Chile, y desde ahí
-                él construye el dataset nacional sobre la estructura que yo defino.
-              </p>
-              <p className="p-soft">
-                La IA trabaja como colaborador dirigido, no como reemplazo. Lo que le toca hacer cambia en
-                cada capa del proyecto.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">Cada capa registra qué se dirigió, qué se generó y cómo se validó.</p>
-            </div>
+          <div className="eb-substage">
+            <span className="mono small uc bold">Investigación · tres personas</span>
           </div>
-
-          <figure className="eb-fig">
-            <div className="eb-frame" style={{ padding: '8px 34px 34px' }}>
-              {CAPAS.map((c) => (
-                <div className="eb-capa-row" key={c.n}>
-                  <div className="eb-capa-l">
-                    <div className="eb-capa-head">
-                      <span className="mono small">{c.n}</span>
-                      <span className="eb-capa-name">{c.capa}</span>
-                    </div>
-                    <span className="eb-capa-stack">{c.stack}</span>
-                    <span className="eb-capa-modo">{c.modo}</span>
-                  </div>
-                  <div className="eb-capa-r">
-                    {c.registro.map(([k, v]) => (
-                      <div className="eb-capa-reg" key={k}>
-                        <span className="eb-reg-k">{k}</span>
-                        <span className="eb-reg-v">{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 03 · Cuatro capas, cuatro modos de dirigir</span>
-              <p>
-                El modo no es una preferencia de trabajo: lo fija cuánto costaría equivocarse en esa capa.
-                Un error en el pipeline ensucia el dato de 7.168 colegios y llega hasta la ficha; un error
-                de frontend se ve y se corrige en el momento. En Figma la IA sirve para tirar wireframes de
-                arranque y descartar caminos sin gastar mucho, pero el diseño que queda es el que trabajé
-                encima — y es ese archivo el que implementa el frontend, no una descripción. La capa de
-                sistema es la única donde la IA revisa mi trabajo y no al revés: de ahí sale la auditoría
-                de la <span className="mono">08.2</span>.
-              </p>
-            </figcaption>
-          </figure>
-        </section>
-
-        {/* ─── STAGE 04 · INVESTIGACIÓN ───────────────────────────────── */}
-        <section id="eb-stage-04" className="eb-stage">
-          <StageHead n="04" title="Investigación" step="04 / 11" />
           <div className="eb-two">
             <div className="eb-two-l">
               <p className="p-strong">
@@ -853,7 +763,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               </div>
             </div>
             <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 04 · Tres personas, una card intercambiable</span>
+              <span className="eb-figlabel">Fig. 03 · Tres personas, una card intercambiable</span>
               <p>
                 Cada dolor viene con severidad y con el efecto que produce, porque eso es lo que ordenó
                 la prioridad: los dos críticos de Carolina — no entiende las siglas, no tiene computador —
@@ -861,91 +771,40 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 Carolina y Francisca llegan al mismo requisito desde extremos opuestos del eje
                 socioeconómico: una no puede leer un puntaje, la otra no confía en uno sin contexto. Las
                 dos piden lo mismo — comparación contra colegios equivalentes — y esa coincidencia es la
-                que sostiene las decisiones 1 y 4.
+                que sostiene la decisión 01.
               </p>
             </figcaption>
           </figure>
         </section>
 
-        {/* ─── STAGE 05 · CONCEPTO RECTOR ─────────────────────────────── */}
-        <section id="eb-stage-05" className="eb-stage">
-          <StageHead n="05" title="Concepto rector" step="05 / 11" />
+        {/* ─── 03 · LA IDEA ───────────────────────────────────────────── */}
+        <section id="eb-stage-03" className="eb-stage">
+          <StageHead n="03" title="La idea" step="03 / 08" />
           <div className="eb-two">
             <div className="eb-two-l">
               <p className="p-strong">
-                El concepto rector es <strong>un sistema que se traduce en cuidado.</strong>
+                El concepto rector es <strong>un sistema que se traduce en cuidado</strong>: el dato se
+                mantiene fiel, pero llega en un idioma que una familia puede usar.
               </p>
               <p className="p-soft">
-                Su base es una idea de Hofstadter en <em>Gödel, Escher, Bach</em>: una traducción es fiel
-                cuando conserva la estructura de lo que traduce, aunque cambie por completo el material.
-                En eduBIG eso se ve en dos cadenas de tres pasos que tienen la misma forma, una del lado
-                del dato y otra del lado de la familia.
+                Viene de Hofstadter en <em>Gödel, Escher, Bach</em>: una traducción es fiel cuando conserva la
+                estructura, aunque cambie el material.
               </p>
             </div>
             <div className="eb-two-r">
-              <p className="eb-pull">
-                eduBIG es el puente: conserva la estructura del dato y cambia el material por algo que
-                una familia puede usar.
-              </p>
+              <p className="eb-pull">Un toggle es el mismo sistema en dos estados. Por eso el logo es un toggle.</p>
             </div>
           </div>
 
           <figure className="eb-fig">
             <div className="eb-frame">
-              <div className="eb-eslab-head">
-                <span>
-                  <span className="mono uc small">Dato</span>
-                  <span className="eb-eslab-sub">Cadena fría</span>
-                </span>
-                <span className="eb-eslab-mid">
-                  <span className="mono uc small">Puente</span>
-                  <span className="eb-eslab-sub">Posición</span>
-                </span>
-                <span>
-                  <span className="mono uc small">Familia</span>
-                  <span className="eb-eslab-sub">Cadena cálida</span>
-                </span>
-              </div>
-              {ESLABONES.map((e) => (
-                <div className="eb-eslab-row" key={e.n}>
-                  <div className="eb-eslab-cold">
-                    <span className="eb-eslab-key">{e.frio}</span>
-                    <span className="eb-eslab-gloss">{e.frioGloss}</span>
-                  </div>
-                  <div className="eb-eslab-mid-col">
-                    <span className="mono small dim">{e.n}</span>
-                    <span className="eb-eslab-line" />
-                    <span className="eb-eslab-rol">{e.rol}</span>
-                  </div>
-                  <div className="eb-eslab-warm">
-                    <span className="eb-eslab-key">{e.calido}</span>
-                    <span className="eb-eslab-gloss">{e.calidoGloss}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 05 · Dos cadenas, la misma estructura</span>
-              <p>
-                Las dos cadenas se leen en paralelo porque tienen la misma forma, no porque signifiquen lo
-                mismo: tres eslabones, un origen, un término medio incómodo y un resultado. Eso es lo que
-                la traducción preserva. La posición 2 es la prueba: <em>frío</em> y <em>preocupación</em>{' '}
-                son los dos eslabones que un producto amable borraría, y son justamente los que sostienen{' '}
-                <em>honesto</em> y <em>seguridad</em>.
-              </p>
-            </figcaption>
-          </figure>
-
-          <figure className="eb-fig">
-            <div className="eb-frame">
+              <div className="eb-logo-pair">
               <div className="eb-logo-beat">
                 <span className="mono uc small dim">01 · Boceto</span>
                 <div className="eb-logo-box"><img src={bocetoToggle} alt="Board manuscrito del proceso: traducción de dato frío a dato cálido, bocetos de toggle" /></div>
                 <p className="eb-logo-desc">
-                  El board parte de <em>dato frío → dato cálido</em> y llega a la pregunta anotada al
-                  margen: «¿toggles, switches?». La metáfora no se buscó para el logo; apareció buscando
-                  cómo dibujar la traducción, y trae ya el vocabulario entero — la paleta frío→cálido como
-                  puente, el <em>switch off</em> como dato crudo, el <em>on</em> como dato traducido.
+                  Buscando cómo dibujar la traducción de <em>dato frío → dato cálido</em> apareció la pregunta
+                  al margen: «¿toggles, switches?».
                 </p>
               </div>
 
@@ -953,11 +812,11 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 <span className="mono uc small dim">02 · Formalización</span>
                 <div className="eb-logo-box"><img src={formalizacionLogo} alt="Formalización del logo: retícula de construcción del toggle en estados ON y OFF junto al isologo resultante" /></div>
                 <p className="eb-logo-desc">
-                  El toggle real se desarma en retícula: dos estados, un radio, un eje. La marca hereda
-                  esa construcción exacta — misma cápsula, mismo círculo desplazado, mismas tangentes —
-                  en lugar de imitar su apariencia. A la derecha, la retícula vacía y el isologo ocupando
-                  el mismo lugar que ocupaba el control.
+                  El toggle se desarma en retícula: dos estados, un radio, un eje. La marca hereda esa
+                  construcción exacta —misma cápsula, mismo círculo desplazado, mismas tangentes— en vez de
+                  imitar su apariencia.
                 </p>
+              </div>
               </div>
 
               <div className="eb-logo-final">
@@ -965,50 +824,84 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 <div className="eb-logo-final-txt">
                   <span className="mono uc small dim">03 · Isologo</span>
                   <p>
-                    Dos cápsulas superpuestas: <span className="mono cold">011</span> en Pixelify Sans es
-                    lenguaje de máquina — el grado cero del dato — y{' '}
-                    <span className="mono warm">eB</span> en Work Sans es lo que la familia recibe. El
-                    gradiente entre ambas no es un efecto: es el eje RdBu completo, el mismo que después
-                    ordena los módulos del producto.
+                    <span className="mono cold">011</span> en Pixelify Sans es el dato como sale de la
+                    máquina; <span className="mono warm">eB</span> en Work Sans es lo que recibe la familia.
+                    El degradado entre ambas es el eje frío–cálido que después ordena el producto.
                   </p>
                 </div>
               </div>
             </div>
             <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 06 · Del gesto a la marca</span>
-              <p>
-                El isologo no ilustra el concepto: lo ejecuta. Un toggle es el único objeto de interfaz
-                cuyo significado es exactamente «el mismo sistema, dos estados», que es la definición
-                operativa de una traducción fiel — cambia el material, se preserva la estructura. Por eso
-                el binario queda en la cápsula fría y la sigla legible en la cálida, y no al revés. La
-                forma del logo es el concepto.
-              </p>
+              <span className="eb-figlabel">Fig. 04 · Del gesto a la marca</span>
+              <p>El isologo no ilustra el concepto: lo ejecuta. Cambia el material, se conserva la estructura.</p>
             </figcaption>
           </figure>
+
+          <details className="eb-det">
+            <summary>Ver las dos cadenas del concepto</summary>
+            <figure className="eb-fig">
+              <div className="eb-frame">
+                <div className="eb-eslab-head">
+                  <span>
+                    <span className="mono uc small">Dato</span>
+                    <span className="eb-eslab-sub">Cadena fría</span>
+                  </span>
+                  <span className="eb-eslab-mid">
+                    <span className="mono uc small">Puente</span>
+                    <span className="eb-eslab-sub">Posición</span>
+                  </span>
+                  <span>
+                    <span className="mono uc small">Familia</span>
+                    <span className="eb-eslab-sub">Cadena cálida</span>
+                  </span>
+                </div>
+                {ESLABONES.map((e) => (
+                  <div className="eb-eslab-row" key={e.n}>
+                    <div className="eb-eslab-cold">
+                      <span className="eb-eslab-key">{e.frio}</span>
+                      <span className="eb-eslab-gloss">{e.frioGloss}</span>
+                    </div>
+                    <div className="eb-eslab-mid-col">
+                      <span className="mono small dim">{e.n}</span>
+                      <span className="eb-eslab-line" />
+                      <span className="eb-eslab-rol">{e.rol}</span>
+                    </div>
+                    <div className="eb-eslab-warm">
+                      <span className="eb-eslab-key">{e.calido}</span>
+                      <span className="eb-eslab-gloss">{e.calidoGloss}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <figcaption className="eb-fcap">
+                <span className="eb-figlabel">Fig. 05 · Dos cadenas, la misma estructura</span>
+                <p>
+                  Tres eslabones, un origen, un término medio incómodo y un resultado. <em>Frío</em> y{' '}
+                  <em>preocupación</em> son los eslabones que un producto amable borraría, y son justamente
+                  los que sostienen <em>honesto</em> y <em>seguridad</em>.
+                </p>
+              </figcaption>
+            </figure>
+          </details>
         </section>
 
-        {/* ─── STAGE 06 · CINCO DECISIONES ────────────────────────────── */}
-        <section id="eb-stage-06" className="eb-stage">
-          <StageHead n="06" title="Cinco decisiones" step="06 / 11" />
+        {/* ─── 04 · TRES DECISIONES ───────────────────────────────────── */}
+        <section id="eb-stage-04" className="eb-stage">
+          <StageHead n="04" title="Tres decisiones" step="04 / 08" />
           <div className="eb-two">
             <div className="eb-two-l">
               <p className="p-strong">
-                Cinco decisiones de diseño, cada una con su tensión, su resolución y su costo. Ninguna es
-                gratis: las cinco renuncian a algo que un producto más vendible conservaría.
-              </p>
-              <p className="p-soft">
-                Las cinco derivan del mismo criterio: cuando la legibilidad y la honestidad entran en
-                conflicto, gana la honestidad — pero la carga de hacerla legible es del producto, no de
-                la familia.
+                Tres decisiones definen el producto. Cada una renuncia a algo que un producto más vendible
+                conservaría.
               </p>
             </div>
             <div className="eb-two-r">
-              <p className="eb-pull">Un producto sin costos declarados no tomó decisiones: tomó defaults.</p>
+              <p className="eb-pull">Si la legibilidad y la honestidad chocan, gana la honestidad. Hacerla legible es trabajo del producto.</p>
             </div>
           </div>
 
           <div className="eb-decisiones">
-            {DECISIONES.map((d) => (
+            {TRES_DECISIONES.map((d) => (
               <div className="eb-decision" key={d.n}>
                 <div className="eb-dec-l">
                   <div className="eb-dec-head">
@@ -1023,7 +916,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                     <span className="eb-dec-v soft">{d.tension}</span>
                   </div>
                   <div className="eb-dec-row hilite">
-                    <span className="eb-dec-k">Resolución</span>
+                    <span className="eb-dec-k">Decisión</span>
                     <span className="eb-dec-v">{d.resolucion}</span>
                   </div>
                   <div className="eb-dec-row hilite">
@@ -1035,119 +928,244 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             ))}
           </div>
 
-          <figure className="eb-fig">
-            <div className="eb-frame">
-              <div className="eb-dim-head">
-                <span className="mono uc small">Dimensión IDPS</span>
-                <span className="mono uc small">Colegios similares</span>
-                <span className="mono uc small">Graham Bell · 8° básico</span>
-              </div>
-              {DIMENSIONES.map((s) => (
-                <div className="eb-dim-row" key={s.nombre}>
-                  <span className="eb-dim-name">
-                    <span className="mono">{s.nombre}</span>
-                    <span className="eb-dim-que">{s.que}</span>
-                  </span>
-                  <span className="eb-dim-bar">
-                    <span className="eb-dim-fill grey" style={{ width: s.anchoColapso }} />
-                    <span className="mono small dim">{s.colapso}</span>
-                  </span>
-                  <span className="eb-dim-bar">
-                    <span className="eb-dim-fill dark" style={{ width: s.ancho }} />
-                    <span className="mono small">{s.valor}</span>
-                    <span className="mono small dim">{s.delta}</span>
-                  </span>
+          <details className="eb-det">
+            <summary>Ver dos decisiones más y por qué el IDPS no se promedia</summary>
+            <div className="eb-decisiones">
+              {DECISIONES.filter((d) => d.n === '04' || d.n === '05').map((d) => (
+                <div className="eb-decision" key={d.n}>
+                  <div className="eb-dec-l">
+                    <div className="eb-dec-head">
+                      <h3>{d.titulo}</h3>
+                    </div>
+                    <span className="eb-dec-tag">{d.ambito}</span>
+                  </div>
+                  <div className="eb-dec-r">
+                    <div className="eb-dec-row">
+                      <span className="eb-dec-k dim">Tensión</span>
+                      <span className="eb-dec-v soft">{d.tension}</span>
+                    </div>
+                    <div className="eb-dec-row hilite">
+                      <span className="eb-dec-k">Decisión</span>
+                      <span className="eb-dec-v">{d.resolucion}</span>
+                    </div>
+                    <div className="eb-dec-row hilite">
+                      <span className="eb-dec-k warn">Costo</span>
+                      <span className="eb-dec-v soft">{d.costo}</span>
+                    </div>
+                  </div>
                 </div>
               ))}
-              <div className="eb-dim-total">
-                <span className="eb-dim-total-l">Colapsado en un score único</span>
-                <span className="eb-dim-bar"><span className="eb-dim-fill grey" style={{ width: '74.8%' }} /><span className="mono small dim">74,8</span></span>
-                <span className="eb-dim-bar"><span className="eb-dim-fill grey" style={{ width: '70.3%' }} /><span className="mono small dim">70,3</span></span>
-              </div>
             </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 07 · Por qué las cuatro series no se promedian</span>
-              <p>
-                Datos reales de la ficha de Graham Bell, IDPS 8° básico 2025 preliminar. Colapsadas, las
-                cuatro dimensiones dan <span className="mono">70,3</span> contra{' '}
-                <span className="mono">74,8</span> de sus pares: «algo bajo», y nada más. Separadas se
-                ve lo que el promedio no puede decir: las cuatro brechas son casi idénticas —{' '}
-                <span className="mono">−5, −4, −4, −5</span> —, o sea un colegio parejo un poco por
-                debajo de sus pares, no uno con un área hundida. Ese mismo{' '}
-                <span className="mono">70,3</span> lo produciría también un colegio con tres dimensiones
-                altas y una colapsada, que para una familia es una decisión completamente distinta. Las
-                barras van en tinta neutra a propósito: acá el color no codifica nada, y el eje frío–cálido
-                está reservado para otra pregunta.
-              </p>
-            </figcaption>
-          </figure>
+
+            <figure className="eb-fig">
+              <div className="eb-frame">
+                <div className="eb-dim-head">
+                  <span className="mono uc small">Dimensión IDPS</span>
+                  <span className="mono uc small">Colegios similares</span>
+                  <span className="mono uc small">Graham Bell · 8° básico</span>
+                </div>
+                {DIMENSIONES.map((s) => (
+                  <div className="eb-dim-row" key={s.nombre}>
+                    <span className="eb-dim-name">
+                      <span className="mono">{s.nombre}</span>
+                      <span className="eb-dim-que">{s.que}</span>
+                    </span>
+                    <span className="eb-dim-bar">
+                      <span className="eb-dim-fill grey" style={{ width: s.anchoColapso }} />
+                      <span className="mono small dim">{s.colapso}</span>
+                    </span>
+                    <span className="eb-dim-bar">
+                      <span className="eb-dim-fill dark" style={{ width: s.ancho }} />
+                      <span className="mono small">{s.valor}</span>
+                      <span className="mono small dim">{s.delta}</span>
+                    </span>
+                  </div>
+                ))}
+                <div className="eb-dim-total">
+                  <span className="eb-dim-total-l">Colapsado en un score único</span>
+                  <span className="eb-dim-bar"><span className="eb-dim-fill grey" style={{ width: '74.8%' }} /><span className="mono small dim">74,8</span></span>
+                  <span className="eb-dim-bar"><span className="eb-dim-fill grey" style={{ width: '70.3%' }} /><span className="mono small dim">70,3</span></span>
+                </div>
+              </div>
+              <figcaption className="eb-fcap">
+                <span className="eb-figlabel">Fig. 06 · Por qué las cuatro series no se promedian</span>
+                <p>
+                  Datos de la ficha de Graham Bell, IDPS 8° básico 2025 preliminar. Colapsadas dan{' '}
+                  <span className="mono">70,3</span> contra <span className="mono">74,8</span> de sus pares.
+                  Separadas muestran cuatro brechas casi iguales —<span className="mono">−5, −4, −4, −5</span>—:
+                  un colegio parejo, no uno con un área hundida. El mismo promedio lo daría un colegio con tres
+                  dimensiones altas y una colapsada.
+                </p>
+              </figcaption>
+            </figure>
+          </details>
         </section>
 
-        {/* ─── STAGE 07 · INGENIERÍA DEL DATO ─────────────────────────── */}
-        <section id="eb-stage-07" className="eb-stage">
-          <StageHead n="07" title="Ingeniería del dato" step="07 / 11" />
+        {/* ─── 05 · DEL FLUJO A LA PANTALLA ───────────────────────────── */}
+        <section id="eb-stage-05" className="eb-stage">
+          <StageHead n="05" title="Del flujo a la pantalla" step="05 / 08" />
           <div className="eb-two">
             <div className="eb-two-l">
               <p className="p-strong">
-                Un pipeline en Python y Pandas cruza los seis datasets oficiales en un{' '}
-                <strong>único JSON maestro.</strong> El MVP lo construí yo entero: el cruce, el JSON, el
-                diseño y el producto. 57 colegios de Pudahuel, punta a punta.
+                El <strong>prototipo 1</strong> fue un MVP solo para celular con 57 colegios de Pudahuel,
+                construido del cruce de datos a la última pantalla. Funcionó, y con Israel Rubilar decidimos
+                llevarlo a todo Chile.
               </p>
               <p className="p-soft">
-                Israel entró después, al ver el MVP funcionando. En esa reunión decidimos escalarlo a todo
-                Chile — 7.168 colegios de básica — y ahí aparece el nuevo dataset nacional. El cambio de
-                escala es lo que obliga a cambiar de método.
+                El <strong>prototipo 2</strong> salió de un análisis heurístico del primero y cambió en tres
+                frentes: datos (de 57 a 8.250 colegios), flujo (rehecho en FigJam antes de programar) y diseño
+                (celular y escritorio, Comparar completo y un sistema auditado).
               </p>
             </div>
             <div className="eb-two-r">
-              <p className="eb-pull">
-                Definir el schema es diseño: decide qué se va a poder decir de un colegio antes de que
-                exista el dato.
-              </p>
+              <p className="eb-pull">La escala nacional rompía supuestos del prototipo 1: sin ubicación por defecto, con colegios sin datos para comparar y con grupos de comparación que cambian según la prueba.</p>
             </div>
           </div>
 
           <figure className="eb-fig">
-            <div className="eb-frame">
-              <div className="eb-scale">
-                <div className="eb-scale-col">
-                  <span className="mono uc small dim">MVP · una persona, 57 colegios</span>
-                  <span className="eb-scale-title">El dato y el diseño en la misma cabeza</span>
-                  <span className="eb-scale-desc">Cruzar los datasets a mano funcionaba porque quien los cruzaba era quien dibujaba la ficha. No había contrato que escribir: el schema vivía en mi cabeza y cambiaba conmigo.</span>
+            <div className="eb-videos">
+              <div className="eb-video-item movil">
+                <div className="eb-video-head">
+                  <span className="eb-version-title">Prototipo 1</span>
+                  <span className="mono uc small dim">MVP Pudahuel · celular</span>
                 </div>
-                <div className="eb-scale-col warm">
-                  <span className="mono uc small dim">Escala · dos personas, 7.168 colegios</span>
-                  <span className="eb-scale-title">eduBIG declara 340 campos, Israel los rellena</span>
-                  <span className="eb-scale-desc">A escala nacional el dato ya no lo levanto yo, así que el schema tiene que estar escrito y priorizado antes de pedirlo. El contrato reemplaza a la coordinación informal.</span>
+                <div className="eb-videoframe">
+                  <video ref={video2Ref} src="/edubig-navegacion-mvp.mp4" style={{ aspectRatio: '750 / 1522' }} poster="/edubig-navegacion-mvp-poster.jpg" muted controls playsInline preload="metadata" aria-label="Recorrido del prototipo 1, MVP de Pudahuel, en el celular" />
                 </div>
               </div>
-
-              <div className="eb-p-grid">
-                <div className="eb-p-col" style={{ borderTop: '3px solid #2166ac' }}>
-                  <span className="mono">P0</span>
-                  <span>Sin esto no hay ficha: RBD, dependencia, copago, nivel, ubicación.</span>
+              <div className="eb-video-item">
+                <div className="eb-video-head">
+                  <span className="eb-version-title">Prototipo 2</span>
+                  <span className="mono uc small dim">Versión nacional · escritorio</span>
                 </div>
-                <div className="eb-p-col" style={{ borderTop: '3px solid #4393c3' }}>
-                  <span className="mono">P1</span>
-                  <span>Sin esto no hay traducción: series SIMCE e IDPS contra grupo GSE.</span>
-                </div>
-                <div className="eb-p-col" style={{ borderTop: '3px solid #d1e5f0' }}>
-                  <span className="mono">P2</span>
-                  <span>Enriquecen la ficha cuando estén: PAES, proyecto educativo, talleres.</span>
+                <div className="eb-videoframe">
+                  <video ref={video3Ref} src="/edubig-navegacion-prototipo2.mp4" style={{ aspectRatio: '1600 / 932' }} poster="/edubig-navegacion-prototipo2-poster.jpg" muted controls playsInline preload="metadata" aria-label="Recorrido del prototipo 2, versión nacional, en escritorio: Test de Calce, shortlist y Comparar" />
                 </div>
               </div>
             </div>
             <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 08 · Del MVP a la escala nacional</span>
+              <span className="eb-figlabel">Fig. 07 · Los dos prototipos, en movimiento</span>
               <p>
-                La prioridad no ordena el pedido por comodidad: ordena qué puede prometer el producto en
-                cada etapa. P0 habilita la ficha, P1 habilita el Test de Calce — sin series contra grupo
-                GSE no hay calce que calcular — y P2 es todo lo que puede faltar sin que la decisión de la
-                familia se degrade. Escribir esa jerarquía fue posible porque el MVP ya había hecho el
-                recorrido completo a mano.
+                El prototipo 1 recorre el Test de Calce en el celular, con 57 colegios de Pudahuel. El prototipo 2
+                hace el mismo camino en escritorio, con el dato nacional, y llega hasta Comparar.
               </p>
             </figcaption>
           </figure>
+
+          <FlujosCarrusel />
+
+          <div className="eb-version">
+            <div className="eb-version-head">
+              <span className="mono small dim">01</span>
+              <span className="eb-version-title">Prototipo 1 · MVP Pudahuel</span>
+              <span className="eb-dec-tag">57 colegios · solo celular</span>
+              <a href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link eb-version-link">Abrir el prototipo 1 ↗</a>
+            </div>
+            <div className="eb-galeria">
+              {PANTALLAS_MVP.map((s, i) => (
+                <figure className="eb-shot" key={i}>
+                  <div role="img" aria-label={s.alt} className="eb-shot-img movil" style={{ backgroundImage: `url(${s.url})` }} />
+                  <figcaption>{s.pie}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+
+          <div className="eb-version">
+            <div className="eb-version-head">
+              <span className="mono small dim">02</span>
+              <span className="eb-version-title">Prototipo 2 · versión nacional</span>
+              <span className="eb-dec-tag">8.250 colegios · celular y escritorio</span>
+              <a href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link eb-version-link">Abrir el prototipo 2 ↗</a>
+            </div>
+            <div className="eb-galeria">
+              {PANTALLAS_NACIONAL.map((s, i) => (
+                <figure className={'eb-shot' + (s.ancho ? ' ancho' : '')} key={i}>
+                  <div role="img" aria-label={s.alt} className={'eb-shot-img ' + (s.ancho ? 'escritorio' : 'movil')} style={{ backgroundImage: `url(${s.url})` }} />
+                  <figcaption>{s.pie}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── 06 · CASO A FONDO: COMPARAR ────────────────────────────── */}
+        <section id="eb-stage-06" className="eb-stage">
+          <StageHead n="06" title="Caso a fondo: Comparar" step="06 / 08" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                Comparar es la promesa más difícil del producto: poner colegios lado a lado <strong>sin
+                declarar un ganador</strong>.
+              </p>
+              <p className="p-soft">
+                El diseño del prototipo 1 mostraba tres columnas con un resumen. Tomás y Francisca necesitaban más:
+                ver cada dimensión y entender contra qué se mide cada colegio.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">Cada colegio se compara con colegios parecidos a él, no con los otros de la tabla.</p>
+            </div>
+          </div>
+
+          <div className="eb-antes-despues">
+            <figure className="eb-ad antes">
+              <span className="mono uc small dim">Antes · prototipo 1, diseño en Figma, ago-2026</span>
+              <div className="eb-ad-moviles">
+                <div role="img" aria-label="Prototipo de comparación en el celular: tres colegios en columnas con el resumen «Lo esencial»" className="eb-shot-img movil" style={{ backgroundImage: `url(${scCompTop})` }} />
+                <div role="img" aria-label="Prototipo de comparación: cuerpo de la tabla con trayectoria universitaria" className="eb-shot-img movil" style={{ backgroundImage: `url(${scCompCuerpo})` }} />
+              </div>
+              <figcaption>Tres columnas, un resumen y chips Alto / Medio / Bajo.</figcaption>
+            </figure>
+            <figure className="eb-ad despues">
+              <span className="mono uc small dim">Después · prototipo 2, oct-2026</span>
+              <div className="eb-ad-wide">
+                <div role="img" aria-label="Comparar en el celular: barra con tres colegios y el bloque «Lo que más cambia»" className="eb-shot-img movil" style={{ backgroundImage: `url(${v2CompararMovil})` }} />
+                <img src={v2CompararDetalle} alt="Detalle de Comparar en escritorio: Bienestar con barras de 0 a 100 y la marca de sus similares; Académico con brechas SIMCE en verde, mostaza o gris según la significancia" className="eb-ad-img" />
+              </div>
+              <figcaption>Hasta 4 colegios en escritorio y 3 en el celular, una dimensión por grupo, cada dato en tres capas: frase, gráfico y número exacto.</figcaption>
+            </figure>
+          </div>
+
+          <div className="eb-pasos">
+            {PASOS_COMPARAR.map((p) => (
+              <div className="eb-paso" key={p.n}>
+                <span className="mono small dim">{p.n}</span>
+                <span className="eb-paso-t">{p.paso}</span>
+                <p>{p.texto}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="eb-reglas">
+            <span className="mono uc small dim">Tres reglas que ahora rigen todo el sitio</span>
+            <ul>
+              <li><strong>Un color fijo por posición</strong>, del 1 al 4, siempre con su número: el color identifica, no juzga.</li>
+              <li><strong>«Sus similares» es una marca negra neutra</strong>, no un color más que compita con los colegios.</li>
+              <li><strong>Verde o mostaza solo con diferencia significativa</strong>; si no, gris «a la par».</li>
+            </ul>
+          </div>
+        </section>
+
+        {/* ─── 07 · SISTEMA Y FORMA DE TRABAJO ────────────────────────── */}
+        <section id="eb-stage-07" className="eb-stage">
+          <StageHead n="07" title="Sistema y forma de trabajo" step="07 / 08" />
+          <div className="eb-two">
+            <div className="eb-two-l">
+              <p className="p-strong">
+                El análisis heurístico dejó un sistema de diseño auditado contra WCAG 2.2 AA, una sola retícula
+                para todo el sitio y los mismos estados en cada control: reposo, hover, foco, activo y
+                deshabilitado.
+              </p>
+              <p className="p-soft">
+                La IA trabaja como colaborador dirigido. Yo decido qué se cruza, qué se diseña y con qué
+                criterio; la IA escribe y propone; yo valido contra la fuente oficial y el recorrido completo.
+              </p>
+            </div>
+            <div className="eb-two-r">
+              <p className="eb-pull">Un contraste que falla no es una infracción formal: es un dato que no se lee.</p>
+            </div>
+          </div>
 
           <figure className="eb-fig">
             <div className="eb-videoframe">
@@ -1156,411 +1174,230 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             <figcaption className="eb-fcap">
               <span className="eb-figlabel">Fig. 09 · El co-work sobre el pipeline</span>
               <p>
-                En el video se ve cómo trabajé el pipeline junto a la IA: yo decido qué dato se cruza con
-                qué y en qué orden, la IA escribe el código, y después reviso cada resultado contra la
-                fuente oficial. Si un campo queda mal cruzado se nota enseguida en la ficha del colegio,
-                así que el error sale a la superficie y se arregla barato. Por eso acá puedo delegar la
-                escritura sin delegar la decisión.
-              </p>
-            </figcaption>
-          </figure>
-        </section>
-
-        {/* ─── STAGE 08 · INFRAESTRUCTURA Y ACCESIBILIDAD ─────────────── */}
-        <section id="eb-stage-08" className="eb-stage">
-          <StageHead n="08" title="Infraestructura y accesibilidad" step="08 / 11" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                Migrar al schema nacional depende del nuevo dataset, que se está armando y tiene su propio
-                calendario. <strong>Esa ventana de espera es el momento correcto</strong> para hacer el
-                trabajo de sistema que antes no correspondía.
-              </p>
-              <p className="p-soft">
-                El diseño se había hecho en Figma como un dibujo: componentes mínimos, criterios repetidos
-                por convención, sin sistema formalizado. Formalizarlo antes de saber si la propuesta
-                resistía habría sido inversión prematura. El MVP ya la validó.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">
-                Se entrega de dos formas: un documento navegable para leerlo y un JSON en formato W3C DTCG
-                para volver a Figma con Tokens Studio.
-              </p>
-            </div>
-          </div>
-
-          {/* 08.1 · Las dos paletas */}
-          <div className="eb-substage">
-            <span className="mono small uc bold">08.1 · Las dos paletas</span>
-          </div>
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                El sistema tiene dos paletas y no se mezclan. La primera viene de RdBu (ColorBrewer) y no
-                clasifica colegios: dice <strong>en qué punto de la traducción está lo que estás
-                mirando.</strong> Frío es dato crudo; cálido es dato ya traducido a lo que la familia
-                necesita.
-              </p>
-              <p className="p-soft">
-                La segunda es para gráficos de categorías que no tienen orden: universidades de destino,
-                áreas de carrera, niveles Alto / Medio / Bajo. Si usáramos el eje frío–cálido ahí, estaría
-                diciendo algo que no es cierto.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">
-                La temperatura no es un estilo: es una variable con significado, y por eso tiene prohibido
-                usarse para otra cosa.
-              </p>
-            </div>
-          </div>
-
-          <figure className="eb-fig">
-            <div className="eb-frame">
-              <div className="eb-pals">
-                <div className="eb-pal-col">
-                  <div className="eb-pal-title">
-                    <span className="mono uc small">Paleta 01 · Eje de traducción</span>
-                    <span className="eb-pal-sub">RdBu — ColorBrewer. Ordinal y con dirección.</span>
-                  </div>
-                  <div className="eb-pal-bar" style={{ background: 'linear-gradient(90deg,#053061,#2166ac,#4393c3,#d1e5f0,#f7f7f7,#fddbc7,#f4a582,#d6604d,#b2181f)' }} />
-                  <div className="eb-pal-list">
-                    {USOS_EJE.map((u, i) => (
-                      <div className="eb-pal-row" key={i}>
-                        <span className="eb-pal-swatch" style={{ background: u.tono }} />
-                        <span className="eb-pal-txt">
-                          <span>{u.estado}</span>
-                          <span className="dim">{u.donde}</span>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="eb-pal-col">
-                  <div className="eb-pal-title">
-                    <span className="mono uc small">Paleta 02 · Visualización cualitativa</span>
-                    <span className="eb-pal-sub">Categórica: sin orden ni dirección. Los tonos están tomados de los frames y todavía faltan fijarlos como token.</span>
-                  </div>
-                  <div className="eb-pal-bar-cat">
-                    <span style={{ background: '#2f7d32' }} />
-                    <span style={{ background: '#2b4fc4' }} />
-                    <span style={{ background: '#c0392b' }} />
-                    <span style={{ background: '#7b52c9' }} />
-                    <span style={{ background: '#5a5a55' }} />
-                  </div>
-                  <div className="eb-pal-list">
-                    {USOS_CUAL.map((u, i) => (
-                      <div className="eb-pal-row" key={i}>
-                        <span className="eb-pal-swatch" style={{ background: u.tono }} />
-                        <span className="eb-pal-txt">
-                          <span>{u.estado}</span>
-                          <span className="dim">{u.donde}</span>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="eb-pal-rules">
-                <div>
-                  <span className="mono uc small dim">Regla única</span>
-                  <span>Si el color responde «¿qué tan traducido está esto?», es RdBu. Si responde «¿cuál de estos es?», es cualitativa.</span>
-                </div>
-                <div>
-                  <span className="mono uc small dim">Interactivo</span>
-                  <span><span className="mono" style={{ color: '#0958D9' }}>#0958D9</span> queda fuera de ambas. Es affordance, no significado: botón, foco, enlace.</span>
-                </div>
-                <div>
-                  <span className="mono uc small dim">Tercer encoding</span>
-                  <span>Las chips Alto / Medio / Bajo de la comparación usan verde–ámbar–rojo, que es semántica de evaluación y no pertenece a ninguna de las dos paletas.</span>
-                </div>
-              </div>
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 10 · Dos paletas, dos preguntas distintas</span>
-              <p>
-                Separarlas no es purismo: es lo que permite que el eje frío–cálido siga significando algo.
-                Si las chips de comparación usaran RdBu, un colegio «Bajo» se leería como un dato más
-                traducido en vez de como una categoría, y el único recurso que carga el concepto rector
-                quedaría gastado en clasificar.
+                El registro de cómo trabajo con la IA: yo decido qué dato se cruza con qué y en qué orden, la IA
+                escribe el código y yo reviso cada resultado contra la fuente oficial. Si un campo queda mal
+                cruzado, se nota enseguida en la ficha del colegio. Delego la escritura, no la decisión.
               </p>
             </figcaption>
           </figure>
 
-          <figure className="eb-fig">
-            <div className="eb-frame">
-              <div className="eb-frames-trad">
-                {FRAMES_TRAD.map((f, i) => (
-                  <div className="eb-frame-t" key={i}>
-                    <div className="eb-frame-t-head">
-                      <span className="eb-frame-t-dot" style={{ background: f.tono }} />
-                      <span className="mono uc small">{f.estado}</span>
-                    </div>
-                    <div
-                      role="img"
-                      aria-label={f.alt}
-                      className="eb-frame-t-img"
-                      style={{ backgroundImage: `url(${f.url})` }}
-                    />
-                    <span className="mono uc small dim">{f.recorte}</span>
-                    <p className="eb-frame-t-nota">{f.nota}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 11 · La misma card, dos temperaturas</span>
-              <p>
-                La prueba de que el eje es estado y no estilo: es el mismo componente de card en las dos
-                puntas, y su temperatura cambia sola con el origen del dato. Frío cuando lo encontraste
-                tú navegando una lista; cálido cuando el sistema lo trajo para tu familia — y recién ahí
-                aparecen las chips de calce y las acciones, porque hay contra qué contrastarlo. En el
-                medio, la pantalla de espera dice literalmente <em>Traduciendo tus respuestas</em> — el
-                concepto rector no aparece en un manifiesto sino en el microcopy de un loader.
-              </p>
-            </figcaption>
-          </figure>
-
-          {/* 08.2 · Auditoría WCAG */}
-          <div className="eb-substage">
-            <span className="mono small uc bold">08.2 · Auditoría WCAG 2.2 AA</span>
-          </div>
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                Revisé los colores del producto contra WCAG 2.2 AA. Es la única parte del proyecto donde
-                la IA revisa mi trabajo y no al revés: yo definí qué se auditaba, ella pasó el criterio
-                por cada token y después verifiqué los ratios uno por uno.
-              </p>
-              <p className="p-soft">
-                Carolina decide desde el teléfono, con datos móviles, en la calle. Un contraste que falla
-                no es una infracción formal: es un dato que no se lee.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">
-                La auditoría encontró dos tokens que el propio sistema usaba mal. Los dos son cálidos.
-              </p>
-            </div>
-          </div>
-
-          <figure className="eb-fig">
-            <div className="eb-frame">
-              <div className="eb-contraste-head">
-                <span className="mono uc small">Token</span>
-                <span className="mono uc small">Uso en el producto</span>
-                <span className="mono uc small right">Ratio</span>
-                <span className="mono uc small">Veredicto</span>
-              </div>
-              {CONTRASTE.map((c) => (
-                <div className="eb-contraste-row" key={c.hex}>
-                  <span className="eb-contraste-hex">
-                    <span className="eb-contraste-chip" style={{ background: c.hex }} />
-                    <span className="mono small">{c.hex}</span>
-                  </span>
-                  <span className="eb-contraste-uso">{c.uso}</span>
-                  <span className="mono right">{c.ratio}</span>
-                  <span className="eb-contraste-verd">
-                    <span className="eb-contraste-dot" style={{ background: c.marca }} />
-                    <span style={{ color: c.tintaVeredicto }}>{c.veredicto}</span>
-                  </span>
-                </div>
-              ))}
-              <span className="eb-contraste-nota">
-                Ratios calculados contra <span className="mono small">#FFFFFF</span>, superficie real de
-                card y ficha. Umbrales WCAG 2.2: 4,5:1 texto normal · 3:1 texto grande y elementos no
-                textuales.
-              </span>
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 12 · Auditoría de contraste sobre los tokens</span>
-              <p>
-                El hallazgo incómodo: el lado cálido del eje es el más débil.{' '}
-                <span className="mono">#f4a582</span> no alcanza ni el umbral no textual, y era exactamente
-                el token del borde en hover — el estado que la <span className="mono">08.1</span> presenta,
-                más arriba en esta misma stage, como el momento en que el dato cruza a cálido. El concepto
-                rector dependía de un contraste que no existía.
-              </p>
-            </figcaption>
-          </figure>
-
-          <div className="eb-criterios">
-            {CRITERIOS.map((k) => (
-              <div className="eb-criterio" key={k.sc}>
-                <div className="eb-crit-l">
-                  <span className="mono small dim">{k.sc}</span>
-                  <span className="eb-crit-name">{k.nombre}</span>
-                  <span
-                    className="eb-crit-tag"
-                    style={{ color: k.tinta, borderColor: k.borde }}
-                  >{k.estado}</span>
-                </div>
-                <div className="eb-crit-r">
-                  <div className="eb-crit-row">
-                    <span className="eb-crit-k dim">Riesgo</span>
-                    <span className="eb-crit-v soft">{k.riesgo}</span>
-                  </div>
-                  <div className="eb-crit-row hilite">
-                    <span className="eb-crit-k">Respuesta</span>
-                    <span className="eb-crit-v">{k.respuesta}</span>
-                  </div>
-                </div>
+          <div className="eb-cifras">
+            {CIFRAS.map((c) => (
+              <div className="eb-cifra" key={c.cifra}>
+                <span className="eb-cifra-n">{c.cifra}</span>
+                <p>{c.texto}</p>
               </div>
             ))}
           </div>
-        </section>
 
-        {/* ─── STAGE 09 · EL PRODUCTO ─────────────────────────────────── */}
-        <section id="eb-stage-09" className="eb-stage">
-          <StageHead n="09" title="El producto" step="09 / 11" />
-          <div className="eb-prod-intro">
-            <figure className="eb-fig eb-prod-video">
-              <div className="eb-videoframe">
-                <video ref={video2Ref} src="/edubig-navegacion-mvp.mp4" muted controls playsInline preload="metadata" />
-              </div>
-              <figcaption className="mono uc small dim">Fig. 13 · El recorrido completo, en movimiento</figcaption>
-            </figure>
-            <div className="eb-prod-intro-txt">
-              <p className="p-strong">
-                Las pantallas se recorren en <strong>orden narrativo, no por menú.</strong>
-              </p>
-              <p className="p-soft">
-                Al margen de cada una queda anotada la decisión de las etapas anteriores que ahí se vuelve
-                visible. Sin esa anotación el screen no prueba nada: es una captura.
-              </p>
-              <div className="eb-recorrido">
-                <span className="mono uc small dim">Recorrido por defecto</span>
-                <span className="eb-recorrido-line">Home → Test de Calce → Traducción → Shortlist → Ficha</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="eb-producto">
-            {PRODUCTO.map((b) => (
-              <div className="eb-prod-row" key={b.n}>
-                <div className="eb-prod-l">
-                  <div className="eb-prod-head">
-                    <span className="mono small dim">{b.n}</span>
-                    <span className="eb-prod-title">{b.titulo}</span>
+          <details className="eb-det">
+            <summary>Ver la auditoría de contraste y los criterios WCAG</summary>
+            <figure className="eb-fig">
+              <div className="eb-frame">
+                <div className="eb-contraste-head">
+                  <span className="mono uc small">Token</span>
+                  <span className="mono uc small">Uso en el producto</span>
+                  <span className="mono uc small right">Ratio</span>
+                  <span className="mono uc small">Veredicto</span>
+                </div>
+                {CONTRASTE.map((c) => (
+                  <div className="eb-contraste-row" key={c.hex}>
+                    <span className="eb-contraste-hex">
+                      <span className="eb-contraste-chip" style={{ background: c.hex }} />
+                      <span className="mono small">{c.hex}</span>
+                    </span>
+                    <span className="eb-contraste-uso">{c.uso}</span>
+                    <span className="mono right">{c.ratio}</span>
+                    <span className="eb-contraste-verd">
+                      <span className="eb-contraste-dot" style={{ background: c.marca }} />
+                      <span style={{ color: c.tintaVeredicto }}>{c.veredicto}</span>
+                    </span>
                   </div>
-                  <div className="eb-prod-tono" style={{ background: b.tono }} />
-                  <div className="eb-prod-vienen">
-                    <span className="mono uc small dim">Acá se manifiesta</span>
-                    <div className="eb-prod-chips">
-                      {b.vienen.map((v, i) => <span className="eb-prod-chip" key={i}>{v}</span>)}
+                ))}
+                <span className="eb-contraste-nota">
+                  Auditoría de sep-2026, ratios contra <span className="mono small">#FFFFFF</span>. En oct-2026
+                  se midió todo el texto contra su fondo real y el texto secundario subió de negro al 54 % al 60 %.
+                </span>
+              </div>
+              <figcaption className="eb-fcap">
+                <span className="eb-figlabel">Fig. 10 · Auditoría de contraste sobre los tokens</span>
+                <p>
+                  El hallazgo incómodo: el lado cálido del eje era el más débil. <span className="mono">#f4a582</span>{' '}
+                  era el borde en hover, el momento en que el dato cruza a cálido, y no llegaba ni al umbral no
+                  textual.
+                </p>
+              </figcaption>
+            </figure>
+
+            <div className="eb-criterios">
+              {CRITERIOS.map((k) => (
+                <div className="eb-criterio" key={k.sc}>
+                  <div className="eb-crit-l">
+                    <span className="mono small dim">{k.sc}</span>
+                    <span className="eb-crit-name">{k.nombre}</span>
+                    <span className="eb-crit-tag" style={{ color: k.tinta, borderColor: k.borde }}>{k.estado}</span>
+                  </div>
+                  <div className="eb-crit-r">
+                    <div className="eb-crit-row">
+                      <span className="eb-crit-k dim">Riesgo</span>
+                      <span className="eb-crit-v soft">{k.riesgo}</span>
+                    </div>
+                    <div className="eb-crit-row hilite">
+                      <span className="eb-crit-k">Respuesta</span>
+                      <span className="eb-crit-v">{k.respuesta}</span>
                     </div>
                   </div>
-                  <div className="eb-prod-notas">
-                    {b.notas.map((n, i) => <p key={i}>{n}</p>)}
-                  </div>
                 </div>
+              ))}
+            </div>
+          </details>
 
-                <div className="eb-prod-r">
-                  <div className="eb-frame" style={{ padding: 26 }}>
-                    <div className="eb-screens">
-                      {b.screens.map((s, i) => (
-                        <figure className="eb-screen" key={i}>
-                          <div
-                            role="img"
-                            aria-label={s.alt}
-                            className="eb-screen-img"
-                            style={{ backgroundImage: `url(${s.url})`, aspectRatio: s.ratio }}
-                          />
-                          <span className="mono uc small dim">{s.recorte}</span>
-                          <figcaption>{s.pie}</figcaption>
-                        </figure>
+          <details className="eb-det">
+            <summary>Ver las dos paletas y la card en dos temperaturas</summary>
+            <figure className="eb-fig">
+              <div className="eb-frame">
+                <div className="eb-pals">
+                  <div className="eb-pal-col">
+                    <div className="eb-pal-title">
+                      <span className="mono uc small">Paleta 01 · Eje de traducción</span>
+                      <span className="eb-pal-sub">RdBu — ColorBrewer. Ordinal y con dirección.</span>
+                    </div>
+                    <div className="eb-pal-bar" style={{ background: 'linear-gradient(90deg,#053061,#2166ac,#4393c3,#d1e5f0,#f7f7f7,#fddbc7,#f4a582,#d6604d,#b2181f)' }} />
+                    <div className="eb-pal-list">
+                      {USOS_EJE.map((u, i) => (
+                        <div className="eb-pal-row" key={i}>
+                          <span className="eb-pal-swatch" style={{ background: u.tono }} />
+                          <span className="eb-pal-txt">
+                            <span>{u.estado}</span>
+                            <span className="dim">{u.donde}</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="eb-pal-col">
+                    <div className="eb-pal-title">
+                      <span className="mono uc small">Paleta 02 · Colegios en un gráfico</span>
+                      <span className="eb-pal-sub">Categórica, de la paleta de Carbon: un color por posición, sin orden ni juicio.</span>
+                    </div>
+                    <div className="eb-pal-bar-cat">
+                      {USOS_CUAL.map((u) => <span key={u.estado} style={{ background: u.tono }} />)}
+                    </div>
+                    <div className="eb-pal-list">
+                      {USOS_CUAL.map((u, i) => (
+                        <div className="eb-pal-row" key={i}>
+                          <span className="eb-pal-swatch" style={{ background: u.tono }} />
+                          <span className="eb-pal-txt">
+                            <span>{u.estado}</span>
+                            <span className="dim">{u.donde}</span>
+                          </span>
+                        </div>
                       ))}
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
 
-          <p className="mono small dim eb-prod-footnote">
-            Fig. 14 · Pantallas del producto en construcción, en ventanas recortadas a 390×845.
-          </p>
-        </section>
-
-        {/* ─── STAGE 10 · MÉTODO DE VALIDACIÓN ────────────────────────── */}
-        <section id="eb-stage-10" className="eb-stage">
-          <StageHead n="10" title="Método de validación" step="10 / 11" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                La estrategia de validación es <strong>una decisión de secuencia, no una omisión.</strong>
-              </p>
-              <p className="p-soft">
-                Tres capas, y cada una responde una pregunta distinta. La discusión no es cuánto se testó:
-                es en qué orden conviene gastar la atención de una familia que está eligiendo colegio en
-                plazos del SAE.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">
-                Testear tarde con distribución real es mejor apuesta que testear temprano con muestra
-                fabricada.
-              </p>
-            </div>
-          </div>
-
-          <figure className="eb-fig">
-            <div className="eb-frame">
-              {VALIDACION.map((c) => (
-                <div className="eb-val-row" key={c.n}>
-                  <div className="eb-val-l">
-                    <span className="mono uc small dim">{c.n}</span>
-                    <span className="eb-val-title">{c.titulo}</span>
-                    <span className="eb-val-tag" style={{ color: c.tinta, borderColor: c.borde }}>{c.estado}</span>
-                    <div className="eb-val-scale">
-                      <span className="eb-val-bar" style={{ width: c.ancho, background: c.tono }} />
-                      <span className="mono small dim">{c.muestra}</span>
-                    </div>
+                <div className="eb-pal-rules">
+                  <div>
+                    <span className="mono uc small dim">Regla única</span>
+                    <span>Si el color responde «¿qué tan traducido está esto?», es RdBu. Si responde «¿cuál de estos colegios es?», es la paleta de posición.</span>
                   </div>
-                  <div className="eb-val-r">
-                    <p className="eb-val-txt">{c.texto}</p>
-                    <div className="eb-val-porque">
-                      <span className="mono uc small dim">Por qué</span>
-                      <span className="soft">{c.porque}</span>
-                    </div>
+                  <div>
+                    <span className="mono uc small dim">Interactivo</span>
+                    <span><span className="mono" style={{ color: '#0958D9' }}>#0958D9</span> queda fuera de ambas. Es affordance, no significado: botón, foco, enlace.</span>
+                  </div>
+                  <div>
+                    <span className="mono uc small dim">Tercer encoding</span>
+                    <span>Verde y mostaza dicen «sobre» o «bajo sus similares», y solo aparecen cuando la diferencia es significativa.</span>
                   </div>
                 </div>
-              ))}
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 15 · Tres capas, muestra creciente</span>
-              <p>
-                La barra crece porque la muestra crece, y crece justo donde el producto ya aguanta ser
-                mirado. Las dos primeras capas existen para que la tercera no gaste su muestra en encontrar
-                lo que un método conocido encuentra gratis.
-              </p>
-            </figcaption>
-          </figure>
+              </div>
+              <figcaption className="eb-fcap">
+                <span className="eb-figlabel">Fig. 11 · Dos paletas, dos preguntas distintas</span>
+                <p>Separarlas es lo que permite que el eje frío–cálido siga significando algo.</p>
+              </figcaption>
+            </figure>
+
+            <figure className="eb-fig">
+              <div className="eb-frame">
+                <div className="eb-frames-trad">
+                  {FRAMES_TRAD.map((f, i) => (
+                    <div className="eb-frame-t" key={i}>
+                      <div className="eb-frame-t-head">
+                        <span className="eb-frame-t-dot" style={{ background: f.tono }} />
+                        <span className="mono uc small">{f.estado}</span>
+                      </div>
+                      <div role="img" aria-label={f.alt} className="eb-frame-t-img" style={{ backgroundImage: `url(${f.url})` }} />
+                      <span className="mono uc small dim">{f.recorte}</span>
+                      <p className="eb-frame-t-nota">{f.nota}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <figcaption className="eb-fcap">
+                <span className="eb-figlabel">Fig. 12 · La misma card, dos temperaturas</span>
+                <p>
+                  Fría cuando la encontraste tú en una lista; cálida cuando el sistema la trajo para tu familia.
+                  En el medio, la pantalla de espera dice <em>Traduciendo tus respuestas</em>.
+                </p>
+              </figcaption>
+            </figure>
+          </details>
+
+          <details className="eb-det">
+            <summary>Ver qué dirigí, qué generó la IA y cómo validé, capa por capa</summary>
+            <figure className="eb-fig">
+              <div className="eb-frame" style={{ padding: '8px 34px 34px' }}>
+                {CAPAS.map((c) => (
+                  <div className="eb-capa-row" key={c.n}>
+                    <div className="eb-capa-l">
+                      <div className="eb-capa-head">
+                        <span className="mono small">{c.n}</span>
+                        <span className="eb-capa-name">{c.capa}</span>
+                      </div>
+                      <span className="eb-capa-stack">{c.stack}</span>
+                      <span className="eb-capa-modo">{c.modo}</span>
+                    </div>
+                    <div className="eb-capa-r">
+                      {c.registro.map(([k, v]) => (
+                        <div className="eb-capa-reg" key={k}>
+                          <span className="eb-reg-k">{k}</span>
+                          <span className="eb-reg-v">{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <figcaption className="eb-fcap">
+                <span className="eb-figlabel">Fig. 13 · Cuatro capas, cuatro modos de dirigir</span>
+                <p>
+                  El modo lo fija cuánto costaría equivocarse en esa capa: un error en el pipeline ensucia el dato
+                  de miles de colegios; uno de frontend se ve y se corrige en el momento.
+                </p>
+              </figcaption>
+            </figure>
+          </details>
         </section>
 
-        {/* ─── STAGE 11 · ESTADO Y HORIZONTE ──────────────────────────── */}
-        <section id="eb-stage-11" className="eb-stage last">
-          <StageHead n="11" title="Estado y horizonte" step="11 / 11" />
+        {/* ─── 08 · ESTADO Y LO QUE SIGUE ─────────────────────────────── */}
+        <section id="eb-stage-08" className="eb-stage last">
+          <StageHead n="08" title="Fase actual: testeo con usuarios" step="08 / 08" />
           <div className="eb-two">
             <div className="eb-two-l">
               <p className="p-strong">
-                Hoy: diseño terminado en móvil, MVP desplegado con 57 colegios de Pudahuel, sistema de
-                diseño formalizado y deck de portafolio cerrado en 19 slides. Los módulos de comparación
-                avanzan como prototipo.
+                Con el prototipo 2 completo, la fase actual es <strong>probarlo con usuarios reales</strong>. Se
+                puede recorrer en <a href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link">edubig-chile.vercel.app ↗</a>;
+                el prototipo 1 sigue en línea como registro.
               </p>
               <p className="p-soft">
-                Lo próximo: cerrar el schema nacional, migrar el pipeline y los tipos de datos, publicar
-                como observatorio abierto de trayectorias escolares.
+                La validación es una decisión de secuencia: primero el análisis heurístico y de accesibilidad,
+                que dio forma al prototipo 2; ahora, las familias.
               </p>
             </div>
             <div className="eb-two-r">
-              <p className="eb-pull">
-                El sitio nace con la premisa de crecer y refinarse después del lanzamiento, no de esperar
-                a estar perfecto para salir.
-              </p>
+              <p className="eb-pull">Lo que un método conocido puede encontrar no se le pregunta a una familia.</p>
             </div>
           </div>
 
@@ -1579,14 +1416,45 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               </div>
             </div>
             <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 16 · De Pudahuel al observatorio</span>
-              <p>
-                La línea de tiempo corre sobre el mismo eje frío→cálido que ordena el producto: empieza
-                en el dato crudo de 57 colegios y termina en un observatorio que devuelve trayectorias
-                a las familias. La escala cambia; la traducción es la misma.
-              </p>
+              <span className="eb-figlabel">Fig. 14 · Del prototipo 1 al testeo con usuarios</span>
+              <p>La escala cambia; la traducción es la misma.</p>
             </figcaption>
           </figure>
+
+          <details className="eb-det">
+            <summary>Ver el método de validación completo</summary>
+            <figure className="eb-fig">
+              <div className="eb-frame">
+                {VALIDACION.map((c) => (
+                  <div className="eb-val-row" key={c.n}>
+                    <div className="eb-val-l">
+                      <span className="mono uc small dim">{c.n}</span>
+                      <span className="eb-val-title">{c.titulo}</span>
+                      <span className="eb-val-tag" style={{ color: c.tinta, borderColor: c.borde }}>{c.estado}</span>
+                      <div className="eb-val-scale">
+                        <span className="eb-val-bar" style={{ width: c.ancho, background: c.tono }} />
+                        <span className="mono small dim">{c.muestra}</span>
+                      </div>
+                    </div>
+                    <div className="eb-val-r">
+                      <p className="eb-val-txt">{c.texto}</p>
+                      <div className="eb-val-porque">
+                        <span className="mono uc small dim">Por qué</span>
+                        <span className="soft">{c.porque}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <figcaption className="eb-fcap">
+                <span className="eb-figlabel">Fig. 15 · Tres capas, muestra creciente</span>
+                <p>
+                  Las dos primeras capas existen para que la tercera no gaste su muestra en encontrar lo que un
+                  método conocido encuentra gratis.
+                </p>
+              </figcaption>
+            </figure>
+          </details>
 
           <p className="eb-cierre">
             eduBIG no es un producto terminado. Es un sistema que aprende a traducir.
@@ -1598,6 +1466,77 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
 }
 
 // ─── PIEZAS AUXILIARES ────────────────────────────────────────────────────
+
+/** Carrusel de los flujos de FigJam: pestañas, anterior/siguiente y flechas del teclado. */
+function FlujosCarrusel() {
+  const [i, setI] = useState(0);
+  const n = FLUJOS.length;
+  const f = FLUJOS[i];
+  const ir = (k: number) => setI(Math.max(0, Math.min(n - 1, k)));
+  // Con las flechas, el foco acompaña a la pestaña activa si venía desde las pestañas.
+  function onKeyDown(e: KeyboardEvent) {
+    const paso = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+    if (!paso) return;
+    e.preventDefault();
+    const k = Math.max(0, Math.min(n - 1, i + paso));
+    setI(k);
+    if ((e.target as HTMLElement).getAttribute('role') === 'tab') {
+      requestAnimationFrame(() => document.getElementById(`eb-flujo-tab-${FLUJOS[k].id}`)?.focus());
+    }
+  }
+  return (
+    <section className="eb-carr" aria-roledescription="carrusel" aria-label="Flujos del sitio en FigJam" onKeyDown={onKeyDown}>
+      <div className="eb-carr-tabs" role="tablist" aria-label="Diagramas">
+        {FLUJOS.map((x, k) => (
+          <button
+            key={x.id}
+            type="button"
+            role="tab"
+            id={`eb-flujo-tab-${x.id}`}
+            aria-selected={k === i}
+            aria-controls="eb-flujo-panel"
+            tabIndex={k === i ? 0 : -1}
+            className={'eb-persona-tab' + (k === i ? ' is-active' : '')}
+            onClick={() => setI(k)}
+          >
+            <span className="eb-persona-tabnombre">{x.titulo}</span>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="eb-flujo-panel"
+        role="tabpanel"
+        aria-roledescription="slide"
+        aria-labelledby={`eb-flujo-tab-${f.id}`}
+        className="eb-frame eb-carr-view"
+      >
+        <a href={f.url} target="_blank" rel="noopener noreferrer" className="eb-carr-img" aria-label={`Abrir ${f.titulo} en tamaño completo`}>
+          <img src={f.url} alt={f.alt} />
+        </a>
+      </div>
+
+      <div className="eb-carr-bar">
+        <button type="button" className="eb-btn" onClick={() => ir(i - 1)} disabled={i === 0} aria-label="Diagrama anterior">
+          <span aria-hidden="true">←</span> Anterior
+        </button>
+        <span className="mono small dim" aria-live="polite">{i + 1} / {n}</span>
+        <button type="button" className="eb-btn" onClick={() => ir(i + 1)} disabled={i === n - 1} aria-label="Diagrama siguiente">
+          Siguiente <span aria-hidden="true">→</span>
+        </button>
+      </div>
+
+      <div className="eb-fcap">
+        <span className="eb-figlabel">Fig. 08 · Flujo del prototipo 2 en FigJam · {f.titulo}</span>
+        <p>
+          {f.nota}{' '}
+          <a href={f.url} target="_blank" rel="noopener noreferrer" className="eb-link">Abrir en tamaño completo ↗</a>
+        </p>
+      </div>
+    </section>
+  );
+}
+
 
 function StageHead({ n, title, step }: { n: string; title: string; step: string }) {
   return (
@@ -1801,15 +1740,6 @@ const CSS = `
 .eb .eb-dim-total-l{font-family:var(--eb-sans);font-size:12px;line-height:1.45;color:var(--eb-ink);}
 
 /* STAGE 07 · escala + prioridades + video */
-.eb .eb-scale{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--eb-ink);}
-.eb .eb-scale-col{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:9px;border-bottom:1px solid var(--eb-line-soft);padding:20px 26px 22px 0;}
-.eb .eb-scale-col.warm{border-left:2px solid var(--eb-warm-3);padding:20px 0 22px 26px;}
-.eb .eb-scale-title{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:var(--eb-ink);text-wrap:pretty;}
-.eb .eb-scale-desc{font-family:var(--eb-sans);font-size:13.5px;line-height:1.55;color:var(--eb-body);max-width:46ch;text-wrap:pretty;}
-.eb .eb-p-grid{display:flex;flex-wrap:wrap;gap:22px;padding-top:26px;}
-.eb .eb-p-col{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:7px;padding-top:12px;}
-.eb .eb-p-col span:first-child{font-family:var(--eb-mono);font-size:13px;letter-spacing:.06em;color:var(--eb-ink);}
-.eb .eb-p-col span:last-child{font-family:var(--eb-sans);font-size:13.5px;line-height:1.5;color:var(--eb-body);text-wrap:pretty;}
 .eb .eb-videoframe{border-style:solid;border-color:var(--eb-ink);border-width:1px 4px 4px 1px;overflow:hidden;background:#0f0f0e;display:block;line-height:0;}
 .eb .eb-videoframe video{display:block;width:100%;height:auto;}
 
@@ -1862,29 +1792,6 @@ const CSS = `
 .eb .eb-crit-v.soft{color:var(--eb-body);}
 
 /* STAGE 09 · producto */
-.eb .eb-prod-intro{display:flex;flex-wrap:wrap;gap:64px;align-items:flex-start;padding:72px 0 24px 24px;}
-.eb .eb-prod-video{flex:0 0 300px;margin:0;}
-.eb .eb-prod-intro-txt{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:24px;}
-.eb .eb-prod-intro-txt>div:first-child{display:flex;flex-direction:column;gap:20px;}
-.eb .eb-recorrido{border-top:1px solid var(--eb-line);padding-top:14px;display:flex;flex-direction:column;gap:10px;}
-.eb .eb-recorrido-line{font-family:var(--eb-mono);font-size:14px;line-height:1.6;letter-spacing:-.01em;color:#141412;max-width:52ch;text-wrap:pretty;}
-.eb .eb-producto{margin:52px 0 0;display:flex;flex-direction:column;gap:0;}
-.eb .eb-prod-row{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start;border-top:1px solid var(--eb-ink);padding:26px 0 52px;}
-.eb .eb-prod-l{flex:1 1 290px;min-width:0;display:flex;flex-direction:column;gap:16px;}
-.eb .eb-prod-head{display:flex;align-items:baseline;gap:12px;}
-.eb .eb-prod-title{font-family:var(--eb-mono-med);font-size:17px;font-weight:500;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
-.eb .eb-prod-tono{height:4px;width:64px;}
-.eb .eb-prod-vienen{display:flex;flex-direction:column;gap:6px;}
-.eb .eb-prod-chips{display:flex;flex-wrap:wrap;gap:6px;}
-.eb .eb-prod-chip{font-family:var(--eb-mono);font-size:10.5px;letter-spacing:.04em;color:var(--eb-ink);border:1px solid rgba(26,26,24,.3);border-radius:2px;padding:5px 8px;}
-.eb .eb-prod-notas{display:flex;flex-direction:column;gap:13px;border-top:1px solid var(--eb-line-soft);padding-top:15px;}
-.eb .eb-prod-notas p{margin:0;font-family:var(--eb-sans);font-size:14px;line-height:1.58;color:var(--eb-body);max-width:52ch;text-wrap:pretty;}
-.eb .eb-prod-r{flex:2 1 520px;min-width:0;}
-.eb .eb-screens{display:flex;gap:22px;align-items:flex-start;overflow-x:auto;}
-.eb .eb-screen{margin:0;flex:0 0 232px;display:flex;flex-direction:column;gap:10px;}
-.eb .eb-screen-img{width:100%;border:1px solid rgba(26,26,24,.2);background-color:#fff;background-size:100% auto;background-repeat:no-repeat;background-position:top center;}
-.eb .eb-screen figcaption{font-family:var(--eb-sans);font-size:12px;line-height:1.45;color:var(--eb-dim);text-wrap:pretty;}
-.eb .eb-prod-footnote{margin:8px 0 0;font-family:var(--eb-mono);font-size:11px;letter-spacing:.06em;color:var(--eb-dim);text-wrap:pretty;}
 
 /* STAGE 10 · validación */
 .eb .eb-val-row{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;border-bottom:1px solid var(--eb-line);padding:26px 0;}
@@ -1909,7 +1816,7 @@ const CSS = `
 
 /* responsivo · plegado a una columna */
 @media(max-width:900px){
-  .eb .eb-two,.eb .eb-cover,.eb .eb-prod-intro,.eb .eb-prod-row{gap:32px;}
+  .eb .eb-two,.eb .eb-cover{gap:32px;}
   .eb .eb-two-r{border-left:none;padding-left:0;border-top:1px solid var(--eb-line);padding-top:22px;}
   .eb .eb-fuentes-grid{grid-template-columns:1fr;min-width:0;}
   .eb .eb-fuentes-line,.eb .eb-fuentes-conn{display:none;}
@@ -1925,5 +1832,96 @@ const CSS = `
   .eb .eb-dim-head,.eb .eb-dim-row,.eb .eb-dim-total{grid-template-columns:1fr;gap:8px;}
   .eb .eb-contraste-head,.eb .eb-contraste-row{grid-template-columns:1fr;gap:6px;}
   .eb .eb-contraste-head .right,.eb .eb-contraste-row .right{text-align:left;}
+}
+
+/* ─── Versión condensada (2026-10-19) ─────────────────────────────────── */
+.eb .eb-cover-fig{flex:1 1 520px;min-width:0;margin:0;}
+.eb .eb-frame-img{padding:0;background:#fff;overflow:hidden;line-height:0;display:block;}
+.eb .eb-frame-img img{display:block;width:100%;height:auto;}
+
+/* botón del portafolio (mismo lenguaje que BackButton): desplegables y carrusel */
+.eb .eb-btn,.eb .eb-det>summary{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:11px 18px;background:#fff;border-style:solid;border-color:#3a3a38;border-width:1px 4px 4px 1px;font-family:var(--eb-mono-med);font-weight:500;font-size:12px;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:#0f0f0e;cursor:pointer;text-align:left;transition:background-color .2s ease,transform .1s ease;}
+.eb .eb-btn:hover:not(:disabled),.eb .eb-det>summary:hover{background:#f2f1ec;}
+.eb .eb-btn:active:not(:disabled),.eb .eb-det>summary:active{background:#e8e7e1;transform:translate(1px,1px);}
+.eb .eb-btn:focus-visible,.eb .eb-det>summary:focus-visible{outline:2px solid #0f0f0e;outline-offset:3px;}
+.eb .eb-btn:disabled{cursor:not-allowed;color:#8a8a85;border-color:#c9c8c2;background:#fff;}
+.eb .eb-det{margin:40px 0 0;}
+.eb .eb-det+.eb-det{margin-top:14px;}
+.eb .eb-det>summary{list-style:none;}
+.eb .eb-det>summary::-webkit-details-marker{display:none;}
+.eb .eb-det>summary::before{content:'+';flex:none;width:12px;font-family:var(--eb-mono);font-size:16px;line-height:1;text-align:center;}
+.eb .eb-det[open]>summary::before{content:'−';}
+.eb .eb-det[open]{padding-bottom:12px;}
+.eb .eb-det>.eb-fig:first-of-type,.eb .eb-det>.eb-decisiones:first-of-type{margin-top:28px;}
+.eb .eb-persona-tab:focus-visible{outline:2px solid #0f0f0e;outline-offset:3px;}
+.eb .eb-link{color:var(--eb-ink);text-decoration:underline;text-decoration-color:#8a8a85;text-underline-offset:3px;}
+.eb .eb-link:hover{text-decoration-color:#0f0f0e;}
+.eb .eb-link:focus-visible{outline:2px solid #0f0f0e;outline-offset:2px;}
+.eb .eb-version-link{font-family:var(--eb-mono);font-size:12px;margin-left:auto;}
+
+/* los dos prototipos en video */
+.eb .eb-videos{display:grid;grid-template-columns:minmax(0,.287fr) minmax(0,1fr);gap:28px;align-items:start;}
+.eb .eb-video-item{display:flex;flex-direction:column;gap:12px;min-width:0;}
+.eb .eb-video-head{display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
+
+/* carrusel de flujos */
+.eb .eb-carr{margin:56px 0 0;display:flex;flex-direction:column;gap:16px;}
+.eb .eb-carr-tabs{display:flex;flex-wrap:wrap;gap:8px;}
+.eb .eb-carr-view{padding:16px;background:#fff;height:clamp(420px,82vh,900px);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.eb .eb-carr-tabs .eb-persona-tab{min-height:44px;justify-content:center;}
+.eb .eb-carr-img{display:flex;width:100%;height:100%;align-items:center;justify-content:center;cursor:zoom-in;}
+.eb .eb-carr-img img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;}
+.eb .eb-carr-img:focus-visible{outline:2px solid #0f0f0e;outline-offset:4px;}
+.eb .eb-carr-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+
+/* MVP y versión nacional */
+.eb .eb-version{margin:56px 0 0;border-top:1px solid var(--eb-ink);padding-top:16px;}
+.eb .eb-version-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
+.eb .eb-version-title{font-family:var(--eb-mono-med);font-size:17px;font-weight:500;letter-spacing:-.01em;color:#141412;}
+.eb .eb-galeria{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;}
+.eb .eb-shot{margin:0;flex:0 1 160px;min-width:140px;display:flex;flex-direction:column;gap:10px;}
+.eb .eb-shot.ancho{flex:0 1 360px;min-width:260px;}
+.eb .eb-logo-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:30px;align-items:start;padding-bottom:30px;}
+.eb .eb-logo-pair .eb-logo-beat{padding:0;}
+.eb .eb-logo-pair .eb-logo-beat.divider{border-top:none;padding:0;}
+.eb .eb-shot-img{width:100%;border:1px solid rgba(26,26,24,.2);background-color:#fff;background-size:100% auto;background-repeat:no-repeat;background-position:top center;}
+.eb .eb-shot-img.movil{aspect-ratio:390/845;}
+.eb .eb-shot-img.escritorio{aspect-ratio:1440/900;}
+.eb .eb-shot figcaption{font-family:var(--eb-sans);font-size:12.5px;line-height:1.45;color:var(--eb-dim);text-wrap:pretty;}
+
+/* Comparar: antes y después, método y reglas */
+.eb .eb-antes-despues{margin:56px 0 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.3fr);gap:40px;align-items:start;}
+.eb .eb-ad{margin:0;display:flex;flex-direction:column;gap:12px;min-width:0;}
+.eb .eb-ad-moviles{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.eb .eb-ad-wide{display:grid;grid-template-columns:minmax(0,.4fr) minmax(0,1fr);gap:16px;align-items:start;}
+.eb .eb-ad-img{display:block;width:100%;height:auto;border:1px solid rgba(26,26,24,.2);}
+.eb .eb-ad figcaption{font-family:var(--eb-sans);font-size:13.5px;line-height:1.55;color:var(--eb-body);max-width:68ch;text-wrap:pretty;}
+.eb .eb-ad.antes .eb-shot-img{opacity:.9;}
+.eb .eb-pasos{margin:52px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;}
+.eb .eb-paso{border-top:1px solid var(--eb-ink);padding-top:14px;display:flex;flex-direction:column;gap:6px;min-width:0;}
+.eb .eb-paso-t{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:#141412;}
+.eb .eb-paso p{margin:0;font-family:var(--eb-sans);font-size:14px;line-height:1.55;color:var(--eb-body);text-wrap:pretty;}
+.eb .eb-reglas{margin:44px 0 0;background:#f7f7f7;border-style:solid;border-color:var(--eb-ink);border-width:1px 4px 4px 1px;padding:24px 28px;}
+.eb .eb-reglas ul{margin:14px 0 0;padding-left:20px;display:grid;gap:10px;}
+.eb .eb-reglas li{font-family:var(--eb-sans);font-size:15px;line-height:1.55;color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-reglas strong{font-weight:600;}
+
+/* cifras de sistema */
+.eb .eb-cifras{margin:48px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border-top:1px solid var(--eb-ink);border-bottom:1px solid var(--eb-line);}
+.eb .eb-cifra{padding:20px 22px 22px 0;display:flex;flex-direction:column;gap:8px;min-width:0;}
+.eb .eb-cifra-n{font-family:var(--eb-mono-med);font-weight:600;font-size:clamp(28px,3vw,40px);line-height:1.1;letter-spacing:-.02em;color:#141412;}
+.eb .eb-cifra p{margin:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.5;color:var(--eb-body);max-width:30ch;text-wrap:pretty;}
+
+@media(max-width:900px){
+  .eb .eb-antes-despues{grid-template-columns:1fr;gap:32px;}
+  .eb .eb-ad-wide{grid-template-columns:1fr;}
+  .eb .eb-logo-pair{grid-template-columns:1fr;}
+  .eb .eb-carr-view{height:auto;padding:12px;}
+  .eb .eb-videos{grid-template-columns:1fr;gap:32px;}
+  .eb .eb-video-item.movil{max-width:280px;}
+  .eb .eb-carr-img img{max-height:72vh;}
+  .eb .eb-ad-wide .eb-shot-img.movil{max-width:240px;}
+  .eb .eb-shot{flex:1 1 140px;}
+  .eb .eb-shot.ancho{flex:1 1 100%;min-width:0;}
 }
 `;
