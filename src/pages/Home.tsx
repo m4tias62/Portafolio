@@ -169,6 +169,8 @@ function FeaturedCard({ project, onClick, narrow, reduced }: { project: Project;
  *  del hero comparten este ancho, y el velo del fondo se desvanece donde termina. */
 const HERO_PAD = 'clamp(28px, 4.5vw, 72px)';
 const HERO_COL = 'min(560px, 46vw)';
+/** Hero (móvil): alto de la zona donde la viz se ve entera, sobre el titular. */
+const HERO_TOP_M = 'clamp(150px, 24vh, 220px)';
 
 export default function Home({ onCategoryClick, onProjectClick, scrollTo }: HomeProps) {
   const featured = featuredProjects();
@@ -513,31 +515,25 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
         {/* 0 · HERO
             Escritorio: viz p5 a pantalla completa y el texto en una sola columna
             (HERO_COL) sobre un velo que se desvanece donde termina la columna.
-            Móvil: la viz vive en una banda propia arriba y el texto va debajo,
-            sobre fondo liso, para que las líneas no crucen la tipografía. */}
+            Móvil: la viz ocupa todo el hero y se ve entera arriba; desde el titular
+            hacia abajo queda tras un velo que la atenúa, así sigue presente sin
+            cortar la lectura. */}
         <section
           aria-roledescription="slide"
           data-slide
           aria-label="Inicio"
           className={`relative shrink-0 overflow-hidden bg-[#fafaf7] ${narrow ? 'w-full flex flex-col' : 'w-full h-full'}`}
         >
-          {narrow ? (
-            <div className="relative w-full" style={{ height: 'clamp(200px, 32vh, 300px)' }}>
-              <CKHeroOverture className="absolute inset-0" style={{}} />
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 h-[64px] pointer-events-none"
-                style={{ background: 'linear-gradient(180deg, rgba(250,250,247,0) 0%, #fafaf7 100%)' }}
-              />
-            </div>
-          ) : (
-            <CKHeroOverture className="absolute inset-0" style={{}} />
-          )}
+          <CKHeroOverture className="absolute inset-0" style={{}} />
           <div
-            className={`${narrow ? 'relative pt-[4px]' : 'absolute inset-0 justify-center'} z-10 flex flex-col pointer-events-none`}
+            className={`${narrow ? 'relative' : 'absolute inset-0 justify-center'} z-10 flex flex-col pointer-events-none`}
             style={
               narrow
-                ? undefined
+                ? {
+                    paddingTop: HERO_TOP_M,
+                    paddingBottom: 8,
+                    background: `linear-gradient(180deg, rgba(250,250,247,0) 0, rgba(250,250,247,0.84) calc(${HERO_TOP_M} - 20px), rgba(250,250,247,0.9) 100%)`,
+                  }
                 : {
                     padding: HERO_PAD,
                     background: `linear-gradient(90deg, rgba(250,250,247,0.94) 0, rgba(250,250,247,0.88) calc(${HERO_PAD} + ${HERO_COL}), rgba(250,250,247,0) calc(${HERO_PAD} + ${HERO_COL} + 16vw))`,
