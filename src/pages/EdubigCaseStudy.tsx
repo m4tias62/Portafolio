@@ -1721,10 +1721,10 @@ const CSS = `
   .eb .eb-ver-h .eb-link-ext{margin-left:0;}
   .eb .eb-tag{white-space:normal;}
   .eb .eb-ad-before{padding:12px;}
-  .eb .eb-media-phone.is-lowres.is-150{width:min(150px,42vw);}
+  .eb .eb-media-phone.is-lowres.is-150{width:min(150px,36vw);}
   .eb .eb-p1-strip{overflow-x:auto;scroll-snap-type:x mandatory;}
   .eb .eb-p1-strip figure{flex:none;scroll-snap-align:start;}
-  .eb .eb-ad{grid-template-columns:1fr;}
+  .eb .eb-ad{grid-template-columns:minmax(0,1fr);}
   .eb .eb-ad-before{justify-content:center;}
   .eb .eb-ad-after .eb-row{flex-direction:column;width:auto;}
   .eb .eb-ad-after .eb-row > *{flex:none;width:100%;}
