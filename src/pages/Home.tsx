@@ -529,15 +529,17 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
               className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.18] tracking-[-0.4px]"
               style={{ fontSize: 'clamp(22px, 2.5vw, 34px)', maxWidth: 'min(46ch, 92vw)' }}
             >
-              Diseñador UX/UI. Me mueve investigar con usuarios y convertir lo que aprendo en estructuras claras.
+              Diseñador. Para mí, diseñar es leer entre líneas: entender lo que las personas necesitan antes de decidir
+              cómo se ve.
             </h1>
             <p
               className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#3a3a38] leading-[1.5] max-w-[56ch]"
               style={{ fontSize: 'clamp(15px, 1.15vw, 17px)' }}
             >
-              Colaboro con Globallys, consultora de accesibilidad digital, en arquitectura de información, benchmark e
-              investigación, por ejemplo para el portal del Censo 2024 del INE. En paralelo diseño Edubig, una
-              plataforma de decisión escolar.
+              Hoy trabajo en UX/UI y diseño de producto. Colaboro con Globallys, consultora de accesibilidad digital, en
+              investigación, benchmark, sistemas de diseño y landing pages; con ellos diseñé la arquitectura de
+              información del portal del Censo 2024 del INE. En paralelo, y de forma autónoma, diseño Edubig, una
+              plataforma abierta para que las familias chilenas encuentren y comparen colegios.
             </p>
             <p
               className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#0f0f0e] leading-[1.5] max-w-[56ch]"
