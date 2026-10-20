@@ -165,6 +165,11 @@ function FeaturedCard({ project, onClick, narrow, reduced }: { project: Project;
   );
 }
 
+/** Hero (escritorio): margen y ancho de la columna de texto. Todos los textos
+ *  del hero comparten este ancho, y el velo del fondo se desvanece donde termina. */
+const HERO_PAD = 'clamp(28px, 4.5vw, 72px)';
+const HERO_COL = 'min(560px, 46vw)';
+
 export default function Home({ onCategoryClick, onProjectClick, scrollTo }: HomeProps) {
   const featured = featuredProjects();
   const trackRef = useRef<HTMLDivElement>(null);
@@ -505,58 +510,77 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
               }
         }
       >
-        {/* 0 · HERO — viz p5 a pantalla completa, sin marco */}
+        {/* 0 · HERO
+            Escritorio: viz p5 a pantalla completa y el texto en una sola columna
+            (HERO_COL) sobre un velo que se desvanece donde termina la columna.
+            Móvil: la viz vive en una banda propia arriba y el texto va debajo,
+            sobre fondo liso, para que las líneas no crucen la tipografía. */}
         <section
           aria-roledescription="slide"
           data-slide
           aria-label="Inicio"
-          className={`relative shrink-0 overflow-hidden bg-[#fafaf7] ${
-            narrow ? 'w-full min-h-[78vh] flex flex-col justify-end' : 'w-full h-full'
-          }`}
+          className={`relative shrink-0 overflow-hidden bg-[#fafaf7] ${narrow ? 'w-full flex flex-col' : 'w-full h-full'}`}
         >
-          <CKHeroOverture className="absolute inset-0" style={{}} />
+          {narrow ? (
+            <div className="relative w-full" style={{ height: 'clamp(200px, 32vh, 300px)' }}>
+              <CKHeroOverture className="absolute inset-0" style={{}} />
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 bottom-0 h-[64px] pointer-events-none"
+                style={{ background: 'linear-gradient(180deg, rgba(250,250,247,0) 0%, #fafaf7 100%)' }}
+              />
+            </div>
+          ) : (
+            <CKHeroOverture className="absolute inset-0" style={{}} />
+          )}
           <div
-            className={`${narrow ? 'relative pt-[38vh]' : 'absolute inset-0'} z-10 flex flex-col ${narrow ? 'justify-end gap-[14px]' : 'justify-center gap-[20px]'} pointer-events-none`}
-            style={{
-              padding: 'clamp(28px, 4.5vw, 72px)',
-              background:
-                narrow
-                ? 'linear-gradient(0deg, rgba(250,250,247,0.97) 0%, rgba(250,250,247,0.85) 30%, rgba(250,250,247,0.4) 60%, rgba(250,250,247,0) 88%)'
-                : 'linear-gradient(90deg, rgba(250,250,247,0.94) 0%, rgba(250,250,247,0.66) 34%, rgba(250,250,247,0.12) 56%, rgba(250,250,247,0) 66%)',
-            }}
+            className={`${narrow ? 'relative pt-[4px]' : 'absolute inset-0 justify-center'} z-10 flex flex-col pointer-events-none`}
+            style={
+              narrow
+                ? undefined
+                : {
+                    padding: HERO_PAD,
+                    background: `linear-gradient(90deg, rgba(250,250,247,0.94) 0, rgba(250,250,247,0.88) calc(${HERO_PAD} + ${HERO_COL}), rgba(250,250,247,0) calc(${HERO_PAD} + ${HERO_COL} + 16vw))`,
+                  }
+            }
           >
-            <h1
-              className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.18] tracking-[-0.4px]"
-              style={{ fontSize: 'clamp(22px, 2.5vw, 34px)', maxWidth: 'min(46ch, 92vw)' }}
+            <div
+              className="flex flex-col"
+              style={{ width: narrow ? '100%' : HERO_COL, gap: narrow ? 16 : 'clamp(14px, 2.2vh, 22px)' }}
             >
-              Diseñador. Para mí, diseñar es leer entre líneas: entender lo que las personas necesitan antes de decidir
-              cómo se ve.
-            </h1>
-            <p
-              className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#3a3a38] leading-[1.5] max-w-[56ch]"
-              style={{ fontSize: 'clamp(15px, 1.15vw, 17px)' }}
-            >
-              Hoy trabajo en UX/UI y diseño de producto. Colaboro con Globallys, consultora de accesibilidad digital, en
-              investigación, benchmark, sistemas de diseño y landing pages; con ellos diseñé la arquitectura de
-              información del portal del Censo 2024 del INE. En paralelo, y de forma autónoma, diseño Edubig, una
-              plataforma abierta para que las familias chilenas encuentren y comparen colegios.
-            </p>
-            <p
-              className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#0f0f0e] leading-[1.5] max-w-[56ch]"
-              style={{ fontSize: 'clamp(15px, 1.15vw, 17px)' }}
-            >
-              Busco un rol junior en UX/UI o Product Design, en Santiago (remoto o presencial) o remoto para equipos
-              internacionales.
-            </p>
-            <p
-              className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#8a8a85] leading-[1.45] max-w-[52ch] mt-[6px]"
-              style={{ fontSize: 'clamp(12px, 0.9vw, 14px)' }}
-            >
-              «Diseña quien concibe cursos de acción destinados a cambiar situaciones existentes por otras preferidas.»{' '}
-              <span className="font-['IBM_Plex_Mono:Regular',sans-serif] not-italic uppercase tracking-[0.5px] text-[11px]">
-                — Herbert Simon
-              </span>
-            </p>
+              <h1
+                className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.18] tracking-[-0.4px] m-0"
+                style={{ fontSize: narrow ? 'clamp(24px, 6.6vw, 30px)' : 'clamp(22px, 2.2vw, 30px)' }}
+              >
+                Diseñador. Para mí, diseñar es leer entre líneas: entender lo que las personas necesitan antes de decidir
+                cómo se ve.
+              </h1>
+              <p
+                className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#3a3a38] leading-[1.55] m-0"
+                style={{ fontSize: 'clamp(15px, 1.1vw, 17px)' }}
+              >
+                Hoy trabajo en UX/UI y diseño de producto. Colaboro con Globallys, consultora de accesibilidad digital, en
+                investigación, benchmark, sistemas de diseño y landing pages; con ellos diseñé la arquitectura de
+                información del portal del Censo 2024 del INE. En paralelo, y de forma autónoma, diseño Edubig, una
+                plataforma abierta para que las familias chilenas encuentren y comparen colegios.
+              </p>
+              <p
+                className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#0f0f0e] leading-[1.55] m-0"
+                style={{ fontSize: 'clamp(15px, 1.1vw, 17px)' }}
+              >
+                Busco un rol junior en UX/UI o Product Design, en Santiago (remoto o presencial) o remoto para equipos
+                internacionales.
+              </p>
+              <p
+                className="font-['IBM_Plex_Sans:Italic',sans-serif] italic text-[#8a8a85] leading-[1.45] m-0 pt-[10px] border-t border-[#dcdbd5]"
+                style={{ fontSize: 'clamp(12px, 0.9vw, 14px)' }}
+              >
+                «Diseña quien concibe cursos de acción destinados a cambiar situaciones existentes por otras preferidas.»{' '}
+                <span className="font-['IBM_Plex_Mono:Regular',sans-serif] not-italic uppercase tracking-[0.5px] text-[11px]">
+                  — Herbert Simon
+                </span>
+              </p>
+            </div>
           </div>
         </section>
 
