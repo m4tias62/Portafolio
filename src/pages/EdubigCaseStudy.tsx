@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
-import CaseSummary from '@/components/CaseSummary';
 
 import logo from '@/assets/edubig/logo.png';
-import tarjeta from '@/assets/edubig/tarjeta-colegio.png';
 import bocetoToggle from '@/assets/edubig/boceto-toggle.jpg';
 import formalizacionLogo from '@/assets/edubig/formalizacion-logo.png';
+import fotoColegio from '@/assets/edubig/colegio-graham-bell-foto.jpg';
 
 import personaCarolina from '@/assets/edubig/persona-carolina.png';
 import personaMartin from '@/assets/edubig/persona-martin.png';
@@ -19,6 +18,7 @@ import scLoading from '@/assets/edubig/screen-loading.jpg';
 import scShortlist from '@/assets/edubig/screen-shortlist.jpg';
 import scCompTop from '@/assets/edubig/screen-comparacion-top.jpg';
 import scCompCuerpo from '@/assets/edubig/screen-comparacion-cuerpo.jpg';
+
 import v2CompararEsc from '@/assets/edubig/v2-comparar-escritorio.jpg';
 import v2CompararDetalle from '@/assets/edubig/v2-comparar-detalle.jpg';
 import v2CompararMovil from '@/assets/edubig/v2-comparar-movil.jpg';
@@ -31,20 +31,29 @@ import v2Flujo2 from '@/assets/edubig/v2-flujo-2-test.jpg';
 import v2Flujo3 from '@/assets/edubig/v2-flujo-3-ficha.jpg';
 import v2Flujo4 from '@/assets/edubig/v2-flujo-4-comparar.jpg';
 
-
 /**
  * EdubigCaseStudy — case study dedicado de Edubig.
  *
- * Versión condensada (2026-10-19): 8 etapas pensadas para una lectura de
- * reclutador (portada + En 2 minutos, problema, idea, tres decisiones, del
- * flujo a la pantalla, Comparar a fondo, sistema y forma de trabajo, estado).
- * El detalle del caso anterior (rediseño del 2026-09-14) se conserva en
- * desplegables <details className="eb-det">.
+ * Rediseño 2026-10-20: traspaso de la maqueta de Claude Design
+ * (`Claude outputs/edubig-rediseno/03-maqueta-edubig.html`). Ocho etapas con el
+ * titular de cada etapa como h2, grilla de 12 columnas (máx. 1180 px) y cinco
+ * proporciones cerradas para los medios: escritorio 16:10, celular 9:19,5,
+ * diagrama 2:1 o 3:2 y cuadrado 1:1. Los bitmaps antiguos de 300×650 px nunca
+ * se muestran a más de 150 px de ancho.
  *
- * Sistema del portafolio conservado (regla del 2026-09-11): NavBar (la pone
- * App), BackButton, regla vertical (ProgressBar) y el indent `pl-[188px]` que
- * usan todos los detalles de proyecto. Fuentes oficiales IBM Plex Mono/Sans.
- * Todo el CSS propio vive bajo `.eb` para no filtrarse al resto del sitio.
+ * Diferencias con la maqueta:
+ *   - NavBar, regla vertical (ProgressBar) y «Siguiente proyecto» son los
+ *     componentes compartidos del portafolio, no copias locales.
+ *   - Los videos de los prototipos son grabaciones nuevas dentro de una maqueta
+ *     de dispositivo sobre blanco: van juntos en un panel blanco a ancho completo,
+ *     con la misma altura (celular 1:2, escritorio 16:10).
+ *   - La foto de la tarjeta del colegio es un recorte de la tarjeta original
+ *     (294×139 px, se muestra a ≤ 270 px) en vez de un placeholder.
+ *   - El video del pipeline usa su propio poster.
+ *
+ * Fuentes oficiales del portafolio: 'IBM Plex Mono:Regular' / 'IBM Plex Mono:Medium'
+ * y 'IBM Plex Sans:Regular' (nombres registrados en index.css). Todo el CSS vive
+ * bajo `.eb` para no filtrarse al resto del sitio.
  */
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
@@ -139,15 +148,6 @@ const PERSONAS: Persona[] = [
   },
 ];
 
-const FUENTES: { n: string; nombre: string; detalle: string; tono: string }[] = [
-  { n: '01', nombre: 'Directorio Mineduc', detalle: 'RBD, dependencia, nivel, copago', tono: '#053061' },
-  { n: '02', nombre: 'SIMCE', detalle: 'Agencia de Calidad · 4° y 8° básico', tono: '#2166ac' },
-  { n: '03', nombre: 'IDPS', detalle: 'Cinco dimensiones de desarrollo personal y social', tono: '#2166ac' },
-  { n: '04', nombre: 'Denuncias Supereduc', detalle: 'Materia y estado de tramitación', tono: '#4393c3' },
-  { n: '05', nombre: 'Geolocalización', detalle: 'Distancia real al domicilio', tono: '#4393c3' },
-  { n: '06', nombre: 'PAES', detalle: 'Trayectoria de egreso', tono: '#92c5de' },
-];
-
 type Capa = {
   n: string;
   capa: string;
@@ -189,92 +189,6 @@ const CAPAS: Capa[] = [
       ['Validé', 'Ratio de contraste y objetivo táctil, uno por uno.'],
     ],
   },
-];
-
-type Eslabon = {
-  n: string;
-  rol: string;
-  frio: string;
-  frioGloss: string;
-  calido: string;
-  calidoGloss: string;
-};
-
-const ESLABONES: Eslabon[] = [
-  {
-    n: '01', rol: 'Origen',
-    frio: 'imparcial', frioGloss: 'El dato no toma partido por ningún colegio: solo registra lo que las seis fuentes oficiales publican.',
-    calido: 'cuidado', calidoGloss: 'La familia no parte de la curiosidad: parte de querer que a su hijo le vaya bien.',
-  },
-  {
-    n: '02', rol: 'Término medio',
-    frio: 'frío', frioGloss: 'Ser imparcial vuelve al dato frío. No consuela, no acompaña, no se adapta a quién pregunta.',
-    calido: 'preocupación', calidoGloss: 'Cuidar vuelve a la familia preocupada. La decisión importa, y eso incomoda.',
-  },
-  {
-    n: '03', rol: 'Resultado',
-    frio: 'honesto', frioGloss: 'Pero un dato frío es un dato honesto: no promete lo que no puede sostener.',
-    calido: 'seguridad', calidoGloss: 'Y una preocupación atendida con un dato honesto termina en seguridad: se puede decidir con esto.',
-  },
-];
-
-type Decision = {
-  n: string;
-  ambito: string;
-  titulo: string;
-  tension: string;
-  resolucion: string;
-  costo: string;
-};
-
-const DECISIONES: Decision[] = [
-  {
-    n: '01', ambito: 'Arquitectura', titulo: 'Acompañar antes que listar',
-    tension: 'Un buscador con filtros asume que la familia ya sabe qué criterios aplicar. La investigación mostró lo contrario: llega sin saber qué preguntar, y una lista de 7.168 colegios filtrable no resuelve eso.',
-    resolucion: 'El CTA primario del home es el Test de Calce, no el buscador. La exploración manual queda bajo «o explora por tu cuenta»: disponible, no primera. El recorrido por defecto termina en una shortlist de tres colegios que calzan, no en resultados.',
-    costo: 'Se antepone un flujo de cinco preguntas a quien solo quería buscar un nombre, y el producto asume la responsabilidad de haber acotado bien.',
-  },
-  {
-    n: '02', ambito: 'Motor', titulo: 'Motor determinístico, no caja negra',
-    tension: 'Un modelo entrenado recomienda mejor en promedio, pero no puede explicar una recomendación concreta a la familia que la recibe.',
-    resolucion: 'Reglas explícitas, ponderaciones públicas y metodología consultable desde la propia recomendación.',
-    costo: 'Se resigna precisión estadística. El sistema no aprende de lo que hacen los usuarios.',
-  },
-  {
-    n: '03', ambito: 'Contexto', titulo: 'Comparación contra grupo GSE',
-    tension: 'Comparar un colegio contra el promedio nacional premia la composición socioeconómica del alumnado y castiga al colegio que trabaja bien en contexto adverso.',
-    resolucion: 'Todo indicador se lee contra colegios de grupo socioeconómico similar. Las etiquetas son Sobre, Similar y Bajo respecto de ese grupo, nunca un ranking absoluto.',
-    costo: 'Desaparece la respuesta simple a «¿cuál es el mejor colegio de Chile?». La pregunta queda sin contestar a propósito.',
-  },
-  {
-    n: '04', ambito: 'Datos', titulo: 'Series IDPS separadas, nunca un score único',
-    tension: 'Clima escolar, autoestima, hábitos y participación miden cosas distintas. Promediarlas produce un número más cómodo y menos cierto.',
-    resolucion: 'Las cuatro dimensiones se muestran como series independientes, cada una contra su grupo GSE. El Test de Calce agrupa en Bienestar y Convivencia solo para ponderar, y aun ahí pregunta dónde poner más peso — nunca cuál descartar.',
-    costo: 'La familia lee cuatro barras donde otros productos muestran una. Más carga de lectura, menos titular.',
-  },
-  {
-    n: '05', ambito: 'Tono', titulo: 'Nota de legitimación',
-    tension: 'El Test de Calce pregunta qué prioriza la familia. Toda pregunta de preferencia implica que hay respuestas mejores que otras, y eso culpabiliza a quien elige distinto.',
-    resolucion: 'Cada resultado del test valida explícitamente la combinación elegida antes de mostrar colegios. No hay perfil incorrecto.',
-    costo: 'Más texto antes del resultado, y el producto renuncia a la autoridad de decirle a la familia qué debería priorizar.',
-  },
-];
-
-type Dim = {
-  nombre: string;
-  que: string;
-  valor: string;
-  delta: string;
-  ancho: string;
-  colapso: string;
-  anchoColapso: string;
-};
-
-const DIMENSIONES: Dim[] = [
-  { nombre: 'Clima escolar', que: 'Convivencia · qué tan respetuosa y segura la sienten', valor: '70', delta: '−5', ancho: '70%', colapso: '75', anchoColapso: '75%' },
-  { nombre: 'Participación', que: 'Convivencia · pertenencia y formación ciudadana', valor: '74', delta: '−4', ancho: '74%', colapso: '78', anchoColapso: '78%' },
-  { nombre: 'Autoestima académica', que: 'Bienestar · confianza y motivación para aprender', valor: '70', delta: '−4', ancho: '70%', colapso: '74', anchoColapso: '74%' },
-  { nombre: 'Hábitos de vida saludable', que: 'Bienestar · alimentación, actividad física, autocuidado', valor: '67', delta: '−5', ancho: '67%', colapso: '72', anchoColapso: '72%' },
 ];
 
 const USOS_EJE: { tono: string; estado: string; donde: string }[] = [
@@ -407,77 +321,38 @@ const VALIDACION: CapaVal[] = [
   },
 ];
 
-type Hito = { fase: string; estado: string; detalle: string; tono: string };
+const SEV: Record<string, string> = { 'Crítica': '#b2181f', 'Alta': '#d6604d', 'Media': '#8a8a85' };
 
-const HITOS: Hito[] = [
-  { fase: 'Prototipo 1 · MVP Pudahuel', estado: 'Hecho', detalle: '57 colegios, solo celular. Del cruce de datos a la última pantalla.', tono: '#2166ac' },
-  { fase: 'Análisis heurístico', estado: 'Hecho', detalle: 'WCAG 2.2 AA, heurísticas de Nielsen y arquitectura de información sobre el prototipo 1.', tono: '#4393c3' },
-  { fase: 'Prototipo 2 · versión nacional', estado: 'Hecho', detalle: 'Datos (8.250 colegios), flujo (FigJam) y diseño (celular y escritorio) rehechos.', tono: '#d6604d' },
-  { fase: 'Testeo con usuarios', estado: 'Fase actual', detalle: 'Probar el prototipo 2 con familias reales.', tono: '#b2181f' },
-  { fase: 'Lanzamiento y observatorio', estado: 'Después', detalle: 'Crecer y refinarse con uso real, sin esperar a estar perfecto para salir.', tono: '#8a1a20' },
+type Flujo = { id: string; titulo: string; url: string; modo: 'fit' | 'scroll'; alt: string; nota: string };
+
+const FLUJOS: Flujo[] = [
+  { id: 'mapa', titulo: '1 · Mapa general', url: v2Flujo1, modo: 'fit', alt: 'Diagrama 1 · Mapa general del sitio: puntos de entrada, Home, exploración y conexiones con el Test, la ficha y Comparar', nota: 'Cómo se llega al sitio y cómo se conectan la Home, la exploración, el Test, la ficha y Comparar. Azul es nuevo respecto del prototipo 1; violeta, decidido y pendiente.' },
+  { id: 'test', titulo: '2 · Test de Calce', url: v2Flujo2, modo: 'scroll', alt: 'Diagrama 2 · Test de Calce: preguntas Q1 a Q5 y el motor con sus dos capas', nota: 'Las cinco preguntas y el motor: descarta, puntúa y ofrece ampliar la distancia si quedan menos de tres colegios.' },
+  { id: 'ficha', titulo: '3 · Ficha', url: v2Flujo3, modo: 'scroll', alt: 'Diagrama 3 · Ficha del colegio: cabecera, Lo esencial y módulos en orden fijo', nota: 'Cabecera, «Lo esencial» y los módulos en orden fijo. En violeta, lo decidido que aún no está en el sitio.' },
+  { id: 'comparar', titulo: '4 · Comparar', url: v2Flujo4, modo: 'scroll', alt: 'Diagrama 4 · Comparar colegios: entradas, cuántos colegios hay, agregar colegio y grupos en acordeón', nota: 'Cuántos colegios hay, cómo se agrega otro, escritorio o celular y los grupos en orden fijo.' },
 ];
 
-// ─── DATOS DE LA VERSIÓN CONDENSADA (2026-10-19) ──────────────────────────
+/** Variables CSS en línea (`--ar`, `--tl`, `--dec-c`…). */
+const cv = (o: Record<string, string | number>) => o as CSSProperties;
 
-const FLUJOS: { id: string; titulo: string; url: string; alt: string; nota: string }[] = [
-  { id: 'mapa', titulo: '1 · Mapa general', url: v2Flujo1, alt: 'Diagrama 1 · Mapa general del sitio: puntos de entrada, Home, exploración y conexiones con el Test, la ficha y Comparar', nota: 'Cómo se llega al sitio y cómo se conectan la Home, la exploración, el Test, la ficha y Comparar. Azul es nuevo respecto del prototipo 1; violeta, decidido y pendiente.' },
-  { id: 'test', titulo: '2 · Test de Calce', url: v2Flujo2, alt: 'Diagrama 2 · Test de Calce: preguntas Q1 a Q5 y el motor con sus dos capas', nota: 'Las cinco preguntas y el motor: descarta, puntúa y ofrece ampliar la distancia si quedan menos de tres colegios.' },
-  { id: 'ficha', titulo: '3 · Ficha', url: v2Flujo3, alt: 'Diagrama 3 · Ficha del colegio: cabecera, Lo esencial y módulos en orden fijo', nota: 'Cabecera, «Lo esencial» y los módulos en orden fijo. En violeta, lo decidido que aún no está en el sitio.' },
-  { id: 'comparar', titulo: '4 · Comparar', url: v2Flujo4, alt: 'Diagrama 4 · Comparar colegios: entradas, cuántos colegios hay, agregar colegio y grupos en acordeón', nota: 'Cuántos colegios hay, cómo se agrega otro, escritorio o celular y los grupos en orden fijo.' },
-];
+/** Scroll a una etapa por id. El hash está reservado para el enrutado de App.tsx. */
+function scrollToId(id: string) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - 72;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+}
 
-type DecisionV2 = { n: string; ambito: string; titulo: string; tension: string; resolucion: string; costo: string };
-
-const TRES_DECISIONES: DecisionV2[] = [
-  {
-    n: '01', ambito: 'Contexto', titulo: 'Comparar con colegios parecidos, no rankear',
-    tension: 'Contra el promedio nacional gana el colegio con alumnos de mayor nivel socioeconómico, no el que mejor trabaja.',
-    resolucion: 'Cada indicador se lee contra colegios del mismo grupo socioeconómico, con la comparación oficial de la Agencia de Calidad. No hay ranking nacional.',
-    costo: 'Desaparece la respuesta a «¿cuál es el mejor colegio de Chile?». La pregunta queda sin contestar a propósito.',
-  },
-  {
-    n: '02', ambito: 'Arquitectura', titulo: 'Acompañar antes que listar',
-    tension: 'Un buscador con filtros asume que la familia sabe qué criterios aplicar. La investigación mostró que llega sin saber qué preguntar.',
-    resolucion: 'El acceso principal es el Test de Calce: cinco preguntas y tres colegios que calzan, con sus razones a la vista. Explorar y comparar siguen a un toque.',
-    costo: 'Se antepone un cuestionario a la búsqueda libre, y el producto asume la responsabilidad de haber acotado bien.',
-  },
-  {
-    n: '03', ambito: 'Datos', titulo: 'Decir solo lo que el dato sostiene',
-    tension: 'Un +6 se lee como ventaja aunque, para la Agencia, sea un empate. Y un colegio sin datos tiende a desaparecer.',
-    resolucion: 'Verde o mostaza solo cuando la diferencia es significativa; si no, «a la par». El colegio sin datos aparece igual y lo dice. El motor del test usa reglas explícitas, no un modelo opaco.',
-    costo: 'Menos titulares llamativos: muchos colegios quedan «a la par».',
-  },
-];
-
-const PASOS_COMPARAR: { n: string; paso: string; texto: string }[] = [
-  { n: '01', paso: 'Referencias', texto: 'Revisé dashboards y tablas comparativas para sacar los patrones que sirven a una familia.' },
-  { n: '02', paso: 'Reglas', texto: 'Los convertí en un brief de decisiones cerradas: la misma escala para todos, la referencia siempre rotulada «sus similares», sin coronas ni máximos resaltados y el color nunca solo.' },
-  { n: '03', paso: 'Diseño', texto: 'Claude Design generó la propuesta a partir de ese brief y de datos reales de cinco colegios.' },
-  { n: '04', paso: 'Código', texto: 'La implementé en el sitio y llevé sus reglas a la ficha y al sistema de interacción completo.' },
-];
-
-const CIFRAS: { cifra: string; texto: string }[] = [
-  { cifra: '5,74:1', texto: 'contraste del texto secundario. Antes daba 4,49:1 sobre los fondos grises.' },
-  { cifra: '3,7:1', texto: 'borde cálido en hover. Antes daba 2,0:1: el estado existía y no se veía.' },
-  { cifra: '44 px', texto: 'objetivo táctil mínimo en todo el sitio. WCAG 2.2 pide 24.' },
-  { cifra: '0', texto: 'errores de axe-core en Comparar, la ficha y la Home.' },
-];
-
-type Pantalla = { url: string; alt: string; pie: string; ancho?: boolean };
-
-const PANTALLAS_MVP: Pantalla[] = [
-  { url: scHomeLista, alt: 'MVP de Pudahuel en el celular: lista de colegios con chips de filtro', pie: 'Home con lista y mapa.' },
-  { url: scQ1, alt: 'MVP: primera pregunta del Test de Calce, sobre copago', pie: 'Test de Calce, Q1.' },
-  { url: scShortlist, alt: 'MVP: shortlist de colegios que calzan, en cards de borde cálido', pie: 'Shortlist de tres colegios.' },
-  { url: scFichaTop, alt: 'MVP: ficha de colegio con el resumen «Lo esencial»', pie: 'Ficha con «Lo esencial».' },
-];
-
-const PANTALLAS_NACIONAL: Pantalla[] = [
-  { url: v2Home, alt: 'Versión nacional en escritorio: Home con el Test de Calce y la tarjeta «¿Dónde buscas colegio?»', pie: 'Home: el Test y la búsqueda por comuna, nombre o ubicación.', ancho: true },
-  { url: v2Ficha, alt: 'Versión nacional en escritorio: ficha del Liceo Augusto D Halmar en dos columnas', pie: 'Ficha en dos columnas: identidad fija, módulos a la derecha.', ancho: true },
-  { url: v2Q5, alt: 'Versión nacional en el celular: quinta pregunta del Test de Calce', pie: 'Test de Calce, Q5.' },
-  { url: v2Shortlist, alt: 'Versión nacional en el celular: shortlist con tres colegios de Ñuñoa', pie: 'Shortlist con las razones del calce.' },
-];
+/** Flechas del teclado entre pestañas: mueve la selección y el foco. */
+function tabKeys(e: KeyboardEvent, i: number, n: number, set: (k: number) => void, idOf: (k: number) => string) {
+  const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+  if (!d) return;
+  e.preventDefault();
+  const k = Math.max(0, Math.min(n - 1, i + d));
+  set(k);
+  requestAnimationFrame(() => document.getElementById(idOf(k))?.focus());
+}
 
 // ─── COMPONENTE ────────────────────────────────────────────────────────────
 
@@ -485,9 +360,6 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
   const [pi, setPi] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
-  const video1Ref = useRef<HTMLVideoElement>(null);
-  const video2Ref = useRef<HTMLVideoElement>(null);
-  const video3Ref = useRef<HTMLVideoElement>(null);
 
   // Mismo motor de progreso/scroll que ProjectDetail — navegador consistente.
   useEffect(() => {
@@ -503,25 +375,6 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Autoplay al entrar en viewport, silenciado — política de navegadores.
-  // Los videos solo corren si están a la vista.
-  useEffect(() => {
-    const vids = [video1Ref.current, video2Ref.current, video3Ref.current].filter(Boolean) as HTMLVideoElement[];
-    if (!vids.length) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          const v = e.target as HTMLVideoElement;
-          if (e.isIntersecting) v.play().catch(() => {});
-          else v.pause();
-        });
-      },
-      { threshold: 0.5 },
-    );
-    vids.forEach((v) => io.observe(v));
-    return () => io.disconnect();
-  }, []);
-
   function handleSeek(ratio: number, dragging = false) {
     const el = contentRef.current;
     if (!el) return;
@@ -531,10 +384,10 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
     }
   }
 
-  const persona = PERSONAS[pi];
+  const p = PERSONAS[pi];
 
   return (
-    <div className="eb bg-[#fafaf7] min-h-screen relative">
+    <div className="eb min-h-screen relative">
       <style>{CSS}</style>
 
       {/* Regla vertical — misma navegación que el resto de los proyectos */}
@@ -546,920 +399,651 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
       </div>
 
       <div ref={contentRef} className="eb-content">
-        <div className="eb-topbar">
-          <BackButton onClick={onBack} label="Volver al listado" />
-          <span className="eb-cat-chip" aria-label="Categoría UX-UI">
-            <span className="eb-cat-dot" />UX-UI
-          </span>
-        </div>
+        <div className="eb-wrap">
+          <div className="eb-topbar">
+            <BackButton onClick={onBack} label="Volver al listado" />
+            <span className="eb-cat" aria-label="Categoría UX-UI"><i aria-hidden="true" />UX-UI</span>
+          </div>
 
-        {/* ─── 01 · PORTADA ───────────────────────────────────────────── */}
-        <section id="eb-stage-01" className="eb-stage">
-          <StageHead n="01" title="Portada" step="01 / 08" />
-          <div className="eb-cover">
-            <div className="eb-cover-txt">
-              <p className="eb-hook-a">
-                En Chile, cada colegio queda descrito en seis portales oficiales que no dialogan entre sí.
-              </p>
-              <h1 className="eb-hook-b">eduBIG los traduce a una decisión.</h1>
+          {/* ═══ 01 · PORTADA (protagonista) ═══════════════════════════════ */}
+          <section className="eb-stage is-hero" id="eb-stage-01" aria-labelledby="eb-h-01">
+            <StageHead n="01" title="Portada" />
 
-              <div className="eb-filete">
-                <div className="eb-filete-bar" />
-                <div className="eb-filete-row">
-                  <span>Dato frío</span><span>Puente</span><span>Familia</span>
-                </div>
+            <div className="eb-grid">
+              <div className="c-1-7">
+                <p className="eb-hook">En Chile, cada colegio queda descrito en seis portales oficiales que no dialogan entre sí.</p>
+                <h1 className="eb-h1" id="eb-h-01">eduBIG los traduce a una decisión.</h1>
+                <div className="eb-filete" aria-hidden="true"><i /><div><span>Dato frío</span><span>Puente</span><span>Familia</span></div></div>
+                <p className="eb-lead">Plataforma abierta para que las familias chilenas encuentren, exploren y comparen colegios. Cada dato se lee contra colegios parecidos, nunca en un ranking.</p>
               </div>
-
-              <p className="eb-lead">
-                Plataforma abierta para que las familias chilenas encuentren, exploren y comparen colegios.
-                Cada dato se lee contra colegios parecidos, nunca en un ranking.
-              </p>
-
-              <dl className="eb-meta">
+              <dl className="eb-ficha c-8-12">
                 <div><dt>Rol</dt><dd>Diseño de producto, datos y sistema, de punta a punta</dd></div>
                 <div><dt>Equipo</dt><dd>Israel Rubilar, analista de datos · Matías Cáceres, diseñador</dd></div>
-                <div><dt>Escala</dt><dd><span className="mono">57</span> colegios <span className="arrow">→</span> <span className="mono">8.250</span></dd></div>
+                <div><dt>Escala</dt><dd><span className="eb-mono">57</span> colegios → <span className="eb-mono">8.250</span></dd></div>
                 <div><dt>Fase actual</dt><dd>Testeo con usuarios del prototipo 2</dd></div>
-                <div><dt>Prototipo 2 · nacional</dt><dd><a href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link">edubig-chile.vercel.app ↗</a><br /><span style={{ color: 'var(--eb-dim)', fontSize: 12 }}>8.250 colegios · celular y escritorio</span></dd></div>
-                <div><dt>Prototipo 1 · MVP Pudahuel</dt><dd><a href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link">edu-big.vercel.app ↗</a><br /><span style={{ color: 'var(--eb-dim)', fontSize: 12 }}>57 colegios · solo celular</span></dd></div>
+                <div className="is-proto"><dt>Prototipo 2 · nacional</dt><dd><a className="eb-link eb-link-ext" href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">edubig-chile.vercel.app ↗</a><small>8.250 colegios · celular y escritorio</small></dd></div>
+                <div><dt>Prototipo 1 · MVP Pudahuel</dt><dd><a className="eb-link eb-link-ext" href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer">edu-big.vercel.app ↗</a><small>57 colegios · solo celular</small></dd></div>
               </dl>
             </div>
 
-            <figure className="eb-fig eb-cover-fig">
-              <div className="eb-frame eb-frame-img">
-                <img src={v2CompararEsc} alt="Comparar colegios en escritorio: cuatro colegios de Ñuñoa en columnas, cada uno con su color y número, y el bloque «Lo que más cambia entre estos colegios»" />
-              </div>
-              <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 01 · Comparar colegios, prototipo 2</span>
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <div style={{ margin: '0 0 72px' }}>
-          <CaseSummary
-            items={[
-              { label: 'Problema', text: 'Las familias eligen colegio entre seis portales oficiales que no dialogan entre sí, con datos que nadie les explica cómo leer.' },
-              { label: 'Qué hice', text: 'Diseñé y construí Edubig de punta a punta, del cruce de datos a la interfaz: un Test de Calce que devuelve tres colegios afines, una exploración por comuna y un comparador donde cada colegio se mide contra colegios parecidos al suyo.' },
-              { label: 'Fase actual', text: 'El prototipo 2 está completo: 8.250 colegios, flujo rehecho en FigJam y diseño para celular y escritorio, todo a partir de un análisis heurístico del prototipo 1 (MVP de Pudahuel). Ahora viene el testeo con usuarios reales.' },
-            ]}
-            links={[
-              { label: 'Tres decisiones', targetId: 'eb-stage-04' },
-              { label: 'Del flujo a la pantalla', targetId: 'eb-stage-05' },
-              { label: 'Comparar a fondo', targetId: 'eb-stage-06' },
-              { label: 'Probar el prototipo 2', href: 'https://edubig-chile.vercel.app/' },
-              { label: 'Ver el prototipo 1', href: 'https://edu-big.vercel.app/' },
-            ]}
-          />
-        </div>
-
-        {/* ─── 02 · EL PROBLEMA ───────────────────────────────────────── */}
-        <section id="eb-stage-02" className="eb-stage">
-          <StageHead n="02" title="El problema" step="02 / 08" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                Una familia que elige colegio tiene seis fuentes oficiales a su alcance: el directorio del
-                Mineduc, el SIMCE y el IDPS de la Agencia de Calidad, las denuncias de la Superintendencia, la
-                ubicación y la PAES. Casi nadie las abre, y quien lo hace encuentra siglas sin explicación.
-              </p>
-              <p className="p-soft">
-                Falta traducción, no información: <em>¿este colegio es un buen lugar para mi hijo?</em>
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">No un séptimo portal ni un ranking. Un traductor.</p>
-            </div>
-          </div>
-
-          <figure className="eb-fig">
-            <div className="eb-frame">
-              <div className="eb-fuentes-grid">
-                <div className="eb-fuentes-col">
-                  <div className="eb-fuentes-line" />
-                  <span className="eb-col-label">Entrada · seis fuentes oficiales</span>
-                  {FUENTES.map((f) => (
-                    <div className="eb-fuente-row" key={f.n}>
-                      <span className="eb-fnum">{f.n}</span>
-                      <span className="eb-fbody">
-                        <span className="eb-fnombre">{f.nombre}</span>
-                        <span className="eb-fdet">{f.detalle}</span>
-                      </span>
-                      <span className="eb-fbar" style={{ background: f.tono }} />
-                    </div>
-                  ))}
-                  <div className="eb-fuentes-end" />
-                </div>
-
-                <div className="eb-fuentes-mid">
-                  <div className="eb-fuentes-conn" />
-                  <div className="eb-fuentes-node">
-                    <img src={logo} alt="Isologo eduBIG" />
+            <div className="eb-grid eb-cover-row">
+              <figure className="eb-fig c-1-8">
+                <div className="eb-frame eb-hero">
+                  <div className="eb-media eb-media-desktop">
+                    <img src={v2CompararEsc} alt="Comparar colegios en escritorio: cuatro colegios de Ñuñoa en columnas, cada uno con su color y número, y el bloque «Lo que más cambia entre estos colegios»" />
                   </div>
                 </div>
+                <figcaption className="eb-cap"><span className="eb-label">Fig. 01 · Comparar colegios, prototipo 2</span></figcaption>
+              </figure>
 
-                <div className="eb-fuentes-out">
-                  <span className="eb-col-label">Salida · una conclusión legible</span>
-                  <img src={tarjeta} alt="TarjetaColegio de eduBIG: Colegio Alexander Graham Bell, educación pública, básica, a 850 m, con etiquetas gratuito, programa PIE, SIMCE sobre su GSE, convivencia alta y sin denuncias" className="eb-tarjeta" />
-                  <span className="eb-fdet" style={{ maxWidth: 276 }}>Etiquetas con contexto, no un puntaje.</span>
+              <aside className="eb-2min c-9-12" aria-label="Resumen del caso en 2 minutos">
+                <span className="eb-label">En 2 minutos</span>
+                <dl>
+                  <div><dt>Problema</dt><dd>Las familias eligen colegio entre seis portales oficiales que no dialogan entre sí, con datos que nadie les explica cómo leer.</dd></div>
+                  <div><dt>Qué hice</dt><dd>Diseñé y construí Edubig de punta a punta, del cruce de datos a la interfaz: un Test de Calce que devuelve tres colegios afines, una exploración por comuna y un comparador donde cada colegio se mide contra colegios parecidos al suyo.</dd></div>
+                  <div><dt>Fase actual</dt><dd>El prototipo 2 está completo: 8.250 colegios, flujo rehecho en FigJam y diseño para celular y escritorio, todo a partir de un análisis heurístico del prototipo 1 (MVP de Pudahuel). Ahora viene el testeo con usuarios reales.</dd></div>
+                </dl>
+                <nav aria-label="Ir a una etapa">
+                  <span className="eb-label" style={{ marginRight: 2 }}>Ir a</span>
+                  <button type="button" onClick={() => scrollToId('eb-stage-04')}>Tres decisiones</button>
+                  <button type="button" onClick={() => scrollToId('eb-stage-05')}>Del flujo a la pantalla</button>
+                  <button type="button" onClick={() => scrollToId('eb-stage-06')}>Comparar a fondo</button>
+                  <a href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">Probar el prototipo 2 ↗</a>
+                  <a href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer">Ver el prototipo 1 ↗</a>
+                </nav>
+              </aside>
+            </div>
+          </section>
+
+          {/* ═══ 02 · EL PROBLEMA ══════════════════════════════════════════ */}
+          <section className="eb-stage" id="eb-stage-02" aria-labelledby="eb-h-02">
+            <StageHead n="02" title="El problema" />
+
+            <div className="eb-grid eb-intro">
+              <div className="eb-intro-h">
+                <h2 className="eb-h2" id="eb-h-02">Falta traducción, no información: <em>¿este colegio es un buen lugar para mi hijo?</em></h2>
+              </div>
+              <div className="eb-intro-t">
+                <p className="eb-p">Una familia que elige colegio tiene seis fuentes oficiales a su alcance: el directorio del Mineduc, el SIMCE y el IDPS de la Agencia de Calidad, las denuncias de la Superintendencia, la ubicación y la PAES. Casi nadie las abre, y quien lo hace encuentra siglas sin explicación.</p>
+                <p className="eb-remate">No un séptimo portal ni un ranking. Un traductor.</p>
+              </div>
+            </div>
+
+            <figure className="eb-fig">
+              <div className="eb-frame eb-diag">
+                <div className="eb-src">
+                  <span className="eb-label">Entrada · seis fuentes oficiales</span>
+                  <ol>
+                    <li><span>01</span><span><b>Directorio Mineduc</b><small>RBD, dependencia, nivel, copago</small></span><i style={{ background: '#053061' }} /></li>
+                    <li><span>02</span><span><b>SIMCE</b><small>Agencia de Calidad · 4° y 8° básico</small></span><i style={{ background: '#2166ac' }} /></li>
+                    <li><span>03</span><span><b>IDPS</b><small>Cinco dimensiones de desarrollo personal y social</small></span><i style={{ background: '#2166ac' }} /></li>
+                    <li><span>04</span><span><b>Denuncias Supereduc</b><small>Materia y estado de tramitación</small></span><i style={{ background: '#4393c3' }} /></li>
+                    <li><span>05</span><span><b>Geolocalización</b><small>Distancia real al domicilio</small></span><i style={{ background: '#4393c3' }} /></li>
+                    <li><span>06</span><span><b>PAES</b><small>Trayectoria de egreso</small></span><i style={{ background: '#92c5de' }} /></li>
+                  </ol>
+                </div>
+                <div className="eb-node"><img src={logo} alt="Isologo eduBIG" /></div>
+                <div className="eb-out">
+                  <span className="eb-label">Salida · una conclusión legible</span>
+                  <TarjetaColegio />
+                  <small className="eb-out-note">Etiquetas con contexto, no un puntaje.</small>
+                </div>
+              </div>
+              <figcaption className="eb-cap">
+                <span className="eb-label">Fig. 02 · Seis entradas, una salida</span>
+                <p>Las fuentes no se suman en un puntaje: se cruzan y salen como frases que una familia puede usar.</p>
+              </figcaption>
+            </figure>
+
+            <div className="eb-sub"><span>Investigación · tres personas</span></div>
+            <div className="eb-grid eb-intro">
+              <div className="eb-intro-h"><h3 className="eb-h3">El dato existe, pero no habla el idioma de la decisión familiar.</h3></div>
+              <div className="eb-intro-t">
+                <p className="eb-p">Tres personas construidas sobre evidencia: informes del BID, datos de la Agencia de Calidad y denuncias de la Supereduc. Ninguna salió de mi cabeza.</p>
+                <p className="eb-p">De las tres aparecen cinco dolores que se repiten. El más grave no es de usabilidad ni de acceso: es de idioma.</p>
+              </div>
+            </div>
+
+            <figure className="eb-fig">
+              <div className="eb-thin eb-persona">
+                <div className="eb-tabs eb-persona-tabs" role="tablist" aria-label="Personas">
+                  {PERSONAS.map((x, k) => (
+                    <button
+                      key={x.n}
+                      type="button"
+                      role="tab"
+                      id={`eb-ptab-${k}`}
+                      className="eb-tab"
+                      aria-selected={k === pi}
+                      aria-controls="eb-persona-panel"
+                      tabIndex={k === pi ? 0 : -1}
+                      onClick={() => setPi(k)}
+                      onKeyDown={(e) => tabKeys(e, pi, PERSONAS.length, setPi, (j) => `eb-ptab-${j}`)}
+                    >
+                      <small>{x.n}</small>{x.nombre}
+                    </button>
+                  ))}
+                </div>
+                <div className="eb-persona-body" role="tabpanel" id="eb-persona-panel" aria-labelledby={`eb-ptab-${pi}`} tabIndex={0}>
+                  <div className="eb-persona-id">
+                    <div className="eb-media eb-media-square">
+                      <img src={p.retrato} alt={`Retrato de persona: ${p.nombre}`} style={{ objectPosition: 'center 18%' }} />
+                    </div>
+                    <dl className="eb-meta-list">
+                      {p.meta.map(([k, v]) => (
+                        <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
+                      ))}
+                    </dl>
+                  </div>
+                  <div className="eb-persona-main">
+                    <header>
+                      <span className="eb-label">{p.comuna} · {p.perfil}</span>
+                      <h3 className="eb-h3" style={{ marginTop: 6 }}>{p.nombre}</h3>
+                    </header>
+                    <blockquote>{p.cita}</blockquote>
+                    <div className="eb-dolores">
+                      <div className="eb-dol-h"><span>Dolor</span><span>Severidad</span></div>
+                      {p.dolores.map((d) => (
+                        <div className="eb-dol-r" key={d.dolor}>
+                          <span>{d.dolor}</span>
+                          <span className="eb-sev" style={cv({ '--sev': SEV[d.sev] })}><b>{d.sev}</b><small>{d.efecto}</small></span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="eb-implic">
+                      <span className="eb-label">Implicaciones para el diseño</span>
+                      {p.implicaciones.map((t) => (
+                        <div className="eb-implic-i" key={t}><span>{t}</span></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <figcaption className="eb-cap">
+                <span className="eb-label">Fig. 03 · Tres personas, una card intercambiable</span>
+                <p>Cada dolor viene con severidad y con el efecto que produce, porque eso es lo que ordenó la prioridad: los dos críticos de Carolina — no entiende las siglas, no tiene computador — son los que fijaron mobile-first y lenguaje simple antes que cualquier funcionalidad. Carolina y Francisca llegan al mismo requisito desde extremos opuestos del eje socioeconómico: una no puede leer un puntaje, la otra no confía en uno sin contexto. Las dos piden lo mismo — comparación contra colegios equivalentes — y esa coincidencia es la que sostiene la decisión 01.</p>
+              </figcaption>
+            </figure>
+          </section>
+
+          {/* ═══ 03 · LA IDEA ══════════════════════════════════════════════ */}
+          <section className="eb-stage" id="eb-stage-03" aria-labelledby="eb-h-03">
+            <StageHead n="03" title="La idea" />
+
+            <div className="eb-grid eb-intro">
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-03">Un toggle es el mismo sistema en dos estados. Por eso el logo es un toggle.</h2></div>
+              <div className="eb-intro-t">
+                <p className="eb-p">El concepto rector es <strong>un sistema que se traduce en cuidado</strong>: el dato se mantiene fiel, pero llega en un idioma que una familia puede usar.</p>
+                <p className="eb-p">Viene de Hofstadter en <em>Gödel, Escher, Bach</em>: una traducción es fiel cuando conserva la estructura, aunque cambie el material.</p>
+              </div>
+            </div>
+
+            <figure className="eb-fig">
+              {/* Tira de 3 celdas de igual altura: 1:1 + 2:1 + 1:1 (flex por proporción) */}
+              <div className="eb-row eb-beats">
+                <div className="eb-beat" style={cv({ '--ar': 1 })}>
+                  <div className="eb-media eb-media-square"><img src={bocetoToggle} alt="Board manuscrito del proceso: traducción de dato frío a dato cálido, bocetos de toggle" /></div>
+                  <div className="eb-beat-rail" style={{ background: '#2166ac' }} />
+                  <div className="eb-beat-n"><b>01 · Boceto</b></div>
+                  <p>Buscando cómo dibujar la traducción de <em>dato frío → dato cálido</em> apareció la pregunta al margen: «¿toggles, switches?».</p>
+                </div>
+                <div className="eb-beat" style={cv({ '--ar': 2 })}>
+                  <div className="eb-media eb-media-wide"><img src={formalizacionLogo} alt="Formalización del logo: retícula de construcción del toggle en estados ON y OFF junto al isologo resultante" style={{ objectPosition: 'center' }} /></div>
+                  <div className="eb-beat-rail" style={{ background: 'linear-gradient(90deg,#2166ac,#f7f7f7 50%,#d6604d)' }} />
+                  <div className="eb-beat-n"><b>02 · Formalización</b></div>
+                  <p>El toggle se desarma en retícula: dos estados, un radio, un eje. La marca hereda esa construcción exacta —misma cápsula, mismo círculo desplazado, mismas tangentes— en vez de imitar su apariencia.</p>
+                </div>
+                <div className="eb-beat" style={cv({ '--ar': 1 })}>
+                  <div className="eb-media eb-media-square eb-logo-cell" style={{ background: '#fff' }}><img src={logo} alt="Isologo eduBIG final" /></div>
+                  <div className="eb-beat-rail" style={{ background: '#b2181f' }} />
+                  <div className="eb-beat-n"><b>03 · Isologo</b></div>
+                  <p><span className="eb-mono eb-cold">011</span> en Pixelify Sans es el dato como sale de la máquina; <span className="eb-mono eb-warm">eB</span> en Work Sans es lo que recibe la familia. El degradado entre ambas es el eje frío–cálido que después ordena el producto.</p>
+                </div>
+              </div>
+              <figcaption className="eb-cap">
+                <span className="eb-label">Fig. 04 · Del gesto a la marca</span>
+                <p>El isologo no ilustra el concepto: lo ejecuta. Cambia el material, se conserva la estructura.</p>
+              </figcaption>
+            </figure>
+
+            <Det title="Ver las dos cadenas del concepto" sub="Fig. 05 · tres eslabones, cadena fría y cadena cálida">
+              <figure className="eb-fig">
+                <div className="eb-chain is-head">
+                  <div className="k c"><span className="eb-label">Dato</span><span>Cadena fría</span></div>
+                  <div className="m"><span className="eb-label">Puente</span>Posición</div>
+                  <div className="k w"><span className="eb-label">Familia</span><span>Cadena cálida</span></div>
+                </div>
+                <div className="eb-chain"><div className="k c"><b>imparcial</b><span>El dato no toma partido por ningún colegio: solo registra lo que las seis fuentes oficiales publican.</span></div><div className="m"><span className="eb-mono">01</span><i />Origen</div><div className="k w"><b>cuidado</b><span>La familia no parte de la curiosidad: parte de querer que a su hijo le vaya bien.</span></div></div>
+                <div className="eb-chain"><div className="k c"><b>frío</b><span>Ser imparcial vuelve al dato frío. No consuela, no acompaña, no se adapta a quién pregunta.</span></div><div className="m"><span className="eb-mono">02</span><i />Término medio</div><div className="k w"><b>preocupación</b><span>Cuidar vuelve a la familia preocupada. La decisión importa, y eso incomoda.</span></div></div>
+                <div className="eb-chain"><div className="k c"><b>honesto</b><span>Pero un dato frío es un dato honesto: no promete lo que no puede sostener.</span></div><div className="m"><span className="eb-mono">03</span><i />Resultado</div><div className="k w"><b>seguridad</b><span>Y una preocupación atendida con un dato honesto termina en seguridad: se puede decidir con esto.</span></div></div>
+                <figcaption className="eb-cap">
+                  <span className="eb-label">Fig. 05 · Dos cadenas, la misma estructura</span>
+                  <p>Tres eslabones, un origen, un término medio incómodo y un resultado. <em>Frío</em> y <em>preocupación</em> son los eslabones que un producto amable borraría, y son justamente los que sostienen <em>honesto</em> y <em>seguridad</em>.</p>
+                </figcaption>
+              </figure>
+            </Det>
+          </section>
+
+          {/* ═══ 04 · TRES DECISIONES (protagonista) ═══════════════════════ */}
+          <section className="eb-stage" id="eb-stage-04" aria-labelledby="eb-h-04">
+            <StageHead n="04" title="Tres decisiones" />
+
+            <div className="eb-grid eb-intro is-wide">
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-04">Si la legibilidad y la honestidad chocan, gana la honestidad. Hacerla legible es trabajo del producto.</h2></div>
+              <div className="eb-intro-t"><p className="eb-p">Tres decisiones definen el producto. Cada una renuncia a algo que un producto más vendible conservaría.</p></div>
+            </div>
+
+            <div className="eb-frame eb-decs">
+              <Decision n="01" color="#2166ac" tag="Contexto" titulo="Comparar con colegios parecidos, no rankear"
+                tension="Contra el promedio nacional gana el colegio con alumnos de mayor nivel socioeconómico, no el que mejor trabaja."
+                decision="Cada indicador se lee contra colegios del mismo grupo socioeconómico, con la comparación oficial de la Agencia de Calidad. No hay ranking nacional."
+                costo="Desaparece la respuesta a «¿cuál es el mejor colegio de Chile?». La pregunta queda sin contestar a propósito." />
+              <Decision n="02" color="#92c5de" tag="Arquitectura" titulo="Acompañar antes que listar"
+                tension="Un buscador con filtros asume que la familia sabe qué criterios aplicar. La investigación mostró que llega sin saber qué preguntar."
+                decision="El acceso principal es el Test de Calce: cinco preguntas y tres colegios que calzan, con sus razones a la vista. Explorar y comparar siguen a un toque."
+                costo="Se antepone un cuestionario a la búsqueda libre, y el producto asume la responsabilidad de haber acotado bien." />
+              <Decision n="03" color="#d6604d" tag="Datos" titulo="Decir solo lo que el dato sostiene"
+                tension="Un +6 se lee como ventaja aunque, para la Agencia, sea un empate. Y un colegio sin datos tiende a desaparecer."
+                decision="Verde o mostaza solo cuando la diferencia es significativa; si no, «a la par». El colegio sin datos aparece igual y lo dice. El motor del test usa reglas explícitas, no un modelo opaco."
+                costo="Menos titulares llamativos: muchos colegios quedan «a la par»." />
+            </div>
+
+            <Det title="Ver dos decisiones más y por qué el IDPS no se promedia" sub="Decisiones 04 y 05 · Fig. 06 · cuatro series IDPS contra sus similares">
+              <div className="eb-decs is-2 eb-thin">
+                <Decision n="04" color="#4393c3" tag="Datos" titulo="Series IDPS separadas, nunca un score único"
+                  tension="Clima escolar, autoestima, hábitos y participación miden cosas distintas. Promediarlas produce un número más cómodo y menos cierto."
+                  decision="Las cuatro dimensiones se muestran como series independientes, cada una contra su grupo GSE. El Test de Calce agrupa en Bienestar y Convivencia solo para ponderar, y aun ahí pregunta dónde poner más peso — nunca cuál descartar."
+                  costo="La familia lee cuatro barras donde otros productos muestran una. Más carga de lectura, menos titular." />
+                <Decision n="05" color="#f4a582" tag="Tono" titulo="Nota de legitimación"
+                  tension="El Test de Calce pregunta qué prioriza la familia. Toda pregunta de preferencia implica que hay respuestas mejores que otras, y eso culpabiliza a quien elige distinto."
+                  decision="Cada resultado del test valida explícitamente la combinación elegida antes de mostrar colegios. No hay perfil incorrecto."
+                  costo="Más texto antes del resultado, y el producto renuncia a la autoridad de decirle a la familia qué debería priorizar." />
+              </div>
+
+              <figure className="eb-fig">
+                <div className="eb-thin eb-idps">
+                  <div className="eb-idps-r is-h"><span className="eb-label">Dimensión IDPS</span><span className="eb-label">Colegios similares</span><span className="eb-label">Graham Bell · 8° básico</span></div>
+                  <IdpsRow nombre="Clima escolar" det="Convivencia · qué tan respetuosa y segura la sienten" sim={75} col={70} />
+                  <IdpsRow nombre="Participación" det="Convivencia · pertenencia y formación ciudadana" sim={78} col={74} />
+                  <IdpsRow nombre="Autoestima académica" det="Bienestar · confianza y motivación para aprender" sim={74} col={70} />
+                  <IdpsRow nombre="Hábitos de vida saludable" det="Bienestar · alimentación, actividad física, autocuidado" sim={72} col={67} />
+                  <div className="eb-idps-r is-t">
+                    <span><b>Colapsado en un score único</b></span>
+                    <span className="eb-bar"><i className="g" style={{ width: 'calc(74.8% * .8)' }} />74,8</span>
+                    <span className="eb-bar"><i className="g" style={{ width: 'calc(70.3% * .8)' }} />70,3</span>
+                  </div>
+                </div>
+                <figcaption className="eb-cap">
+                  <span className="eb-label">Fig. 06 · Por qué las cuatro series no se promedian</span>
+                  <p>Datos de la ficha de Graham Bell, IDPS 8° básico 2025 preliminar. Colapsadas dan <span className="eb-mono">70,3</span> contra <span className="eb-mono">74,8</span> de sus pares. Separadas muestran cuatro brechas casi iguales —<span className="eb-mono">−5, −4, −4, −5</span>—: un colegio parejo, no uno con un área hundida. El mismo promedio lo daría un colegio con tres dimensiones altas y una colapsada.</p>
+                </figcaption>
+              </figure>
+            </Det>
+          </section>
+
+          {/* ═══ 05 · DEL FLUJO A LA PANTALLA ══════════════════════════════ */}
+          <section className="eb-stage" id="eb-stage-05" aria-labelledby="eb-h-05">
+            <StageHead n="05" title="Del flujo a la pantalla" />
+
+            <div className="eb-grid eb-intro">
+              <div className="eb-intro-h"><h2 className="eb-h2 is-long" id="eb-h-05">La escala nacional rompía supuestos del prototipo 1: sin ubicación por defecto, con colegios sin datos para comparar y con grupos de comparación que cambian según la prueba.</h2></div>
+              <div className="eb-intro-t">
+                <p className="eb-p">El <strong>prototipo 1</strong> fue un MVP solo para celular con 57 colegios de Pudahuel, construido del cruce de datos a la última pantalla. Funcionó, y con Israel Rubilar decidimos llevarlo a todo Chile.</p>
+                <p className="eb-p">El <strong>prototipo 2</strong> salió de un análisis heurístico del primero y cambió en tres frentes: datos (de 57 a 8.250 colegios), flujo (rehecho en FigJam antes de programar) y diseño (celular y escritorio, Comparar completo y un sistema auditado).</p>
+              </div>
+            </div>
+
+            {/* Fig. 07 · dos videos en un panel blanco, misma altura: celular 1:2 + escritorio 16:10 */}
+            <figure className="eb-fig">
+              <div className="eb-frame eb-vids">
+                <div className="eb-row is-stack">
+                  <div style={cv({ '--ar': 0.5 })}>
+                    <div className="eb-row-head"><b>Prototipo 1 · celular</b><span className="eb-label">MVP Pudahuel</span></div>
+                    <VideoBox
+                      className="eb-vbox is-phone"
+                      src="/edubig-navegacion-mvp.mp4"
+                      poster="/edubig-navegacion-mvp-poster.jpg"
+                      label="Recorrido del prototipo 1, MVP de Pudahuel, en el celular"
+                      playLabel="Reproducir el recorrido del prototipo 1"
+                      boton="Ver"
+                    />
+                  </div>
+                  <div style={cv({ '--ar': 1.6 })}>
+                    <div className="eb-row-head"><b>Prototipo 2 · escritorio</b><span className="eb-label">Versión nacional</span></div>
+                    <VideoBox
+                      className="eb-vbox is-laptop"
+                      src="/edubig-navegacion-prototipo2.mp4"
+                      poster="/edubig-navegacion-prototipo2-poster.jpg"
+                      label="Recorrido del prototipo 2, versión nacional, en escritorio: Test de Calce, shortlist y Comparar"
+                      playLabel="Reproducir el recorrido del prototipo 2"
+                      boton="Ver recorrido"
+                    />
+                  </div>
+                </div>
+              </div>
+              <figcaption className="eb-cap">
+                <span className="eb-label">Fig. 07 · Los dos prototipos, en movimiento</span>
+                <p>El prototipo 1 recorre el Test de Calce en el celular, con 57 colegios de Pudahuel. El prototipo 2 hace el mismo camino en escritorio, con el dato nacional, y llega hasta Comparar.</p>
+              </figcaption>
+            </figure>
+
+            <FlujoVisor />
+
+            {/* Capturas: P2 es la tira principal (alta resolución); P1 queda como registro pequeño (≤150 px) */}
+            <div className="eb-shots">
+              <div>
+                <div className="eb-ver-h">
+                  <span className="eb-mono">02</span><b>Prototipo 2 · versión nacional</b><span className="eb-tag">8.250 colegios · celular y escritorio</span>
+                  <a className="eb-link eb-link-ext" href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 2 ↗</a>
+                </div>
+                <div className="eb-row is-tight is-scroll">
+                  <Shot ar={1.6} cls="eb-media-desktop" src={v2Home} alt="Versión nacional en escritorio: Home con el Test de Calce y la tarjeta «¿Dónde buscas colegio?»" pie="Home: el Test y la búsqueda por comuna, nombre o ubicación." />
+                  <Shot ar={1.6} cls="eb-media-desktop" src={v2Ficha} alt="Versión nacional en escritorio: ficha del Liceo Augusto D Halmar en dos columnas" pie="Ficha en dos columnas: identidad fija, módulos a la derecha." />
+                  <Shot ar={0.4615} cls="eb-media-phone" src={v2Q5} alt="Versión nacional en el celular: quinta pregunta del Test de Calce" pie="Test de Calce, Q5." />
+                  <Shot ar={0.4615} cls="eb-media-phone" src={v2Shortlist} alt="Versión nacional en el celular: shortlist con tres colegios de Ñuñoa" pie="Shortlist con las razones del calce." />
+                </div>
+              </div>
+
+              <div className="eb-p1-wrap">
+                <div className="eb-ver-h">
+                  <span className="eb-mono">01</span><b>Prototipo 1 · MVP Pudahuel</b><span className="eb-tag">57 colegios · solo celular</span>
+                  <a className="eb-link eb-link-ext" href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 1 ↗</a>
+                </div>
+                <div className="eb-p1-strip">
+                  <LowShot src={scHomeLista} alt="MVP de Pudahuel en el celular: lista de colegios con chips de filtro" pie="Home con lista y mapa." />
+                  <LowShot src={scQ1} alt="MVP: primera pregunta del Test de Calce, sobre copago" pie="Test de Calce, Q1." />
+                  <LowShot src={scShortlist} alt="MVP: shortlist de colegios que calzan, en cards de borde cálido" pie="Shortlist de tres colegios." />
+                  <LowShot src={scFichaTop} alt="MVP: ficha de colegio con el resumen «Lo esencial»" pie="Ficha con «Lo esencial»." />
                 </div>
               </div>
             </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 02 · Seis entradas, una salida</span>
-              <p>Las fuentes no se suman en un puntaje: se cruzan y salen como frases que una familia puede usar.</p>
-            </figcaption>
-          </figure>
+          </section>
 
-          <div className="eb-substage">
-            <span className="mono small uc bold">Investigación · tres personas</span>
-          </div>
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                Tres personas construidas sobre evidencia: informes del BID, datos de la Agencia de Calidad
-                y denuncias de la Supereduc. Ninguna salió de mi cabeza.
-              </p>
-              <p className="p-soft">
-                De las tres aparecen cinco dolores que se repiten. El más grave no es de usabilidad ni de
-                acceso: es de idioma.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">El dato existe, pero no habla el idioma de la decisión familiar.</p>
-            </div>
-          </div>
+          {/* ═══ 06 · CASO A FONDO: COMPARAR (protagonista) ════════════════ */}
+          <section className="eb-stage" id="eb-stage-06" aria-labelledby="eb-h-06">
+            <StageHead n="06" title="Caso a fondo: Comparar" />
 
-          <figure className="eb-fig">
-            <div className="eb-frame" style={{ padding: '26px 30px 30px' }}>
-              <div className="eb-persona-tabs" role="tablist" aria-label="Personas">
-                {PERSONAS.map((p, i) => (
-                  <button
-                    key={p.n}
-                    type="button"
-                    role="tab"
-                    aria-selected={i === pi}
-                    onClick={() => setPi(i)}
-                    className={'eb-persona-tab' + (i === pi ? ' is-active' : '')}
-                  >
-                    <span className="eb-persona-tabn">{p.n}</span>
-                    <span className="eb-persona-tabnombre">{p.nombre}</span>
-                  </button>
-                ))}
+            <div className="eb-grid eb-intro is-wide">
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-06">Cada colegio se compara con colegios parecidos a él, no con los otros de la tabla.</h2></div>
+              <div className="eb-intro-t">
+                <p className="eb-p">Comparar es la promesa más difícil del producto: poner colegios lado a lado <strong>sin declarar un ganador</strong>.</p>
+                <p className="eb-p">El diseño del prototipo 1 mostraba tres columnas con un resumen. Tomás y Francisca necesitaban más: ver cada dimensión y entender contra qué se mide cada colegio.</p>
               </div>
+            </div>
 
-              <div className="eb-persona-body">
-                <div className="eb-persona-l">
-                  <div
-                    role="img"
-                    aria-label={`Retrato de persona: ${persona.nombre}`}
-                    className="eb-persona-retrato"
-                    style={{ backgroundImage: `url(${persona.retrato})` }}
+            {/* Antes / Después: misma altura de medio (325 px = 150 px × 19,5/9), mismo encuadre de celular */}
+            <div className="eb-ad">
+              <figure className="eb-fig eb-ad-col is-before">
+                <span className="eb-label">Antes · prototipo 1, diseño en Figma, ago-2026</span>
+                <div className="eb-ad-before">
+                  <div className="eb-media eb-media-phone is-lowres is-150"><img src={scCompTop} alt="Prototipo de comparación en el celular: tres colegios en columnas con el resumen «Lo esencial»" /></div>
+                  <div className="eb-media eb-media-phone is-lowres is-150"><img src={scCompCuerpo} alt="Prototipo de comparación: cuerpo de la tabla con trayectoria universitaria" /></div>
+                </div>
+                <figcaption>Tres columnas, un resumen y chips Alto / Medio / Bajo.</figcaption>
+              </figure>
+              <figure className="eb-fig eb-ad-col is-after">
+                <span className="eb-label">Después · prototipo 2, oct-2026</span>
+                <div className="eb-frame eb-ad-after">
+                  <div className="eb-row is-tight">
+                    <div style={cv({ '--ar': 0.4615 })}><div className="eb-media eb-media-phone"><img src={v2CompararMovil} alt="Comparar en el celular: barra con tres colegios y el bloque «Lo que más cambia»" /></div></div>
+                    <div style={cv({ '--ar': 1.6 })}>
+                      <a className="eb-media eb-media-desktop is-zoom" href={v2CompararDetalle} target="_blank" rel="noopener noreferrer" aria-label="Abrir el detalle de Comparar en tamaño completo">
+                        <img src={v2CompararDetalle} alt="Detalle de Comparar en escritorio: Bienestar con barras de 0 a 100 y la marca de sus similares; Académico con brechas SIMCE en verde, mostaza o gris según la significancia" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <figcaption>Hasta 4 colegios en escritorio y 3 en el celular, una dimensión por grupo, cada dato en tres capas: frase, gráfico y número exacto.</figcaption>
+              </figure>
+            </div>
+
+            <ol className="eb-steps">
+              <li className="eb-step"><span className="eb-mono">01</span><b>Referencias</b><p>Revisé dashboards y tablas comparativas para sacar los patrones que sirven a una familia.</p></li>
+              <li className="eb-step"><span className="eb-mono">02</span><b>Reglas</b><p>Los convertí en un brief de decisiones cerradas: la misma escala para todos, la referencia siempre rotulada «sus similares», sin coronas ni máximos resaltados y el color nunca solo.</p></li>
+              <li className="eb-step"><span className="eb-mono">03</span><b>Diseño</b><p>Claude Design generó la propuesta a partir de ese brief y de datos reales de cinco colegios.</p></li>
+              <li className="eb-step"><span className="eb-mono">04</span><b>Código</b><p>La implementé en el sitio y llevé sus reglas a la ficha y al sistema de interacción completo.</p></li>
+            </ol>
+
+            <div className="eb-rules">
+              <span className="eb-label">Tres reglas que ahora rigen todo el sitio</span>
+              <div className="eb-rules-g">
+                <div className="eb-thin eb-rule">
+                  <div className="eb-rule-vis" aria-hidden="true">
+                    <span className="eb-pos" style={{ background: '#007d79' }}>1</span><span className="eb-pos" style={{ background: '#6929c4' }}>2</span><span className="eb-pos" style={{ background: '#d3354f' }}>3</span><span className="eb-pos" style={{ background: '#012749' }}>4</span>
+                  </div>
+                  <p><strong>Un color fijo por posición</strong>, del 1 al 4, siempre con su número: el color identifica, no juzga.</p>
+                </div>
+                <div className="eb-thin eb-rule">
+                  <div className="eb-rule-vis" aria-hidden="true"><span className="eb-simbar"><i /><b /></span><span>sus similares</span></div>
+                  <p><strong>«Sus similares» es una marca negra neutra</strong>, no un color más que compita con los colegios.</p>
+                </div>
+                <div className="eb-thin eb-rule">
+                  <div className="eb-rule-vis" aria-hidden="true">
+                    <span className="eb-sig" style={{ color: '#1e6b2e', borderColor: '#1e6b2e' }}>+33 ↑</span>
+                    <span className="eb-sig" style={{ color: '#7a5c00', borderColor: '#7a5c00' }}>−34 ↓</span>
+                    <span className="eb-sig" style={{ color: '#5f5f5a', borderColor: '#a3a39d' }}>= a la par</span>
+                  </div>
+                  <p><strong>Verde o mostaza solo con diferencia significativa</strong>; si no, gris «a la par».</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ═══ 07 · SISTEMA Y FORMA DE TRABAJO ═══════════════════════════ */}
+          <section className="eb-stage" id="eb-stage-07" aria-labelledby="eb-h-07">
+            <StageHead n="07" title="Sistema y forma de trabajo" />
+
+            <div className="eb-grid eb-intro">
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-07">Un contraste que falla no es una infracción formal: es un dato que no se lee.</h2></div>
+              <div className="eb-intro-t">
+                <p className="eb-p">El análisis heurístico dejó un sistema de diseño auditado contra WCAG 2.2 AA, una sola retícula para todo el sitio y los mismos estados en cada control: reposo, hover, foco, activo y deshabilitado.</p>
+                <p className="eb-p">La IA trabaja como colaborador dirigido. Yo decido qué se cruza, qué se diseña y con qué criterio; la IA escribe y propone; yo valido contra la fuente oficial y el recorrido completo.</p>
+              </div>
+            </div>
+
+            <div className="eb-grid eb-sys">
+              <figure className="eb-fig c-1-7">
+                {/* Excepción documentada: 16:9 por ser una grabación de pantalla */}
+                <div className="eb-frame">
+                  <VideoBox
+                    className="eb-media eb-media-169"
+                    src="/edubig-proceso-datos.mp4"
+                    poster="/edubig-proceso-datos-poster.jpg"
+                    label="Registro del co-work con la IA sobre el pipeline de datos"
+                    playLabel="Reproducir el registro del co-work sobre el pipeline"
+                    boton="Ver el pipeline"
                   />
-                  <dl className="eb-persona-meta">
-                    {persona.meta.map(([k, v]) => (
-                      <div key={k}>
-                        <dt>{k}</dt><dd>{v}</dd>
-                      </div>
-                    ))}
-                  </dl>
                 </div>
-
-                <div className="eb-persona-r">
-                  <div className="eb-persona-title">
-                    <span className="mono uc small dim">{persona.comuna} · {persona.perfil}</span>
-                    <h3>{persona.nombre}</h3>
-                  </div>
-
-                  <blockquote className="eb-persona-quote">
-                    <p>{persona.cita}</p>
-                  </blockquote>
-
-                  <div className="eb-persona-dolores">
-                    <div className="eb-dolor-head">
-                      <span>Dolor</span><span>Severidad</span>
-                    </div>
-                    {persona.dolores.map((d, i) => (
-                      <div className="eb-dolor-row" key={i}>
-                        <span className="eb-dolor-txt">{d.dolor}</span>
-                        <span className="eb-dolor-sev">
-                          <span className="eb-dolor-sev-n">{d.sev}</span>
-                          <span className="eb-dolor-efecto">{d.efecto}</span>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="eb-persona-implic">
-                    <span className="mono uc small dim">Implicaciones para el diseño</span>
-                    {persona.implicaciones.map((i, k) => (
-                      <div className="eb-implic-row" key={k}>
-                        <span className="eb-implic-dot" />
-                        <span>{i}</span>
-                      </div>
-                    ))}
-                  </div>
+                <figcaption className="eb-cap">
+                  <span className="eb-label">Fig. 09 · El co-work sobre el pipeline</span>
+                  <p>El registro de cómo trabajo con la IA: yo decido qué dato se cruza con qué y en qué orden, la IA escribe el código y yo reviso cada resultado contra la fuente oficial. Si un campo queda mal cruzado, se nota enseguida en la ficha del colegio. Delego la escritura, no la decisión.</p>
+                </figcaption>
+              </figure>
+              <div className="c-8-12">
+                <div className="eb-kpis" role="list">
+                  <div className="eb-kpi" role="listitem"><b>5,74:1</b><p>contraste del texto secundario. Antes daba 4,49:1 sobre los fondos grises.</p></div>
+                  <div className="eb-kpi" role="listitem"><b>3,7:1</b><p>borde cálido en hover. Antes daba 2,0:1: el estado existía y no se veía.</p></div>
+                  <div className="eb-kpi" role="listitem"><b>44 px</b><p>objetivo táctil mínimo en todo el sitio. WCAG 2.2 pide 24.</p></div>
+                  <div className="eb-kpi" role="listitem"><b>0</b><p>errores de axe-core en Comparar, la ficha y la Home.</p></div>
                 </div>
               </div>
             </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 03 · Tres personas, una card intercambiable</span>
-              <p>
-                Cada dolor viene con severidad y con el efecto que produce, porque eso es lo que ordenó
-                la prioridad: los dos críticos de Carolina — no entiende las siglas, no tiene computador —
-                son los que fijaron mobile-first y lenguaje simple antes que cualquier funcionalidad.
-                Carolina y Francisca llegan al mismo requisito desde extremos opuestos del eje
-                socioeconómico: una no puede leer un puntaje, la otra no confía en uno sin contexto. Las
-                dos piden lo mismo — comparación contra colegios equivalentes — y esa coincidencia es la
-                que sostiene la decisión 01.
-              </p>
-            </figcaption>
-          </figure>
-        </section>
 
-        {/* ─── 03 · LA IDEA ───────────────────────────────────────────── */}
-        <section id="eb-stage-03" className="eb-stage">
-          <StageHead n="03" title="La idea" step="03 / 08" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                El concepto rector es <strong>un sistema que se traduce en cuidado</strong>: el dato se
-                mantiene fiel, pero llega en un idioma que una familia puede usar.
-              </p>
-              <p className="p-soft">
-                Viene de Hofstadter en <em>Gödel, Escher, Bach</em>: una traducción es fiel cuando conserva la
-                estructura, aunque cambie el material.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">Un toggle es el mismo sistema en dos estados. Por eso el logo es un toggle.</p>
-            </div>
-          </div>
-
-          <figure className="eb-fig">
-            <div className="eb-frame">
-              <div className="eb-logo-pair">
-              <div className="eb-logo-beat">
-                <span className="mono uc small dim">01 · Boceto</span>
-                <div className="eb-logo-box"><img src={bocetoToggle} alt="Board manuscrito del proceso: traducción de dato frío a dato cálido, bocetos de toggle" /></div>
-                <p className="eb-logo-desc">
-                  Buscando cómo dibujar la traducción de <em>dato frío → dato cálido</em> apareció la pregunta
-                  al margen: «¿toggles, switches?».
-                </p>
-              </div>
-
-              <div className="eb-logo-beat divider">
-                <span className="mono uc small dim">02 · Formalización</span>
-                <div className="eb-logo-box"><img src={formalizacionLogo} alt="Formalización del logo: retícula de construcción del toggle en estados ON y OFF junto al isologo resultante" /></div>
-                <p className="eb-logo-desc">
-                  El toggle se desarma en retícula: dos estados, un radio, un eje. La marca hereda esa
-                  construcción exacta —misma cápsula, mismo círculo desplazado, mismas tangentes— en vez de
-                  imitar su apariencia.
-                </p>
-              </div>
-              </div>
-
-              <div className="eb-logo-final">
-                <div className="eb-logo-final-box"><img src={logo} alt="Isologo eduBIG final" /></div>
-                <div className="eb-logo-final-txt">
-                  <span className="mono uc small dim">03 · Isologo</span>
-                  <p>
-                    <span className="mono cold">011</span> en Pixelify Sans es el dato como sale de la
-                    máquina; <span className="mono warm">eB</span> en Work Sans es lo que recibe la familia.
-                    El degradado entre ambas es el eje frío–cálido que después ordena el producto.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 04 · Del gesto a la marca</span>
-              <p>El isologo no ilustra el concepto: lo ejecuta. Cambia el material, se conserva la estructura.</p>
-            </figcaption>
-          </figure>
-
-          <details className="eb-det">
-            <summary>Ver las dos cadenas del concepto</summary>
-            <figure className="eb-fig">
-              <div className="eb-frame">
-                <div className="eb-eslab-head">
-                  <span>
-                    <span className="mono uc small">Dato</span>
-                    <span className="eb-eslab-sub">Cadena fría</span>
-                  </span>
-                  <span className="eb-eslab-mid">
-                    <span className="mono uc small">Puente</span>
-                    <span className="eb-eslab-sub">Posición</span>
-                  </span>
-                  <span>
-                    <span className="mono uc small">Familia</span>
-                    <span className="eb-eslab-sub">Cadena cálida</span>
-                  </span>
-                </div>
-                {ESLABONES.map((e) => (
-                  <div className="eb-eslab-row" key={e.n}>
-                    <div className="eb-eslab-cold">
-                      <span className="eb-eslab-key">{e.frio}</span>
-                      <span className="eb-eslab-gloss">{e.frioGloss}</span>
-                    </div>
-                    <div className="eb-eslab-mid-col">
-                      <span className="mono small dim">{e.n}</span>
-                      <span className="eb-eslab-line" />
-                      <span className="eb-eslab-rol">{e.rol}</span>
-                    </div>
-                    <div className="eb-eslab-warm">
-                      <span className="eb-eslab-key">{e.calido}</span>
-                      <span className="eb-eslab-gloss">{e.calidoGloss}</span>
-                    </div>
+            <div className="eb-dets">
+              <Det title="Ver la auditoría de contraste y los criterios WCAG" sub="Fig. 10 · 8 tokens medidos · 3 criterios WCAG 2.2">
+                <figure className="eb-fig">
+                  <div className="eb-tbl-wrap">
+                    <table className="eb-tbl">
+                      <thead><tr><th>Token</th><th>Uso en el producto</th><th className="r">Ratio</th><th>Veredicto</th></tr></thead>
+                      <tbody>
+                        {CONTRASTE.map((t) => (
+                          <tr key={t.hex}>
+                            <td className="eb-mono"><i className="eb-sw" style={{ background: t.hex }} />{t.hex}</td>
+                            <td>{t.uso}</td>
+                            <td className="r">{t.ratio}</td>
+                            <td style={t.tintaVeredicto !== '#1a1a18' ? { color: t.tintaVeredicto } : undefined}><i className="eb-dot" style={{ background: t.marca }} />{t.veredicto}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
-              </div>
-              <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 05 · Dos cadenas, la misma estructura</span>
-                <p>
-                  Tres eslabones, un origen, un término medio incómodo y un resultado. <em>Frío</em> y{' '}
-                  <em>preocupación</em> son los eslabones que un producto amable borraría, y son justamente
-                  los que sostienen <em>honesto</em> y <em>seguridad</em>.
-                </p>
-              </figcaption>
-            </figure>
-          </details>
-        </section>
-
-        {/* ─── 04 · TRES DECISIONES ───────────────────────────────────── */}
-        <section id="eb-stage-04" className="eb-stage">
-          <StageHead n="04" title="Tres decisiones" step="04 / 08" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                Tres decisiones definen el producto. Cada una renuncia a algo que un producto más vendible
-                conservaría.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">Si la legibilidad y la honestidad chocan, gana la honestidad. Hacerla legible es trabajo del producto.</p>
-            </div>
-          </div>
-
-          <div className="eb-decisiones">
-            {TRES_DECISIONES.map((d) => (
-              <div className="eb-decision" key={d.n}>
-                <div className="eb-dec-l">
-                  <div className="eb-dec-head">
-                    <span className="mono small dim">{d.n}</span>
-                    <h3>{d.titulo}</h3>
-                  </div>
-                  <span className="eb-dec-tag">{d.ambito}</span>
-                </div>
-                <div className="eb-dec-r">
-                  <div className="eb-dec-row">
-                    <span className="eb-dec-k dim">Tensión</span>
-                    <span className="eb-dec-v soft">{d.tension}</span>
-                  </div>
-                  <div className="eb-dec-row hilite">
-                    <span className="eb-dec-k">Decisión</span>
-                    <span className="eb-dec-v">{d.resolucion}</span>
-                  </div>
-                  <div className="eb-dec-row hilite">
-                    <span className="eb-dec-k warn">Costo</span>
-                    <span className="eb-dec-v soft">{d.costo}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <details className="eb-det">
-            <summary>Ver dos decisiones más y por qué el IDPS no se promedia</summary>
-            <div className="eb-decisiones">
-              {DECISIONES.filter((d) => d.n === '04' || d.n === '05').map((d) => (
-                <div className="eb-decision" key={d.n}>
-                  <div className="eb-dec-l">
-                    <div className="eb-dec-head">
-                      <h3>{d.titulo}</h3>
-                    </div>
-                    <span className="eb-dec-tag">{d.ambito}</span>
-                  </div>
-                  <div className="eb-dec-r">
-                    <div className="eb-dec-row">
-                      <span className="eb-dec-k dim">Tensión</span>
-                      <span className="eb-dec-v soft">{d.tension}</span>
-                    </div>
-                    <div className="eb-dec-row hilite">
-                      <span className="eb-dec-k">Decisión</span>
-                      <span className="eb-dec-v">{d.resolucion}</span>
-                    </div>
-                    <div className="eb-dec-row hilite">
-                      <span className="eb-dec-k warn">Costo</span>
-                      <span className="eb-dec-v soft">{d.costo}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <figure className="eb-fig">
-              <div className="eb-frame">
-                <div className="eb-dim-head">
-                  <span className="mono uc small">Dimensión IDPS</span>
-                  <span className="mono uc small">Colegios similares</span>
-                  <span className="mono uc small">Graham Bell · 8° básico</span>
-                </div>
-                {DIMENSIONES.map((s) => (
-                  <div className="eb-dim-row" key={s.nombre}>
-                    <span className="eb-dim-name">
-                      <span className="mono">{s.nombre}</span>
-                      <span className="eb-dim-que">{s.que}</span>
-                    </span>
-                    <span className="eb-dim-bar">
-                      <span className="eb-dim-fill grey" style={{ width: s.anchoColapso }} />
-                      <span className="mono small dim">{s.colapso}</span>
-                    </span>
-                    <span className="eb-dim-bar">
-                      <span className="eb-dim-fill dark" style={{ width: s.ancho }} />
-                      <span className="mono small">{s.valor}</span>
-                      <span className="mono small dim">{s.delta}</span>
-                    </span>
-                  </div>
-                ))}
-                <div className="eb-dim-total">
-                  <span className="eb-dim-total-l">Colapsado en un score único</span>
-                  <span className="eb-dim-bar"><span className="eb-dim-fill grey" style={{ width: '74.8%' }} /><span className="mono small dim">74,8</span></span>
-                  <span className="eb-dim-bar"><span className="eb-dim-fill grey" style={{ width: '70.3%' }} /><span className="mono small dim">70,3</span></span>
-                </div>
-              </div>
-              <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 06 · Por qué las cuatro series no se promedian</span>
-                <p>
-                  Datos de la ficha de Graham Bell, IDPS 8° básico 2025 preliminar. Colapsadas dan{' '}
-                  <span className="mono">70,3</span> contra <span className="mono">74,8</span> de sus pares.
-                  Separadas muestran cuatro brechas casi iguales —<span className="mono">−5, −4, −4, −5</span>—:
-                  un colegio parejo, no uno con un área hundida. El mismo promedio lo daría un colegio con tres
-                  dimensiones altas y una colapsada.
-                </p>
-              </figcaption>
-            </figure>
-          </details>
-        </section>
-
-        {/* ─── 05 · DEL FLUJO A LA PANTALLA ───────────────────────────── */}
-        <section id="eb-stage-05" className="eb-stage">
-          <StageHead n="05" title="Del flujo a la pantalla" step="05 / 08" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                El <strong>prototipo 1</strong> fue un MVP solo para celular con 57 colegios de Pudahuel,
-                construido del cruce de datos a la última pantalla. Funcionó, y con Israel Rubilar decidimos
-                llevarlo a todo Chile.
-              </p>
-              <p className="p-soft">
-                El <strong>prototipo 2</strong> salió de un análisis heurístico del primero y cambió en tres
-                frentes: datos (de 57 a 8.250 colegios), flujo (rehecho en FigJam antes de programar) y diseño
-                (celular y escritorio, Comparar completo y un sistema auditado).
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">La escala nacional rompía supuestos del prototipo 1: sin ubicación por defecto, con colegios sin datos para comparar y con grupos de comparación que cambian según la prueba.</p>
-            </div>
-          </div>
-
-          <figure className="eb-fig">
-            <div className="eb-videos">
-              <div className="eb-video-item movil">
-                <div className="eb-video-head">
-                  <span className="eb-version-title">Prototipo 1</span>
-                  <span className="mono uc small dim">MVP Pudahuel · celular</span>
-                </div>
-                <div className="eb-videoframe">
-                  <video ref={video2Ref} src="/edubig-navegacion-mvp.mp4" style={{ aspectRatio: '750 / 1522' }} poster="/edubig-navegacion-mvp-poster.jpg" muted controls playsInline preload="metadata" aria-label="Recorrido del prototipo 1, MVP de Pudahuel, en el celular" />
-                </div>
-              </div>
-              <div className="eb-video-item">
-                <div className="eb-video-head">
-                  <span className="eb-version-title">Prototipo 2</span>
-                  <span className="mono uc small dim">Versión nacional · escritorio</span>
-                </div>
-                <div className="eb-videoframe">
-                  <video ref={video3Ref} src="/edubig-navegacion-prototipo2.mp4" style={{ aspectRatio: '1600 / 932' }} poster="/edubig-navegacion-prototipo2-poster.jpg" muted controls playsInline preload="metadata" aria-label="Recorrido del prototipo 2, versión nacional, en escritorio: Test de Calce, shortlist y Comparar" />
-                </div>
-              </div>
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 07 · Los dos prototipos, en movimiento</span>
-              <p>
-                El prototipo 1 recorre el Test de Calce en el celular, con 57 colegios de Pudahuel. El prototipo 2
-                hace el mismo camino en escritorio, con el dato nacional, y llega hasta Comparar.
-              </p>
-            </figcaption>
-          </figure>
-
-          <FlujosCarrusel />
-
-          <div className="eb-version">
-            <div className="eb-version-head">
-              <span className="mono small dim">01</span>
-              <span className="eb-version-title">Prototipo 1 · MVP Pudahuel</span>
-              <span className="eb-dec-tag">57 colegios · solo celular</span>
-              <a href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link eb-version-link">Abrir el prototipo 1 ↗</a>
-            </div>
-            <div className="eb-galeria">
-              {PANTALLAS_MVP.map((s, i) => (
-                <figure className="eb-shot" key={i}>
-                  <div role="img" aria-label={s.alt} className="eb-shot-img movil" style={{ backgroundImage: `url(${s.url})` }} />
-                  <figcaption>{s.pie}</figcaption>
+                  <p className="eb-row-cap" style={{ color: 'var(--eb-mute-text)' }}>Auditoría de sep-2026, ratios contra <span className="eb-mono">#FFFFFF</span>. En oct-2026 se midió todo el texto contra su fondo real y el texto secundario subió de negro al 54 % al 60 %.</p>
+                  <figcaption className="eb-cap">
+                    <span className="eb-label">Fig. 10 · Auditoría de contraste sobre los tokens</span>
+                    <p>El hallazgo incómodo: el lado cálido del eje era el más débil. <span className="eb-mono">#f4a582</span> era el borde en hover, el momento en que el dato cruza a cálido, y no llegaba ni al umbral no textual.</p>
+                  </figcaption>
                 </figure>
-              ))}
-            </div>
-          </div>
-
-          <div className="eb-version">
-            <div className="eb-version-head">
-              <span className="mono small dim">02</span>
-              <span className="eb-version-title">Prototipo 2 · versión nacional</span>
-              <span className="eb-dec-tag">8.250 colegios · celular y escritorio</span>
-              <a href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link eb-version-link">Abrir el prototipo 2 ↗</a>
-            </div>
-            <div className="eb-galeria">
-              {PANTALLAS_NACIONAL.map((s, i) => (
-                <figure className={'eb-shot' + (s.ancho ? ' ancho' : '')} key={i}>
-                  <div role="img" aria-label={s.alt} className={'eb-shot-img ' + (s.ancho ? 'escritorio' : 'movil')} style={{ backgroundImage: `url(${s.url})` }} />
-                  <figcaption>{s.pie}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── 06 · CASO A FONDO: COMPARAR ────────────────────────────── */}
-        <section id="eb-stage-06" className="eb-stage">
-          <StageHead n="06" title="Caso a fondo: Comparar" step="06 / 08" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                Comparar es la promesa más difícil del producto: poner colegios lado a lado <strong>sin
-                declarar un ganador</strong>.
-              </p>
-              <p className="p-soft">
-                El diseño del prototipo 1 mostraba tres columnas con un resumen. Tomás y Francisca necesitaban más:
-                ver cada dimensión y entender contra qué se mide cada colegio.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">Cada colegio se compara con colegios parecidos a él, no con los otros de la tabla.</p>
-            </div>
-          </div>
-
-          <div className="eb-antes-despues">
-            <figure className="eb-ad antes">
-              <span className="mono uc small dim">Antes · prototipo 1, diseño en Figma, ago-2026</span>
-              <div className="eb-ad-moviles">
-                <div role="img" aria-label="Prototipo de comparación en el celular: tres colegios en columnas con el resumen «Lo esencial»" className="eb-shot-img movil" style={{ backgroundImage: `url(${scCompTop})` }} />
-                <div role="img" aria-label="Prototipo de comparación: cuerpo de la tabla con trayectoria universitaria" className="eb-shot-img movil" style={{ backgroundImage: `url(${scCompCuerpo})` }} />
-              </div>
-              <figcaption>Tres columnas, un resumen y chips Alto / Medio / Bajo.</figcaption>
-            </figure>
-            <figure className="eb-ad despues">
-              <span className="mono uc small dim">Después · prototipo 2, oct-2026</span>
-              <div className="eb-ad-wide">
-                <div role="img" aria-label="Comparar en el celular: barra con tres colegios y el bloque «Lo que más cambia»" className="eb-shot-img movil" style={{ backgroundImage: `url(${v2CompararMovil})` }} />
-                <img src={v2CompararDetalle} alt="Detalle de Comparar en escritorio: Bienestar con barras de 0 a 100 y la marca de sus similares; Académico con brechas SIMCE en verde, mostaza o gris según la significancia" className="eb-ad-img" />
-              </div>
-              <figcaption>Hasta 4 colegios en escritorio y 3 en el celular, una dimensión por grupo, cada dato en tres capas: frase, gráfico y número exacto.</figcaption>
-            </figure>
-          </div>
-
-          <div className="eb-pasos">
-            {PASOS_COMPARAR.map((p) => (
-              <div className="eb-paso" key={p.n}>
-                <span className="mono small dim">{p.n}</span>
-                <span className="eb-paso-t">{p.paso}</span>
-                <p>{p.texto}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="eb-reglas">
-            <span className="mono uc small dim">Tres reglas que ahora rigen todo el sitio</span>
-            <ul>
-              <li><strong>Un color fijo por posición</strong>, del 1 al 4, siempre con su número: el color identifica, no juzga.</li>
-              <li><strong>«Sus similares» es una marca negra neutra</strong>, no un color más que compita con los colegios.</li>
-              <li><strong>Verde o mostaza solo con diferencia significativa</strong>; si no, gris «a la par».</li>
-            </ul>
-          </div>
-        </section>
-
-        {/* ─── 07 · SISTEMA Y FORMA DE TRABAJO ────────────────────────── */}
-        <section id="eb-stage-07" className="eb-stage">
-          <StageHead n="07" title="Sistema y forma de trabajo" step="07 / 08" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                El análisis heurístico dejó un sistema de diseño auditado contra WCAG 2.2 AA, una sola retícula
-                para todo el sitio y los mismos estados en cada control: reposo, hover, foco, activo y
-                deshabilitado.
-              </p>
-              <p className="p-soft">
-                La IA trabaja como colaborador dirigido. Yo decido qué se cruza, qué se diseña y con qué
-                criterio; la IA escribe y propone; yo valido contra la fuente oficial y el recorrido completo.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">Un contraste que falla no es una infracción formal: es un dato que no se lee.</p>
-            </div>
-          </div>
-
-          <figure className="eb-fig">
-            <div className="eb-videoframe">
-              <video ref={video1Ref} src="/edubig-proceso-datos.mp4" muted controls playsInline preload="metadata" />
-            </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 09 · El co-work sobre el pipeline</span>
-              <p>
-                El registro de cómo trabajo con la IA: yo decido qué dato se cruza con qué y en qué orden, la IA
-                escribe el código y yo reviso cada resultado contra la fuente oficial. Si un campo queda mal
-                cruzado, se nota enseguida en la ficha del colegio. Delego la escritura, no la decisión.
-              </p>
-            </figcaption>
-          </figure>
-
-          <div className="eb-cifras">
-            {CIFRAS.map((c) => (
-              <div className="eb-cifra" key={c.cifra}>
-                <span className="eb-cifra-n">{c.cifra}</span>
-                <p>{c.texto}</p>
-              </div>
-            ))}
-          </div>
-
-          <details className="eb-det">
-            <summary>Ver la auditoría de contraste y los criterios WCAG</summary>
-            <figure className="eb-fig">
-              <div className="eb-frame">
-                <div className="eb-contraste-head">
-                  <span className="mono uc small">Token</span>
-                  <span className="mono uc small">Uso en el producto</span>
-                  <span className="mono uc small right">Ratio</span>
-                  <span className="mono uc small">Veredicto</span>
-                </div>
-                {CONTRASTE.map((c) => (
-                  <div className="eb-contraste-row" key={c.hex}>
-                    <span className="eb-contraste-hex">
-                      <span className="eb-contraste-chip" style={{ background: c.hex }} />
-                      <span className="mono small">{c.hex}</span>
-                    </span>
-                    <span className="eb-contraste-uso">{c.uso}</span>
-                    <span className="mono right">{c.ratio}</span>
-                    <span className="eb-contraste-verd">
-                      <span className="eb-contraste-dot" style={{ background: c.marca }} />
-                      <span style={{ color: c.tintaVeredicto }}>{c.veredicto}</span>
-                    </span>
-                  </div>
-                ))}
-                <span className="eb-contraste-nota">
-                  Auditoría de sep-2026, ratios contra <span className="mono small">#FFFFFF</span>. En oct-2026
-                  se midió todo el texto contra su fondo real y el texto secundario subió de negro al 54 % al 60 %.
-                </span>
-              </div>
-              <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 10 · Auditoría de contraste sobre los tokens</span>
-                <p>
-                  El hallazgo incómodo: el lado cálido del eje era el más débil. <span className="mono">#f4a582</span>{' '}
-                  era el borde en hover, el momento en que el dato cruza a cálido, y no llegaba ni al umbral no
-                  textual.
-                </p>
-              </figcaption>
-            </figure>
-
-            <div className="eb-criterios">
-              {CRITERIOS.map((k) => (
-                <div className="eb-criterio" key={k.sc}>
-                  <div className="eb-crit-l">
-                    <span className="mono small dim">{k.sc}</span>
-                    <span className="eb-crit-name">{k.nombre}</span>
-                    <span className="eb-crit-tag" style={{ color: k.tinta, borderColor: k.borde }}>{k.estado}</span>
-                  </div>
-                  <div className="eb-crit-r">
-                    <div className="eb-crit-row">
-                      <span className="eb-crit-k dim">Riesgo</span>
-                      <span className="eb-crit-v soft">{k.riesgo}</span>
-                    </div>
-                    <div className="eb-crit-row hilite">
-                      <span className="eb-crit-k">Respuesta</span>
-                      <span className="eb-crit-v">{k.respuesta}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </details>
-
-          <details className="eb-det">
-            <summary>Ver las dos paletas y la card en dos temperaturas</summary>
-            <figure className="eb-fig">
-              <div className="eb-frame">
-                <div className="eb-pals">
-                  <div className="eb-pal-col">
-                    <div className="eb-pal-title">
-                      <span className="mono uc small">Paleta 01 · Eje de traducción</span>
-                      <span className="eb-pal-sub">RdBu — ColorBrewer. Ordinal y con dirección.</span>
-                    </div>
-                    <div className="eb-pal-bar" style={{ background: 'linear-gradient(90deg,#053061,#2166ac,#4393c3,#d1e5f0,#f7f7f7,#fddbc7,#f4a582,#d6604d,#b2181f)' }} />
-                    <div className="eb-pal-list">
-                      {USOS_EJE.map((u, i) => (
-                        <div className="eb-pal-row" key={i}>
-                          <span className="eb-pal-swatch" style={{ background: u.tono }} />
-                          <span className="eb-pal-txt">
-                            <span>{u.estado}</span>
-                            <span className="dim">{u.donde}</span>
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="eb-pal-col">
-                    <div className="eb-pal-title">
-                      <span className="mono uc small">Paleta 02 · Colegios en un gráfico</span>
-                      <span className="eb-pal-sub">Categórica, de la paleta de Carbon: un color por posición, sin orden ni juicio.</span>
-                    </div>
-                    <div className="eb-pal-bar-cat">
-                      {USOS_CUAL.map((u) => <span key={u.estado} style={{ background: u.tono }} />)}
-                    </div>
-                    <div className="eb-pal-list">
-                      {USOS_CUAL.map((u, i) => (
-                        <div className="eb-pal-row" key={i}>
-                          <span className="eb-pal-swatch" style={{ background: u.tono }} />
-                          <span className="eb-pal-txt">
-                            <span>{u.estado}</span>
-                            <span className="dim">{u.donde}</span>
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="eb-pal-rules">
-                  <div>
-                    <span className="mono uc small dim">Regla única</span>
-                    <span>Si el color responde «¿qué tan traducido está esto?», es RdBu. Si responde «¿cuál de estos colegios es?», es la paleta de posición.</span>
-                  </div>
-                  <div>
-                    <span className="mono uc small dim">Interactivo</span>
-                    <span><span className="mono" style={{ color: '#0958D9' }}>#0958D9</span> queda fuera de ambas. Es affordance, no significado: botón, foco, enlace.</span>
-                  </div>
-                  <div>
-                    <span className="mono uc small dim">Tercer encoding</span>
-                    <span>Verde y mostaza dicen «sobre» o «bajo sus similares», y solo aparecen cuando la diferencia es significativa.</span>
-                  </div>
-                </div>
-              </div>
-              <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 11 · Dos paletas, dos preguntas distintas</span>
-                <p>Separarlas es lo que permite que el eje frío–cálido siga significando algo.</p>
-              </figcaption>
-            </figure>
-
-            <figure className="eb-fig">
-              <div className="eb-frame">
-                <div className="eb-frames-trad">
-                  {FRAMES_TRAD.map((f, i) => (
-                    <div className="eb-frame-t" key={i}>
-                      <div className="eb-frame-t-head">
-                        <span className="eb-frame-t-dot" style={{ background: f.tono }} />
-                        <span className="mono uc small">{f.estado}</span>
+                <div>
+                  {CRITERIOS.map((c) => (
+                    <div className="eb-crit" key={c.sc}>
+                      <div className="eb-crit-l"><span className="eb-mono eb-tiny">{c.sc}</span><b>{c.nombre}</b><span className={'eb-tag' + (c.tinta === '#8a1a20' ? ' is-warm' : '')}>{c.estado}</span></div>
+                      <div>
+                        <div className="eb-kv"><span>Riesgo</span><span className="eb-soft">{c.riesgo}</span></div>
+                        <div className="eb-kv"><span>Respuesta</span><span>{c.respuesta}</span></div>
                       </div>
-                      <div role="img" aria-label={f.alt} className="eb-frame-t-img" style={{ backgroundImage: `url(${f.url})` }} />
-                      <span className="mono uc small dim">{f.recorte}</span>
-                      <p className="eb-frame-t-nota">{f.nota}</p>
                     </div>
                   ))}
                 </div>
-              </div>
-              <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 12 · La misma card, dos temperaturas</span>
-                <p>
-                  Fría cuando la encontraste tú en una lista; cálida cuando el sistema la trajo para tu familia.
-                  En el medio, la pantalla de espera dice <em>Traduciendo tus respuestas</em>.
-                </p>
-              </figcaption>
-            </figure>
-          </details>
+              </Det>
 
-          <details className="eb-det">
-            <summary>Ver qué dirigí, qué generó la IA y cómo validé, capa por capa</summary>
-            <figure className="eb-fig">
-              <div className="eb-frame" style={{ padding: '8px 34px 34px' }}>
-                {CAPAS.map((c) => (
-                  <div className="eb-capa-row" key={c.n}>
-                    <div className="eb-capa-l">
-                      <div className="eb-capa-head">
-                        <span className="mono small">{c.n}</span>
-                        <span className="eb-capa-name">{c.capa}</span>
-                      </div>
-                      <span className="eb-capa-stack">{c.stack}</span>
-                      <span className="eb-capa-modo">{c.modo}</span>
+              <Det title="Ver las dos paletas y la card en dos temperaturas" sub="Fig. 11 · eje RdBu y paleta de posición · Fig. 12 · tres estados de la card">
+                <figure className="eb-fig">
+                  <div className="eb-pals">
+                    <div>
+                      <span className="eb-label" style={{ color: 'var(--eb-ink)' }}>Paleta 01 · Eje de traducción</span>
+                      <div className="eb-row-cap" style={{ marginTop: 4 }}>RdBu — ColorBrewer. Ordinal y con dirección.</div>
+                      <div className="eb-pal-bar" style={{ background: 'linear-gradient(90deg,#053061,#2166ac,#4393c3,#d1e5f0,#f7f7f7,#fddbc7,#f4a582,#d6604d,#b2181f)' }} />
+                      {USOS_EJE.map((r) => (
+                        <div className="eb-pal-r" key={r.estado}><i style={{ background: r.tono }} /><span>{r.estado}<span>{r.donde}</span></span></div>
+                      ))}
                     </div>
-                    <div className="eb-capa-r">
-                      {c.registro.map(([k, v]) => (
-                        <div className="eb-capa-reg" key={k}>
-                          <span className="eb-reg-k">{k}</span>
-                          <span className="eb-reg-v">{v}</span>
-                        </div>
+                    <div>
+                      <span className="eb-label" style={{ color: 'var(--eb-ink)' }}>Paleta 02 · Colegios en un gráfico</span>
+                      <div className="eb-row-cap" style={{ marginTop: 4 }}>Categórica, de la paleta de Carbon: un color por posición, sin orden ni juicio.</div>
+                      <div className="eb-pal-cat">{USOS_CUAL.map((r) => <i key={r.estado} style={{ background: r.tono }} />)}</div>
+                      {USOS_CUAL.map((r) => (
+                        <div className="eb-pal-r" key={r.estado}><i style={{ background: r.tono }} /><span>{r.estado}<span>{r.donde}</span></span></div>
                       ))}
                     </div>
                   </div>
-                ))}
-              </div>
-              <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 13 · Cuatro capas, cuatro modos de dirigir</span>
-                <p>
-                  El modo lo fija cuánto costaría equivocarse en esa capa: un error en el pipeline ensucia el dato
-                  de miles de colegios; uno de frontend se ve y se corrige en el momento.
-                </p>
-              </figcaption>
-            </figure>
-          </details>
-        </section>
-
-        {/* ─── 08 · ESTADO Y LO QUE SIGUE ─────────────────────────────── */}
-        <section id="eb-stage-08" className="eb-stage last">
-          <StageHead n="08" title="Fase actual: testeo con usuarios" step="08 / 08" />
-          <div className="eb-two">
-            <div className="eb-two-l">
-              <p className="p-strong">
-                Con el prototipo 2 completo, la fase actual es <strong>probarlo con usuarios reales</strong>. Se
-                puede recorrer en <a href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer" className="eb-link">edubig-chile.vercel.app ↗</a>;
-                el prototipo 1 sigue en línea como registro.
-              </p>
-              <p className="p-soft">
-                La validación es una decisión de secuencia: primero el análisis heurístico y de accesibilidad,
-                que dio forma al prototipo 2; ahora, las familias.
-              </p>
-            </div>
-            <div className="eb-two-r">
-              <p className="eb-pull">Lo que un método conocido puede encontrar no se le pregunta a una familia.</p>
-            </div>
-          </div>
-
-          <figure className="eb-fig">
-            <div className="eb-frame">
-              <div className="eb-timeline-bar" />
-              <div className="eb-timeline">
-                {HITOS.map((h) => (
-                  <div className="eb-hito" key={h.fase}>
-                    <span className="eb-hito-dot" style={{ background: h.tono }} />
-                    <span className="eb-hito-fase">{h.fase}</span>
-                    <span className="mono uc small dim">{h.estado}</span>
-                    <span className="eb-hito-det">{h.detalle}</span>
+                  <div className="eb-pal-rules" style={{ marginTop: 20 }}>
+                    <div><span className="eb-label">Regla única</span><span>Si el color responde «¿qué tan traducido está esto?», es RdBu. Si responde «¿cuál de estos colegios es?», es la paleta de posición.</span></div>
+                    <div><span className="eb-label">Interactivo</span><span><span className="eb-mono" style={{ color: '#0958D9' }}>#0958D9</span> queda fuera de ambas. Es affordance, no significado: botón, foco, enlace.</span></div>
+                    <div><span className="eb-label">Tercer encoding</span><span>Verde y mostaza dicen «sobre» o «bajo sus similares», y solo aparecen cuando la diferencia es significativa.</span></div>
                   </div>
-                ))}
+                  <figcaption className="eb-cap">
+                    <span className="eb-label">Fig. 11 · Dos paletas, dos preguntas distintas</span>
+                    <p>Separarlas es lo que permite que el eje frío–cálido siga significando algo.</p>
+                  </figcaption>
+                </figure>
+
+                <figure className="eb-fig">
+                  <div className="eb-temp">
+                    {FRAMES_TRAD.map((t) => (
+                      <div key={t.estado}>
+                        <div className="eb-media eb-media-phone is-lowres is-140"><img src={t.url} alt={t.alt} loading="lazy" /></div>
+                        <div>
+                          <span className="eb-label" style={{ color: 'var(--eb-ink)' }}><i className="eb-dot" style={{ background: t.tono }} />{t.estado}</span>
+                          <p className="eb-label" style={{ marginTop: 8 }}>{t.recorte}</p>
+                          <p>{t.nota}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <figcaption className="eb-cap">
+                    <span className="eb-label">Fig. 12 · La misma card, dos temperaturas</span>
+                    <p>Fría cuando la encontraste tú en una lista; cálida cuando el sistema la trajo para tu familia. En el medio, la pantalla de espera dice <em>Traduciendo tus respuestas</em>.</p>
+                  </figcaption>
+                </figure>
+              </Det>
+
+              <Det title="Ver qué dirigí, qué generó la IA y cómo validé, capa por capa" sub="Fig. 13 · pipeline, Figma, frontend y sistema de diseño">
+                <figure className="eb-fig">
+                  <div>
+                    {CAPAS.map((c) => (
+                      <div className="eb-capa" key={c.n}>
+                        <div className="eb-capa-l">
+                          <span className="eb-mono eb-tiny">{c.n}</span>
+                          <b>{c.capa}</b>
+                          <span className="eb-row-cap" style={{ margin: 0, color: 'var(--eb-mute-text)' }}>{c.stack}</span>
+                          <span className="eb-tag">{c.modo}</span>
+                        </div>
+                        <div>
+                          {c.registro.map(([k, v]) => (
+                            <div className="eb-kv" key={k}><span>{k}</span><span>{v}</span></div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <figcaption className="eb-cap">
+                    <span className="eb-label">Fig. 13 · Cuatro capas, cuatro modos de dirigir</span>
+                    <p>El modo lo fija cuánto costaría equivocarse en esa capa: un error en el pipeline ensucia el dato de miles de colegios; uno de frontend se ve y se corrige en el momento.</p>
+                  </figcaption>
+                </figure>
+              </Det>
+            </div>
+          </section>
+
+          {/* ═══ 08 · FASE ACTUAL (cierre) ═════════════════════════════════ */}
+          <section className="eb-stage last" id="eb-stage-08" aria-labelledby="eb-h-08">
+            <StageHead n="08" title="Fase actual: testeo con usuarios" />
+
+            <div className="eb-grid eb-intro">
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-08">Lo que un método conocido puede encontrar no se le pregunta a una familia.</h2></div>
+              <div className="eb-intro-t">
+                <p className="eb-p">Con el prototipo 2 completo, la fase actual es <strong>probarlo con usuarios reales</strong>. Se puede recorrer en <a className="eb-link" href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">edubig-chile.vercel.app ↗</a>; el prototipo 1 sigue en línea como registro.</p>
+                <p className="eb-p">La validación es una decisión de secuencia: primero el análisis heurístico y de accesibilidad, que dio forma al prototipo 2; ahora, las familias.</p>
               </div>
             </div>
-            <figcaption className="eb-fcap">
-              <span className="eb-figlabel">Fig. 14 · Del prototipo 1 al testeo con usuarios</span>
-              <p>La escala cambia; la traducción es la misma.</p>
-            </figcaption>
-          </figure>
 
-          <details className="eb-det">
-            <summary>Ver el método de validación completo</summary>
             <figure className="eb-fig">
               <div className="eb-frame">
-                {VALIDACION.map((c) => (
-                  <div className="eb-val-row" key={c.n}>
-                    <div className="eb-val-l">
-                      <span className="mono uc small dim">{c.n}</span>
-                      <span className="eb-val-title">{c.titulo}</span>
-                      <span className="eb-val-tag" style={{ color: c.tinta, borderColor: c.borde }}>{c.estado}</span>
-                      <div className="eb-val-scale">
-                        <span className="eb-val-bar" style={{ width: c.ancho, background: c.tono }} />
-                        <span className="mono small dim">{c.muestra}</span>
-                      </div>
-                    </div>
-                    <div className="eb-val-r">
-                      <p className="eb-val-txt">{c.texto}</p>
-                      <div className="eb-val-porque">
-                        <span className="mono uc small dim">Por qué</span>
-                        <span className="soft">{c.porque}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                <div className="eb-tl-bar" aria-hidden="true" />
+                <div className="eb-tl">
+                  <ol>
+                    <li style={cv({ '--tl': '#2166ac' })}><span className="eb-st">Hecho</span><b>Prototipo 1 · MVP Pudahuel</b><p>57 colegios, solo celular. Del cruce de datos a la última pantalla.</p></li>
+                    <li style={cv({ '--tl': '#4393c3' })}><span className="eb-st">Hecho</span><b>Análisis heurístico</b><p>WCAG 2.2 AA, heurísticas de Nielsen y arquitectura de información sobre el prototipo 1.</p></li>
+                    <li style={cv({ '--tl': '#d6604d' })}><span className="eb-st">Hecho</span><b>Prototipo 2 · versión nacional</b><p>Datos (8.250 colegios), flujo (FigJam) y diseño (celular y escritorio) rehechos.</p></li>
+                    <li style={cv({ '--tl': '#b2181f' })} className="is-now" aria-current="step"><span className="eb-st is-now">Fase actual</span><b>Testeo con usuarios</b><p>Probar el prototipo 2 con familias reales.</p></li>
+                    <li style={cv({ '--tl': '#8a1a20' })}><span className="eb-st is-next">Después</span><b>Lanzamiento y observatorio</b><p>Crecer y refinarse con uso real, sin esperar a estar perfecto para salir.</p></li>
+                  </ol>
+                </div>
               </div>
-              <figcaption className="eb-fcap">
-                <span className="eb-figlabel">Fig. 15 · Tres capas, muestra creciente</span>
-                <p>
-                  Las dos primeras capas existen para que la tercera no gaste su muestra en encontrar lo que un
-                  método conocido encuentra gratis.
-                </p>
+              <figcaption className="eb-cap">
+                <span className="eb-label">Fig. 14 · Del prototipo 1 al testeo con usuarios</span>
+                <p>La escala cambia; la traducción es la misma.</p>
               </figcaption>
             </figure>
-          </details>
 
-          <p className="eb-cierre">
-            eduBIG no es un producto terminado. Es un sistema que aprende a traducir.
-          </p>
-        </section>
+            <Det title="Ver el método de validación completo" sub="Fig. 15 · tres capas, de 3 familias a familias reales">
+              <figure className="eb-fig">
+                <div>
+                  {VALIDACION.map((v) => (
+                    <div className="eb-val" key={v.n}>
+                      <div className="eb-val-l">
+                        <span className="eb-label">{v.n}</span>
+                        <b>{v.titulo}</b>
+                        <span className={'eb-tag' + (v.tinta === '#8a1a20' ? ' is-warm' : '')}>{v.estado}</span>
+                        <span className="eb-scale"><span><i style={{ width: v.ancho, background: v.tono }} /></span><span className="eb-mono">{v.muestra}</span></span>
+                      </div>
+                      <div>
+                        <p className="eb-p" style={{ fontSize: 15 }}>{v.texto}</p>
+                        <div className="eb-kv"><span>Por qué</span><span className="eb-soft">{v.porque}</span></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <figcaption className="eb-cap">
+                  <span className="eb-label">Fig. 15 · Tres capas, muestra creciente</span>
+                  <p>Las dos primeras capas existen para que la tercera no gaste su muestra en encontrar lo que un método conocido encuentra gratis.</p>
+                </figcaption>
+              </figure>
+            </Det>
+
+            <p className="eb-close">eduBIG no es un producto terminado. Es un sistema que aprende a traducir.</p>
+          </section>
+        </div>
       </div>
     </div>
   );
@@ -1467,461 +1051,721 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
 
 // ─── PIEZAS AUXILIARES ────────────────────────────────────────────────────
 
-/** Carrusel de los flujos de FigJam: pestañas, anterior/siguiente y flechas del teclado. */
-function FlujosCarrusel() {
-  const [i, setI] = useState(0);
-  const n = FLUJOS.length;
-  const f = FLUJOS[i];
-  const ir = (k: number) => setI(Math.max(0, Math.min(n - 1, k)));
-  // Con las flechas, el foco acompaña a la pestaña activa si venía desde las pestañas.
-  function onKeyDown(e: KeyboardEvent) {
-    const paso = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-    if (!paso) return;
-    e.preventDefault();
-    const k = Math.max(0, Math.min(n - 1, i + paso));
-    setI(k);
-    if ((e.target as HTMLElement).getAttribute('role') === 'tab') {
-      requestAnimationFrame(() => document.getElementById(`eb-flujo-tab-${FLUJOS[k].id}`)?.focus());
-    }
-  }
+function StageHead({ n, title }: { n: string; title: string }) {
   return (
-    <section className="eb-carr" aria-roledescription="carrusel" aria-label="Flujos del sitio en FigJam" onKeyDown={onKeyDown}>
-      <div className="eb-carr-tabs" role="tablist" aria-label="Diagramas">
-        {FLUJOS.map((x, k) => (
-          <button
-            key={x.id}
-            type="button"
-            role="tab"
-            id={`eb-flujo-tab-${x.id}`}
-            aria-selected={k === i}
-            aria-controls="eb-flujo-panel"
-            tabIndex={k === i ? 0 : -1}
-            className={'eb-persona-tab' + (k === i ? ' is-active' : '')}
-            onClick={() => setI(k)}
-          >
-            <span className="eb-persona-tabnombre">{x.titulo}</span>
-          </button>
-        ))}
-      </div>
-
-      <div
-        id="eb-flujo-panel"
-        role="tabpanel"
-        aria-roledescription="slide"
-        aria-labelledby={`eb-flujo-tab-${f.id}`}
-        className="eb-frame eb-carr-view"
-      >
-        <a href={f.url} target="_blank" rel="noopener noreferrer" className="eb-carr-img" aria-label={`Abrir ${f.titulo} en tamaño completo`}>
-          <img src={f.url} alt={f.alt} />
-        </a>
-      </div>
-
-      <div className="eb-carr-bar">
-        <button type="button" className="eb-btn" onClick={() => ir(i - 1)} disabled={i === 0} aria-label="Diagrama anterior">
-          <span aria-hidden="true">←</span> Anterior
-        </button>
-        <span className="mono small dim" aria-live="polite">{i + 1} / {n}</span>
-        <button type="button" className="eb-btn" onClick={() => ir(i + 1)} disabled={i === n - 1} aria-label="Diagrama siguiente">
-          Siguiente <span aria-hidden="true">→</span>
-        </button>
-      </div>
-
-      <div className="eb-fcap">
-        <span className="eb-figlabel">Fig. 08 · Flujo del prototipo 2 en FigJam · {f.titulo}</span>
-        <p>
-          {f.nota}{' '}
-          <a href={f.url} target="_blank" rel="noopener noreferrer" className="eb-link">Abrir en tamaño completo ↗</a>
-        </p>
-      </div>
-    </section>
+    <div className="eb-stagehead">
+      <span>Etapa {n} · {title}</span>
+      <span>{n} / 08</span>
+    </div>
   );
 }
 
-
-function StageHead({ n, title, step }: { n: string; title: string; step: string }) {
+/** Plegable visible: icono +/− en marco firma, título, una línea de qué contiene y estado. */
+function Det({ title, sub, children }: { title: string; sub: string; children: ReactNode }) {
   return (
-    <div className="eb-stagehead">
-      <span className="mono uc small bold">Etapa {n} · {title}</span>
-      <span className="mono uc small dim">{step}</span>
+    <details className="eb-det">
+      <summary>
+        <span className="eb-det-ico" aria-hidden="true" />
+        <span className="eb-det-t"><b>{title}</b><small>{sub}</small></span>
+        <span className="eb-det-state" aria-hidden="true" />
+      </summary>
+      <div className="eb-det-body">{children}</div>
+    </details>
+  );
+}
+
+function Decision(props: { n: string; color: string; tag: string; titulo: string; tension: string; decision: string; costo: string }) {
+  return (
+    <article className="eb-dec" style={cv({ '--dec-c': props.color })}>
+      <div className="eb-dec-top"><span className="eb-dec-n">{props.n}</span><span className="eb-tag">{props.tag}</span></div>
+      <h3>{props.titulo}</h3>
+      <div className="eb-dec-row"><span className="eb-label">Tensión</span><p>{props.tension}</p></div>
+      <div className="eb-dec-row is-dec"><span className="eb-label">Decisión</span><p>{props.decision}</p></div>
+      <div className="eb-dec-row is-cost"><span className="eb-label">Costo</span><p>{props.costo}</p></div>
+    </article>
+  );
+}
+
+function IdpsRow({ nombre, det, sim, col }: { nombre: string; det: string; sim: number; col: number }) {
+  return (
+    <div className="eb-idps-r">
+      <span><b>{nombre}</b><small>{det}</small></span>
+      <span className="eb-bar"><i className="g" style={{ width: `calc(${sim}% * .8)` }} />{sim}</span>
+      <span className="eb-bar"><i style={{ width: `calc(${col}% * .8)` }} />{col} <span style={{ color: 'var(--eb-mute-text)' }}>−{sim - col}</span></span>
     </div>
+  );
+}
+
+/** Tarjeta del colegio reconstruida en HTML (antes: tarjeta-colegio.png, 350×469 px). */
+function TarjetaColegio() {
+  return (
+    <article className="eb-colegio" aria-label="Tarjeta de colegio de eduBIG: Colegio Alexander Graham Bell">
+      <h4>Colegio Alexander Graham Bell</h4>
+      <div className="eb-media eb-media-wide"><img src={fotoColegio} alt="Fachada del Colegio Alexander Graham Bell" /></div>
+      <ul>
+        <li><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" /><path d="M10 5.5H7.2a1.3 1.3 0 0 0 0 2.6h1.6a1.3 1.3 0 0 1 0 2.6H6M8 4v1.5M8 10.7V12" /></svg>Educación pública</li>
+        <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8M2.5 3v2.5M2 12.5h1.6L2 10.4a.8.8 0 1 1 1.5-.5" /></svg>Básica</li>
+        <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5 5.5 2l5 1.8 4-1.3v10l-4 1.5-5-1.8-4 1.3zM5.5 2v10M10.5 3.8v10" /></svg>A 850 m de tu casa</li>
+      </ul>
+      <div className="eb-chips">
+        <span>Gratuito</span><span>Con programa PIE</span><span>SIMCE sobre su GSE</span><span>Convivencia alta</span><span>Sin denuncias</span>
+      </div>
+      <div className="eb-colegio-cta" aria-hidden="true"><span>Ver ficha</span><span>Comparar</span></div>
+    </article>
+  );
+}
+
+/** Captura de alta resolución en una fila de alto parejo; abre el original. */
+function Shot({ ar, cls, src, alt, pie }: { ar: number; cls: string; src: string; alt: string; pie: string }) {
+  return (
+    <figure className="eb-fig" style={cv({ '--ar': ar })}>
+      <a className={`eb-media ${cls} is-zoom`} href={src} target="_blank" rel="noopener noreferrer" aria-label={`Abrir en tamaño completo: ${pie}`}>
+        <img src={src} alt={alt} loading="lazy" />
+      </a>
+      <figcaption className="eb-row-cap">{pie}</figcaption>
+    </figure>
+  );
+}
+
+/** Captura antigua de 300×650 px: nunca a más de 110 px de ancho. */
+function LowShot({ src, alt, pie }: { src: string; alt: string; pie: string }) {
+  return (
+    <figure>
+      <div className="eb-media eb-media-phone is-lowres"><img src={src} alt={alt} loading="lazy" /></div>
+      <figcaption className="eb-row-cap">{pie}</figcaption>
+    </figure>
+  );
+}
+
+/**
+ * Video con poster y botón. Se reproduce silenciado y en bucle al entrar en
+ * pantalla (50 %) y se pausa al salir; con «reducir movimiento» no hay autoplay.
+ * Los controles aparecen solo mientras se reproduce.
+ */
+function VideoBox(props: { className: string; src: string; poster: string; label: string; playLabel: string; boton: string }) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const vRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const box = boxRef.current;
+    const v = vRef.current;
+    if (!box || !v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => (e.isIntersecting ? v.play().catch(() => {}) : v.pause())),
+      { threshold: 0.5 },
+    );
+    io.observe(box);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={boxRef} className={`${props.className} eb-vid${playing ? ' is-playing' : ''}`}>
+      <video
+        ref={vRef}
+        src={props.src}
+        poster={props.poster}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        controls={playing}
+        aria-label={props.label}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+      />
+      <button type="button" className="eb-play" aria-label={props.playLabel} onClick={() => vRef.current?.play().catch(() => {})}>
+        {props.boton}
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Visor de los flujos de FigJam: pestañas en un riel vertical y ventana 3:2.
+ * El mapa (apaisado) se ajusta entero; los flujos altos se recorren con scroll
+ * interno a 760 px de ancho, legibles.
+ */
+function FlujoVisor() {
+  const [i, setI] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const scRef = useRef<HTMLDivElement>(null);
+  const n = FLUJOS.length;
+  const f = FLUJOS[i];
+
+  function ir(k: number) {
+    const j = Math.max(0, Math.min(n - 1, k));
+    setI(j);
+    setScrolled(false);
+    if (scRef.current) scRef.current.scrollTop = 0;
+  }
+
+  return (
+    <figure className="eb-fig eb-grid eb-viewer" style={{ marginTop: 'var(--s-6)' }} aria-roledescription="carrusel" aria-label="Flujos del sitio en FigJam">
+      <div className="c-1-3 eb-viewer-rail">
+        <div className="eb-tabs eb-tabs-v" role="tablist" aria-label="Diagramas" aria-orientation="vertical">
+          {FLUJOS.map((x, k) => (
+            <button
+              key={x.id}
+              type="button"
+              role="tab"
+              id={`eb-ftab-${x.id}`}
+              className="eb-tab"
+              aria-selected={k === i}
+              aria-controls="eb-flow-win"
+              tabIndex={k === i ? 0 : -1}
+              onClick={() => ir(k)}
+              onKeyDown={(e) => tabKeys(e, i, n, ir, (j) => `eb-ftab-${FLUJOS[j].id}`)}
+            >
+              {x.titulo}
+            </button>
+          ))}
+        </div>
+        <div className="eb-viewer-bar">
+          <button type="button" className="eb-btn" onClick={() => ir(i - 1)} disabled={i === 0} aria-label="Diagrama anterior"><span aria-hidden="true">←</span></button>
+          <output aria-live="polite">{i + 1} / {n}</output>
+          <button type="button" className="eb-btn" onClick={() => ir(i + 1)} disabled={i === n - 1} aria-label="Diagrama siguiente"><span aria-hidden="true">→</span></button>
+        </div>
+        <figcaption className="eb-cap">
+          <span className="eb-label">Fig. 08 · Flujo del prototipo 2 en FigJam · {f.titulo}</span>
+          <p>
+            {f.nota}{' '}
+            <a className="eb-link" href={f.url} target="_blank" rel="noopener noreferrer">Abrir en tamaño completo ↗</a>
+          </p>
+        </figcaption>
+      </div>
+      <div className="c-4-12">
+        <div
+          className={'eb-win eb-thin' + (scrolled ? ' is-scrolled' : '')}
+          id="eb-flow-win"
+          data-mode={f.modo}
+          role="tabpanel"
+          aria-roledescription="slide"
+          aria-labelledby={`eb-ftab-${f.id}`}
+        >
+          <div
+            className="eb-win-scroll"
+            ref={scRef}
+            tabIndex={0}
+            aria-label="Diagrama; desplázate para recorrerlo"
+            onScroll={(e) => { if (!scrolled && e.currentTarget.scrollTop > 40) setScrolled(true); }}
+          >
+            <img src={f.url} alt={f.alt} />
+          </div>
+          <div className="eb-win-hint" aria-hidden="true">Desplázate dentro del diagrama ↓</div>
+          <a className="eb-btn eb-win-open" href={f.url} target="_blank" rel="noopener noreferrer" aria-label="Abrir el diagrama en tamaño completo">↗</a>
+        </div>
+      </div>
+    </figure>
   );
 }
 
 // ─── ESTILOS ──────────────────────────────────────────────────────────────
 
 const CSS = `
-.eb{color:var(--eb-ink);
-  --eb-ink:#1a1a18;--eb-body:#3d3d38;--eb-dim:#6b6b64;--eb-line:rgba(26,26,24,.16);--eb-line-soft:rgba(26,26,24,.12);
-  --eb-cold-3:#053061;--eb-cold-2:#2166ac;--eb-cold-1:#4393c3;--eb-cold-0:#92c5de;
-  --eb-warm-0:#fddbc7;--eb-warm-1:#f4a582;--eb-warm-2:#d6604d;--eb-warm-3:#b2181f;
-  --eb-int:#0958D9;
+/* ── 0 · Tokens (":root" del scope) ───────────────────────────────────── */
+.eb{
+  /* superficies y tinta del portafolio */
+  --eb-bg:#fafaf7; --eb-surface:#ffffff; --eb-surface-2:#f2f1ec;
+  --eb-ink:#0f0f0e; --eb-ink-2:#3a3a38; --eb-mute:#8a8a85;
+  --eb-mute-text:#5f5f5a; /* #8a8a85 da 3,3:1 sobre #fafaf7: se usa solo en elementos no textuales; las etiquetas pequeñas usan esta variante (6,3:1) */
+  --eb-line:#ebeae4; --eb-line-2:#dcdbd5;
+  --eb-frame:1px 4px 4px 1px;            /* marco firma */
+  /* paleta propia de eduBIG (ColorBrewer RdBu) — solo datos, acentos y filete */
+  --eb-cold-3:#053061; --eb-cold-2:#2166ac; --eb-cold-1:#4393c3; --eb-cold-0:#92c5de;
+  --eb-warm-0:#fddbc7; --eb-warm-1:#f4a582; --eb-warm-2:#d6604d; --eb-warm-3:#b2181f;
+  --eb-int:#0958D9; --eb-ux:#1fbf75;
+  --eb-filete:linear-gradient(90deg,#053061 0%,#2166ac 16%,#4393c3 30%,#92c5de 43%,#f7f7f7 50%,#fddbc7 60%,#f4a582 71%,#d6604d 85%,#b2181f 100%);
+  /* tipografía */
   --eb-mono:'IBM Plex Mono:Regular',ui-monospace,Menlo,monospace;
   --eb-mono-med:'IBM Plex Mono:Medium','IBM Plex Mono:Regular',ui-monospace,Menlo,monospace;
-  --eb-sans:'IBM Plex Sans:Regular',system-ui,-apple-system,sans-serif;
-  --eb-max:1180px;}
-.eb *{box-sizing:border-box;}
-.eb .eb-content{padding:32px 80px 96px 188px;}
-@media(max-width:900px){.eb .eb-content{padding:24px 20px 60px;}}
-
-/* topbar: back + chip de categoría */
-.eb .eb-topbar{max-width:var(--eb-max);display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:36px;flex-wrap:wrap;}
-.eb .eb-cat-chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--eb-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4a7a4a;border:1px solid rgba(95,143,95,.55);border-radius:2px;padding:6px 10px;}
-.eb .eb-cat-dot{width:6px;height:6px;background:#5f8f5f;border-radius:50%;display:inline-block;}
-
-/* utilidades tipográficas locales */
-.eb .mono{font-family:var(--eb-mono);font-size:12.5px;}
-.eb .mono.small{font-size:10px;letter-spacing:.1em;}
-.eb .mono.uc{text-transform:uppercase;letter-spacing:.12em;}
-.eb .mono.bold{font-family:var(--eb-mono-med);font-weight:600;}
-.eb .mono.right{text-align:right;}
-.eb .mono.cold{color:var(--eb-cold-2);}
-.eb .mono.warm{color:var(--eb-warm-3);}
-.eb .dim{color:var(--eb-dim);}
-.eb .soft{color:var(--eb-body);}
-.eb .arrow{color:var(--eb-dim);}
-
-/* stage y encabezado */
-.eb .eb-stage{max-width:var(--eb-max);padding:0 0 104px;}
-.eb .eb-stage.last{padding-bottom:20px;}
-.eb .eb-stagehead{display:flex;align-items:baseline;justify-content:space-between;gap:20px;border-top:1px solid var(--eb-ink);padding-top:12px;flex-wrap:wrap;}
-.eb .eb-substage{margin:56px 0 0;border-top:1px solid var(--eb-ink);padding-top:12px;display:flex;align-items:baseline;gap:12px;}
-
-/* layout de dos columnas (párrafos + pull) */
-.eb .eb-two{display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start;padding-top:48px;}
-.eb .eb-two-l{flex:1 1 380px;display:flex;flex-direction:column;gap:22px;min-width:0;}
-.eb .eb-two-r{flex:1 1 300px;min-width:0;border-left:1px solid var(--eb-line);padding-left:26px;}
-.eb .p-strong{margin:0;font-family:var(--eb-sans);font-size:17px;line-height:1.62;color:var(--eb-ink);max-width:60ch;text-wrap:pretty;}
-.eb .p-soft{margin:0;font-family:var(--eb-sans);font-size:17px;line-height:1.62;color:var(--eb-body);max-width:60ch;text-wrap:pretty;}
-.eb .p-strong strong,.eb .p-soft strong{font-weight:600;color:var(--eb-ink);}
-.eb .p-strong em,.eb .p-soft em{font-style:italic;color:var(--eb-ink);}
-.eb .eb-pull{margin:0;font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(17px,1.55vw,21px);line-height:1.44;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
-
-/* figuras: marco 1/4/4/1, caption debajo */
-.eb .eb-fig{margin:56px 0 0;display:flex;flex-direction:column;gap:14px;}
-.eb .eb-frame{border-style:solid;border-color:var(--eb-ink);border-width:1px 4px 4px 1px;background:#f7f7f7;padding:34px;box-sizing:border-box;overflow-x:auto;}
-.eb .eb-fcap{display:flex;flex-direction:column;gap:9px;}
-.eb .eb-figlabel{font-family:var(--eb-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);}
-.eb .eb-fcap p{margin:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.58;color:var(--eb-body);max-width:74ch;text-wrap:pretty;}
-.eb .eb-fcap p em{font-style:italic;color:var(--eb-ink);}
-
-/* STAGE 01 · Cover */
-.eb .eb-cover{display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start;padding-top:56px;}
-.eb .eb-cover-txt{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:0;}
-.eb .eb-hook-a{margin:0;font-family:var(--eb-sans);font-weight:400;font-size:clamp(17px,1.8vw,23px);line-height:1.5;letter-spacing:0;color:var(--eb-body);text-wrap:pretty;max-width:34ch;}
-.eb .eb-hook-b{margin:22px 0 0;font-family:var(--eb-mono-med);font-weight:600;font-size:clamp(32px,4.2vw,54px);line-height:1.12;letter-spacing:-.028em;color:#141412;text-wrap:pretty;max-width:16ch;}
-.eb .eb-filete{margin:38px 0 0;display:flex;flex-direction:column;gap:7px;}
-.eb .eb-filete-bar{height:5px;width:100%;max-width:560px;background:linear-gradient(90deg,#053061 0%,#2166ac 16%,#4393c3 30%,#d1e5f0 43%,#f7f7f7 50%,#fddbc7 60%,#f4a582 71%,#d6604d 85%,#b2181f 100%);}
-.eb .eb-filete-row{display:flex;justify-content:space-between;max-width:560px;font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);}
-.eb .eb-lead{margin:40px 0 0;font-family:var(--eb-sans);font-size:17px;line-height:1.62;color:var(--eb-body);max-width:58ch;text-wrap:pretty;}
-.eb .eb-meta{margin:44px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:22px 32px;border-top:1px solid var(--eb-line);padding-top:22px;}
-.eb .eb-meta>div{display:flex;flex-direction:column;gap:6px;min-width:0;}
-.eb .eb-meta dt{font-family:var(--eb-mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-dim);}
-.eb .eb-meta dd{margin:0;font-family:var(--eb-sans);font-size:14px;line-height:1.45;color:var(--eb-ink);}
-.eb .eb-fig .eb-frame.eb-frame-logo{padding:34px 30px;display:flex;align-items:center;justify-content:center;}
-.eb .eb-frame-logo img{display:block;width:100%;max-width:340px;height:auto;}
-
-/* STAGE 02 · fuentes → nodo → tarjeta */
-.eb .eb-fuentes-grid{display:grid;grid-template-columns:minmax(272px,1fr) 132px minmax(252px,.92fr);gap:0;align-items:start;min-width:656px;}
-.eb .eb-fuentes-col{position:relative;display:flex;flex-direction:column;gap:0;min-width:0;}
-.eb .eb-fuentes-line{position:absolute;top:46px;bottom:13px;right:0;width:1px;background:linear-gradient(180deg,#053061,#2166ac,#4393c3,#92c5de);}
-.eb .eb-col-label{font-family:var(--eb-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-dim);padding-bottom:10px;}
-.eb .eb-fuente-row{display:grid;grid-template-columns:20px minmax(0,1fr) 28px;gap:12px;align-items:center;border-top:1px solid var(--eb-line-soft);padding:11px 0;}
-.eb .eb-fuentes-end{border-top:1px solid var(--eb-line-soft);}
-.eb .eb-fnum{font-family:var(--eb-mono);font-size:10px;color:var(--eb-dim);text-align:right;}
-.eb .eb-fbody{display:flex;flex-direction:column;gap:2px;min-width:0;}
-.eb .eb-fnombre{font-family:var(--eb-mono);font-size:12.5px;color:var(--eb-ink);}
-.eb .eb-fdet{font-family:var(--eb-sans);font-size:11.5px;line-height:1.4;color:var(--eb-dim);}
-.eb .eb-fbar{height:1px;width:100%;display:block;}
-.eb .eb-fuentes-mid{position:relative;align-self:stretch;display:flex;align-items:center;justify-content:center;min-height:200px;}
-.eb .eb-fuentes-conn{position:absolute;top:50%;left:0;right:-22px;height:1px;background:linear-gradient(90deg,#4393c3 0%,#4393c3 18%,#f7f7f7 48%,#d6604d 76%,#d6604d 100%);}
-.eb .eb-fuentes-node{position:relative;display:flex;align-items:center;justify-content:center;background:#f7f7f7;padding:7px 6px;}
-.eb .eb-fuentes-node img{display:block;width:112px;height:auto;}
-.eb .eb-fuentes-out{display:flex;flex-direction:column;gap:10px;min-width:0;padding-left:22px;}
-.eb .eb-tarjeta{display:block;width:100%;max-width:276px;height:auto;}
-
-/* STAGE 03 · capas */
-.eb .eb-capa-row{display:grid;grid-template-columns:minmax(190px,.78fr) minmax(0,1.62fr);gap:34px;align-items:start;border-bottom:1px solid var(--eb-line-soft);padding:26px 0;}
-.eb .eb-capa-row:last-child{border-bottom:none;}
-.eb .eb-capa-l{display:flex;flex-direction:column;gap:10px;min-width:0;}
-.eb .eb-capa-head{display:flex;align-items:baseline;gap:9px;}
-.eb .eb-capa-name{font-family:var(--eb-mono-med);font-size:14px;font-weight:500;color:var(--eb-ink);letter-spacing:-.01em;}
-.eb .eb-capa-stack{font-family:var(--eb-sans);font-size:12px;line-height:1.4;color:var(--eb-dim);}
-.eb .eb-capa-modo{align-self:flex-start;font-family:var(--eb-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-ink);border:1px solid rgba(26,26,24,.34);border-radius:2px;padding:5px 9px;}
-.eb .eb-capa-r{display:flex;flex-direction:column;gap:0;min-width:0;}
-.eb .eb-capa-reg{display:grid;grid-template-columns:74px minmax(0,1fr);gap:16px;align-items:baseline;padding:7px 0;}
-.eb .eb-reg-k{font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);}
-.eb .eb-reg-v{font-family:var(--eb-sans);font-size:14.5px;line-height:1.52;color:var(--eb-ink);text-wrap:pretty;}
-
-/* STAGE 04 · personas */
-.eb .eb-persona-tabs{display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--eb-line);padding-bottom:18px;margin-bottom:26px;}
-.eb .eb-persona-tab{display:inline-flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:44px;padding:7px 13px;border-radius:2px;border:1px solid rgba(26,26,24,.28);cursor:pointer;text-align:left;font-family:var(--eb-mono);background:transparent;color:var(--eb-ink);transition:border-color .2s;}
-.eb .eb-persona-tab:hover{border-color:var(--eb-ink);}
-.eb .eb-persona-tab.is-active{background:var(--eb-ink);border-color:var(--eb-ink);color:#fafaf7;}
-.eb .eb-persona-tabn{font-size:9.5px;letter-spacing:.12em;opacity:.72;}
-.eb .eb-persona-tabnombre{font-size:12.5px;font-weight:500;letter-spacing:-.01em;}
-.eb .eb-persona-body{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;}
-.eb .eb-persona-l{flex:0 1 232px;min-width:186px;display:flex;flex-direction:column;gap:10px;}
-.eb .eb-persona-retrato{width:100%;aspect-ratio:1/1;border:1px solid rgba(26,26,24,.2);background-color:#eeeeea;background-size:cover;background-position:center 18%;}
-.eb .eb-persona-meta{margin:0;display:flex;flex-direction:column;gap:0;}
-.eb .eb-persona-meta>div{display:grid;grid-template-columns:66px minmax(0,1fr);gap:10px;align-items:baseline;border-bottom:1px solid var(--eb-line-soft);padding:7px 0;}
-.eb .eb-persona-meta dt{font-family:var(--eb-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);}
-.eb .eb-persona-meta dd{margin:0;font-family:var(--eb-sans);font-size:12px;line-height:1.42;color:var(--eb-ink);text-wrap:pretty;}
-.eb .eb-persona-r{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:22px;}
-.eb .eb-persona-title{display:flex;flex-direction:column;gap:7px;}
-.eb .eb-persona-title h3{margin:0;font-family:var(--eb-mono);font-size:clamp(20px,2vw,27px);font-weight:500;line-height:1.2;letter-spacing:-.02em;color:#141412;}
-.eb .eb-persona-quote{margin:0;padding-left:16px;border-left:2px solid var(--eb-warm-2);}
-.eb .eb-persona-quote p{margin:0;font-family:var(--eb-sans);font-size:15.5px;font-style:italic;line-height:1.58;color:var(--eb-ink);max-width:52ch;text-wrap:pretty;}
-.eb .eb-persona-dolores{display:flex;flex-direction:column;gap:0;}
-.eb .eb-dolor-head{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:18px;border-bottom:1px solid var(--eb-ink);padding-bottom:8px;font-family:var(--eb-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink);}
-.eb .eb-dolor-row{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:18px;align-items:baseline;border-bottom:1px solid var(--eb-line-soft);padding:11px 0;}
-.eb .eb-dolor-txt{font-family:var(--eb-sans);font-size:13.5px;line-height:1.5;color:var(--eb-ink);text-wrap:pretty;}
-.eb .eb-dolor-sev{display:flex;flex-direction:column;gap:2px;}
-.eb .eb-dolor-sev-n{font-family:var(--eb-mono-med);font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--eb-ink);}
-.eb .eb-dolor-efecto{font-family:var(--eb-sans);font-size:11.5px;line-height:1.35;color:var(--eb-dim);}
-.eb .eb-persona-implic{display:flex;flex-direction:column;gap:11px;}
-.eb .eb-implic-row{display:grid;grid-template-columns:14px minmax(0,1fr);gap:12px;align-items:baseline;}
-.eb .eb-implic-row>span:last-child{font-family:var(--eb-sans);font-size:13.5px;line-height:1.52;color:var(--eb-ink);text-wrap:pretty;}
-.eb .eb-implic-dot{height:5px;width:5px;border-radius:50%;background:var(--eb-cold-2);display:inline-block;transform:translateY(-3px);}
-
-/* STAGE 05 · eslabones + logo beats */
-.eb .eb-eslab-head{display:grid;grid-template-columns:minmax(0,1fr) 120px minmax(0,1fr);gap:24px;border-bottom:1px solid var(--eb-ink);padding-bottom:10px;}
-.eb .eb-eslab-head>span{display:flex;flex-direction:column;gap:3px;}
-.eb .eb-eslab-head .eb-eslab-mid{text-align:center;}
-.eb .eb-eslab-sub{font-family:var(--eb-sans);font-size:11.5px;line-height:1.35;color:var(--eb-dim);}
-.eb .eb-eslab-row{display:grid;grid-template-columns:minmax(0,1fr) 120px minmax(0,1fr);gap:24px;align-items:center;border-bottom:1px solid var(--eb-line-soft);padding:20px 0;}
-.eb .eb-eslab-cold,.eb .eb-eslab-warm{display:flex;flex-direction:column;gap:6px;min-width:0;padding-left:14px;}
-.eb .eb-eslab-cold{border-left:2px solid var(--eb-cold-2);}
-.eb .eb-eslab-warm{border-left:2px solid var(--eb-warm-3);}
-.eb .eb-eslab-key{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:var(--eb-ink);}
-.eb .eb-eslab-gloss{font-family:var(--eb-sans);font-size:13px;line-height:1.48;color:var(--eb-body);text-wrap:pretty;}
-.eb .eb-eslab-mid-col{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0;}
-.eb .eb-eslab-line{height:1px;width:100%;background:linear-gradient(90deg,var(--eb-cold-2),#f7f7f7 50%,var(--eb-warm-3));}
-.eb .eb-eslab-rol{font-family:var(--eb-sans);font-size:10.5px;line-height:1.3;color:var(--eb-dim);text-align:center;}
-
-/* STAGE 05 · logo beats */
-.eb .eb-logo-beat{display:flex;flex-direction:column;gap:12px;padding-bottom:30px;}
-.eb .eb-logo-beat.divider{border-top:1px solid var(--eb-line-soft);padding:30px 0;}
-.eb .eb-logo-box{background:#fff;border:1px solid rgba(26,26,24,.18);padding:12px;box-sizing:border-box;}
-.eb .eb-logo-box img{display:block;width:100%;height:auto;}
-.eb .eb-logo-desc{margin:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.55;color:var(--eb-body);max-width:68ch;text-wrap:pretty;}
-.eb .eb-logo-desc em{font-style:italic;color:var(--eb-ink);}
-.eb .eb-logo-final{display:flex;flex-wrap:wrap;gap:30px;align-items:center;border-top:1px solid var(--eb-line-soft);padding-top:30px;}
-.eb .eb-logo-final-box{flex:0 1 300px;min-width:220px;background:#fff;border:1px solid rgba(26,26,24,.18);padding:28px 18px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;}
-.eb .eb-logo-final-box img{display:block;width:100%;max-width:250px;height:auto;}
-.eb .eb-logo-final-txt{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:12px;}
-.eb .eb-logo-final-txt p{margin:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.55;color:var(--eb-body);max-width:52ch;text-wrap:pretty;}
-
-/* STAGE 06 · decisiones + dimensiones */
-.eb .eb-decisiones{margin:48px 0 0;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--eb-ink);}
-.eb .eb-decision{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;border-bottom:1px solid var(--eb-line);padding:30px 0;}
-.eb .eb-dec-l{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:11px;}
-.eb .eb-dec-head{display:flex;align-items:baseline;gap:10px;}
-.eb .eb-dec-head h3{margin:0;font-family:var(--eb-mono-med);font-size:clamp(16px,1.5vw,19px);font-weight:500;line-height:1.28;letter-spacing:-.015em;color:#141412;text-wrap:pretty;}
-.eb .eb-dec-tag{align-self:flex-start;font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-dim);border:1px solid rgba(26,26,24,.28);border-radius:2px;padding:4px 8px;}
-.eb .eb-dec-r{flex:2 1 420px;min-width:0;display:flex;flex-direction:column;gap:0;}
-.eb .eb-dec-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:baseline;padding:0 0 10px;}
-.eb .eb-dec-row.hilite{padding:10px 0;border-top:1px solid var(--eb-line-soft);}
-.eb .eb-dec-row.hilite:last-child{padding:10px 0 0;}
-.eb .eb-dec-k{font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-ink);}
-.eb .eb-dec-k.dim{color:var(--eb-dim);}
-.eb .eb-dec-k.warn{color:#8a1a20;}
-.eb .eb-dec-v{font-family:var(--eb-sans);font-size:14.5px;line-height:1.55;color:var(--eb-ink);text-wrap:pretty;}
-.eb .eb-dec-v.soft{color:var(--eb-body);}
-.eb .eb-dim-head{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:22px;border-bottom:1px solid var(--eb-ink);padding-bottom:10px;font-family:var(--eb-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink);}
-.eb .eb-dim-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:center;border-bottom:1px solid var(--eb-line-soft);padding:16px 0;}
-.eb .eb-dim-name{display:flex;flex-direction:column;gap:3px;min-width:0;}
-.eb .eb-dim-name .mono{font-size:13.5px;letter-spacing:0;}
-.eb .eb-dim-que{font-family:var(--eb-sans);font-size:11.5px;line-height:1.4;color:var(--eb-dim);}
-.eb .eb-dim-bar{display:flex;align-items:center;gap:10px;min-width:0;}
-.eb .eb-dim-fill{height:8px;display:block;}
-.eb .eb-dim-fill.grey{background:#c9c9c2;}
-.eb .eb-dim-fill.dark{background:#3d3d38;}
-.eb .eb-dim-total{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:22px;padding-top:14px;}
-.eb .eb-dim-total-l{font-family:var(--eb-sans);font-size:12px;line-height:1.45;color:var(--eb-ink);}
-
-/* STAGE 07 · escala + prioridades + video */
-.eb .eb-videoframe{border-style:solid;border-color:var(--eb-ink);border-width:1px 4px 4px 1px;overflow:hidden;background:#0f0f0e;display:block;line-height:0;}
-.eb .eb-videoframe video{display:block;width:100%;height:auto;}
-
-/* STAGE 08.1 · paletas */
-.eb .eb-pals{display:flex;flex-wrap:wrap;gap:34px;align-items:stretch;}
-.eb .eb-pal-col{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:14px;}
-.eb .eb-pal-title{display:flex;flex-direction:column;gap:4px;}
-.eb .eb-pal-sub{font-family:var(--eb-sans);font-size:12px;line-height:1.4;color:var(--eb-dim);}
-.eb .eb-pal-bar{height:38px;width:100%;}
-.eb .eb-pal-bar-cat{display:flex;height:38px;width:100%;}
-.eb .eb-pal-bar-cat>span{flex:1;}
-.eb .eb-pal-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--eb-line-soft);}
-.eb .eb-pal-row{display:grid;grid-template-columns:12px minmax(0,1fr);gap:12px;align-items:start;border-bottom:1px solid var(--eb-line-soft);padding:10px 0;}
-.eb .eb-pal-swatch{height:12px;width:12px;margin-top:3px;display:block;}
-.eb .eb-pal-txt{display:flex;flex-direction:column;gap:2px;min-width:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.4;color:var(--eb-ink);}
-.eb .eb-pal-txt .dim{font-size:12px;line-height:1.45;}
-.eb .eb-pal-rules{margin-top:26px;border-top:1px solid var(--eb-ink);padding-top:16px;display:flex;flex-wrap:wrap;gap:28px;}
-.eb .eb-pal-rules>div{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:6px;}
-.eb .eb-pal-rules>div>span:last-child{font-family:var(--eb-sans);font-size:13.5px;line-height:1.5;color:var(--eb-ink);text-wrap:pretty;}
-
-/* STAGE 08.1 · frames de traducción */
-.eb .eb-frames-trad{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start;}
-.eb .eb-frame-t{flex:1 1 240px;min-width:210px;max-width:300px;display:flex;flex-direction:column;gap:12px;}
-.eb .eb-frame-t-head{display:flex;align-items:center;gap:8px;}
-.eb .eb-frame-t-dot{height:10px;width:10px;border-radius:50%;display:inline-block;}
-.eb .eb-frame-t-img{width:100%;aspect-ratio:390/845;border:1px solid rgba(26,26,24,.2);background-color:#fff;background-size:100% auto;background-repeat:no-repeat;background-position:top center;}
-.eb .eb-frame-t-nota{margin:0;font-family:var(--eb-sans);font-size:12.5px;line-height:1.5;color:var(--eb-body);text-wrap:pretty;}
-.eb .eb-frame-t-nota em{font-style:italic;color:var(--eb-ink);}
-
-/* STAGE 08.2 · tabla de contraste + criterios */
-.eb .eb-contraste-head{display:grid;grid-template-columns:112px minmax(0,1.5fr) 72px minmax(0,1.1fr);gap:20px;border-bottom:1px solid var(--eb-ink);padding-bottom:10px;font-family:var(--eb-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink);}
-.eb .eb-contraste-row{display:grid;grid-template-columns:112px minmax(0,1.5fr) 72px minmax(0,1.1fr);gap:20px;align-items:center;border-bottom:1px solid var(--eb-line-soft);padding:12px 0;}
-.eb .eb-contraste-hex{display:flex;align-items:center;gap:8px;min-width:0;}
-.eb .eb-contraste-chip{height:16px;width:16px;flex:none;border:1px solid rgba(26,26,24,.24);}
-.eb .eb-contraste-uso{font-family:var(--eb-sans);font-size:13.5px;line-height:1.45;color:var(--eb-body);text-wrap:pretty;}
-.eb .eb-contraste-verd{display:flex;align-items:center;gap:8px;min-width:0;font-family:var(--eb-sans);font-size:12.5px;line-height:1.4;text-wrap:pretty;}
-.eb .eb-contraste-dot{height:8px;width:8px;flex:none;border-radius:50%;display:inline-block;}
-.eb .eb-contraste-nota{display:block;font-family:var(--eb-sans);font-size:11.5px;line-height:1.5;color:var(--eb-dim);padding-top:12px;}
-.eb .eb-criterios{margin:52px 0 0;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--eb-ink);}
-.eb .eb-criterio{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;border-bottom:1px solid var(--eb-line);padding:26px 0;}
-.eb .eb-crit-l{flex:1 1 230px;min-width:0;display:flex;flex-direction:column;gap:8px;}
-.eb .eb-crit-name{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
-.eb .eb-crit-tag{align-self:flex-start;font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-width:1px;border-style:solid;border-radius:2px;padding:4px 8px;}
-.eb .eb-crit-r{flex:2 1 400px;min-width:0;display:flex;flex-direction:column;gap:0;}
-.eb .eb-crit-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:baseline;padding:0 0 10px;}
-.eb .eb-crit-row.hilite{padding:10px 0 0;border-top:1px solid var(--eb-line-soft);}
-.eb .eb-crit-k{font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--eb-ink);}
-.eb .eb-crit-k.dim{color:var(--eb-dim);}
-.eb .eb-crit-v{font-family:var(--eb-sans);font-size:14.5px;line-height:1.55;color:var(--eb-ink);text-wrap:pretty;}
-.eb .eb-crit-v.soft{color:var(--eb-body);}
-
-/* STAGE 09 · producto */
-
-/* STAGE 10 · validación */
-.eb .eb-val-row{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;border-bottom:1px solid var(--eb-line);padding:26px 0;}
-.eb .eb-val-row:first-child{border-top:1px solid var(--eb-ink);}
-.eb .eb-val-l{flex:1 1 230px;min-width:0;display:flex;flex-direction:column;gap:9px;}
-.eb .eb-val-title{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
-.eb .eb-val-tag{align-self:flex-start;font-family:var(--eb-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-width:1px;border-style:solid;border-radius:2px;padding:4px 8px;}
-.eb .eb-val-scale{display:flex;flex-direction:column;gap:6px;padding-top:6px;}
-.eb .eb-val-bar{height:7px;display:block;}
-.eb .eb-val-r{flex:2 1 400px;min-width:0;display:flex;flex-direction:column;gap:0;}
-.eb .eb-val-txt{margin:0 0 12px;font-family:var(--eb-sans);font-size:14.5px;line-height:1.55;color:var(--eb-ink);text-wrap:pretty;}
-.eb .eb-val-porque{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:baseline;padding:12px 0 0;border-top:1px solid var(--eb-line-soft);font-family:var(--eb-sans);font-size:14.5px;line-height:1.55;}
-
-/* STAGE 11 · timeline y cierre */
-.eb .eb-timeline-bar{height:5px;width:100%;border-bottom:1px solid rgba(26,26,24,.22);background:linear-gradient(90deg,#2166ac 0%,#4393c3 26%,#d1e5f0 46%,#fddbc7 56%,#d6604d 78%,#b2181f 100%);}
-.eb .eb-timeline{display:flex;gap:0;align-items:stretch;padding-top:0;}
-.eb .eb-hito{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:9px;padding:0 18px 0 0;}
-.eb .eb-hito-dot{height:14px;width:14px;flex:none;border-radius:50%;margin-top:-4px;}
-.eb .eb-hito-fase{font-family:var(--eb-mono-med);font-size:14px;font-weight:500;letter-spacing:-.01em;color:#141412;text-wrap:pretty;}
-.eb .eb-hito-det{font-family:var(--eb-sans);font-size:12.5px;line-height:1.5;color:var(--eb-body);text-wrap:pretty;}
-.eb .eb-cierre{margin:96px 0 0;font-family:var(--eb-mono-med);font-weight:500;font-size:clamp(24px,3.4vw,44px);line-height:1.24;letter-spacing:-.02em;color:#141412;max-width:24ch;text-wrap:pretty;}
-
-/* responsivo · plegado a una columna */
-@media(max-width:900px){
-  .eb .eb-two,.eb .eb-cover{gap:32px;}
-  .eb .eb-two-r{border-left:none;padding-left:0;border-top:1px solid var(--eb-line);padding-top:22px;}
-  .eb .eb-fuentes-grid{grid-template-columns:1fr;min-width:0;}
-  .eb .eb-fuentes-line,.eb .eb-fuentes-conn{display:none;}
-  .eb .eb-fuentes-mid{min-height:auto;padding:12px 0;}
-  .eb .eb-fuentes-out{padding-left:0;}
-  .eb .eb-capa-row{grid-template-columns:1fr;gap:16px;}
-  .eb .eb-eslab-head,.eb .eb-eslab-row{grid-template-columns:1fr;gap:14px;}
-  .eb .eb-eslab-mid-col{align-items:flex-start;}
-  .eb .eb-decision,.eb .eb-criterio,.eb .eb-val-row{gap:20px;}
-  .eb .eb-timeline{flex-direction:column;gap:24px;padding-top:18px;}
-  .eb .eb-hito-dot{margin-top:0;}
-  .eb .eb-hito{padding:0;}
-  .eb .eb-dim-head,.eb .eb-dim-row,.eb .eb-dim-total{grid-template-columns:1fr;gap:8px;}
-  .eb .eb-contraste-head,.eb .eb-contraste-row{grid-template-columns:1fr;gap:6px;}
-  .eb .eb-contraste-head .right,.eb .eb-contraste-row .right{text-align:left;}
+  --eb-sans:'IBM Plex Sans:Regular',system-ui,sans-serif;
+  --eb-h2:clamp(28px,2.6vw,40px);
+  /* grilla */
+  --eb-max:1180px; --eb-cols:12; --eb-gap:24px; --eb-indent:188px; --eb-side:80px;
+  /* proporciones (las únicas permitidas) */
+  --ar-desktop:16/10; --ar-phone:9/19.5; --ar-wide:2/1; --ar-wide-32:3/2; --ar-square:1/1;
+  /* ritmo vertical */
+  --s-1:8px; --s-2:16px; --s-3:24px; --s-4:32px; --s-5:48px; --s-6:64px; --s-7:96px;
+  background:var(--eb-bg); color:var(--eb-ink); font-family:var(--eb-sans);
+  -webkit-font-smoothing:antialiased;
 }
+.eb *{box-sizing:border-box;}
+.eb img,.eb video{display:block;max-width:100%;}
+.eb a{color:inherit;}
+.eb :focus-visible{outline:2px solid var(--eb-int);outline-offset:3px;}
 
-/* ─── Versión condensada (2026-10-19) ─────────────────────────────────── */
-.eb .eb-cover-fig{flex:1 1 520px;min-width:0;margin:0;}
-.eb .eb-frame-img{padding:0;background:#fff;overflow:hidden;line-height:0;display:block;}
-.eb .eb-frame-img img{display:block;width:100%;height:auto;}
+/* ── 2 · Contenedor y grilla de 12 columnas ───────────────────────────── */
+.eb .eb-content{padding:32px var(--eb-side) 96px var(--eb-indent);}
+.eb .eb-wrap{max-width:var(--eb-max);}
+.eb .eb-grid{display:grid;grid-template-columns:repeat(var(--eb-cols),minmax(0,1fr));column-gap:var(--eb-gap);row-gap:var(--s-4);}
+.eb .c-1-4{grid-column:1/5}.eb .c-1-5{grid-column:1/6}.eb .c-1-6{grid-column:1/7}.eb .c-1-7{grid-column:1/8}.eb .c-1-8{grid-column:1/9}.eb .c-1-9{grid-column:1/10}.eb .c-1-10{grid-column:1/11}
+.eb .c-10-12{grid-column:10/13}.eb .c-4-12{grid-column:4/13}.eb .c-1-3{grid-column:1/4}
+.eb .eb-side-cap{align-items:end;}
+.eb .eb-side-cap > .eb-cap{margin-top:0;}
+.eb .c-5-12{grid-column:5/13}.eb .c-6-12{grid-column:6/13}.eb .c-7-12{grid-column:7/13}.eb .c-8-12{grid-column:8/13}.eb .c-9-12{grid-column:9/13}.eb .c-full{grid-column:1/-1}
 
-/* botón del portafolio (mismo lenguaje que BackButton): desplegables y carrusel */
-.eb .eb-btn,.eb .eb-det>summary{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:11px 18px;background:#fff;border-style:solid;border-color:#3a3a38;border-width:1px 4px 4px 1px;font-family:var(--eb-mono-med);font-weight:500;font-size:12px;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:#0f0f0e;cursor:pointer;text-align:left;transition:background-color .2s ease,transform .1s ease;}
-.eb .eb-btn:hover:not(:disabled),.eb .eb-det>summary:hover{background:#f2f1ec;}
-.eb .eb-btn:active:not(:disabled),.eb .eb-det>summary:active{background:#e8e7e1;transform:translate(1px,1px);}
-.eb .eb-btn:focus-visible,.eb .eb-det>summary:focus-visible{outline:2px solid #0f0f0e;outline-offset:3px;}
-.eb .eb-btn:disabled{cursor:not-allowed;color:#8a8a85;border-color:#c9c8c2;background:#fff;}
-.eb .eb-det{margin:40px 0 0;}
-.eb .eb-det+.eb-det{margin-top:14px;}
-.eb .eb-det>summary{list-style:none;}
-.eb .eb-det>summary::-webkit-details-marker{display:none;}
-.eb .eb-det>summary::before{content:'+';flex:none;width:12px;font-family:var(--eb-mono);font-size:16px;line-height:1;text-align:center;}
-.eb .eb-det[open]>summary::before{content:'−';}
-.eb .eb-det[open]{padding-bottom:12px;}
-.eb .eb-det>.eb-fig:first-of-type,.eb .eb-det>.eb-decisiones:first-of-type{margin-top:28px;}
-.eb .eb-persona-tab:focus-visible{outline:2px solid #0f0f0e;outline-offset:3px;}
-.eb .eb-link{color:var(--eb-ink);text-decoration:underline;text-decoration-color:#8a8a85;text-underline-offset:3px;}
-.eb .eb-link:hover{text-decoration-color:#0f0f0e;}
-.eb .eb-link:focus-visible{outline:2px solid #0f0f0e;outline-offset:2px;}
-.eb .eb-version-link{font-family:var(--eb-mono);font-size:12px;margin-left:auto;}
+.eb .eb-topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:var(--s-5);}
+.eb .eb-cat{display:inline-flex;align-items:center;gap:8px;font:500 11px/1 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink);border:1px solid var(--eb-ux);border-radius:2px;padding:7px 10px;}
+.eb .eb-cat i{width:7px;height:7px;border-radius:50%;background:var(--eb-ux);}
 
-/* los dos prototipos en video */
-.eb .eb-videos{display:grid;grid-template-columns:minmax(0,.287fr) minmax(0,1fr);gap:28px;align-items:start;}
-.eb .eb-video-item{display:flex;flex-direction:column;gap:12px;min-width:0;}
-.eb .eb-video-head{display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
+/* ── 3 · Etapas: encabezado, titulares, texto ─────────────────────────── */
+.eb .eb-stage{padding-bottom:72px;scroll-margin-top:72px;}
+.eb .eb-stage.is-hero{padding-bottom:var(--s-6);}
+.eb .eb-stagehead{display:flex;justify-content:space-between;align-items:baseline;gap:20px;border-top:1px solid var(--eb-ink);padding-top:12px;margin-bottom:var(--s-4);}
+.eb .eb-stagehead span{font:500 11px/1.3 var(--eb-mono-med);letter-spacing:.14em;text-transform:uppercase;}
+.eb .eb-stagehead span + span{font-weight:400;color:var(--eb-mute-text);}
+.eb .eb-h2{margin:0;font:500 var(--eb-h2)/1.1 var(--eb-mono-med);letter-spacing:-.02em;color:var(--eb-ink);text-wrap:balance;}
+.eb .eb-h2.is-long{font-size:clamp(22px,2vw,30px);line-height:1.2;}
+.eb .eb-h3{margin:0;font:500 clamp(20px,1.7vw,26px)/1.2 var(--eb-mono-med);letter-spacing:-.015em;text-wrap:balance;}
+.eb .eb-sub{display:flex;align-items:baseline;gap:12px;border-top:1px solid var(--eb-line-2);padding-top:12px;margin:var(--s-6) 0 var(--s-4);font:500 11px/1.3 var(--eb-mono-med);letter-spacing:.14em;text-transform:uppercase;}
+.eb .eb-p{margin:0;font:400 17px/1.6 var(--eb-sans);color:var(--eb-ink-2);max-width:62ch;text-wrap:pretty;}
+.eb .eb-p + .eb-p{margin-top:var(--s-2);}
+.eb .eb-p strong{font-weight:600;color:var(--eb-ink);}
+.eb .eb-p em{color:var(--eb-ink);}
+.eb .eb-remate{margin:var(--s-3) 0 0;padding-left:14px;border-left:3px solid var(--eb-ink);font:500 16px/1.45 var(--eb-mono-med);color:var(--eb-ink);}
+.eb .eb-label{font:500 11px/1.3 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;color:var(--eb-mute-text);}
+.eb .eb-mono{font-family:var(--eb-mono);}
+.eb .eb-cold{color:var(--eb-cold-2);} .eb .eb-warm{color:var(--eb-warm-3);}
+/* intro de etapa: titular (7 col) + texto (5 col) */
+.eb .eb-intro{align-items:start;margin-bottom:40px;}
+.eb .eb-intro .eb-intro-h{grid-column:1/8;}
+.eb .eb-intro .eb-intro-t{grid-column:8/13;}
+/* variante protagonista: titular ancho arriba, texto abajo */
+.eb .eb-intro.is-wide{align-items:end;}
+.eb .eb-intro.is-wide .eb-intro-h{grid-column:1/9;}
+.eb .eb-intro.is-wide .eb-intro-t{grid-column:9/13;}
+.eb .eb-intro.is-wide .eb-h2{font-size:clamp(30px,3vw,44px);}
+.eb .eb-intro.is-wide .eb-p{font-size:16px;}
 
-/* carrusel de flujos */
-.eb .eb-carr{margin:56px 0 0;display:flex;flex-direction:column;gap:16px;}
-.eb .eb-carr-tabs{display:flex;flex-wrap:wrap;gap:8px;}
-.eb .eb-carr-view{padding:16px;background:#fff;height:clamp(420px,82vh,900px);display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.eb .eb-carr-tabs .eb-persona-tab{min-height:44px;justify-content:center;}
-.eb .eb-carr-img{display:flex;width:100%;height:100%;align-items:center;justify-content:center;cursor:zoom-in;}
-.eb .eb-carr-img img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;}
-.eb .eb-carr-img:focus-visible{outline:2px solid #0f0f0e;outline-offset:4px;}
-.eb .eb-carr-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.eb .eb-link{color:var(--eb-int);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;}
+.eb .eb-link:hover{text-decoration-thickness:2px;}
+.eb .eb-link-ext{display:inline-flex;align-items:center;min-height:44px;font:500 13px/1.3 var(--eb-mono-med);}
 
-/* MVP y versión nacional */
-.eb .eb-version{margin:56px 0 0;border-top:1px solid var(--eb-ink);padding-top:16px;}
-.eb .eb-version-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
-.eb .eb-version-title{font-family:var(--eb-mono-med);font-size:17px;font-weight:500;letter-spacing:-.01em;color:#141412;}
-.eb .eb-galeria{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;}
-.eb .eb-shot{margin:0;flex:0 1 160px;min-width:140px;display:flex;flex-direction:column;gap:10px;}
-.eb .eb-shot.ancho{flex:0 1 360px;min-width:260px;}
-.eb .eb-logo-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:30px;align-items:start;padding-bottom:30px;}
-.eb .eb-logo-pair .eb-logo-beat{padding:0;}
-.eb .eb-logo-pair .eb-logo-beat.divider{border-top:none;padding:0;}
-.eb .eb-shot-img{width:100%;border:1px solid rgba(26,26,24,.2);background-color:#fff;background-size:100% auto;background-repeat:no-repeat;background-position:top center;}
-.eb .eb-shot-img.movil{aspect-ratio:390/845;}
-.eb .eb-shot-img.escritorio{aspect-ratio:1440/900;}
-.eb .eb-shot figcaption{font-family:var(--eb-sans);font-size:12.5px;line-height:1.45;color:var(--eb-dim);text-wrap:pretty;}
+/* ── 4 · Figuras y sistema de medios ──────────────────────────────────── */
+.eb .eb-fig{margin:0;}
+.eb .eb-cap{margin-top:12px;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;max-width:78ch;}
+.eb .eb-cap .eb-label{color:var(--eb-mute-text);}
+.eb .eb-cap p{margin:0;font:400 14px/1.55 var(--eb-sans);color:var(--eb-ink-2);text-wrap:pretty;}
+/* marco firma: solo 1 figura protagonista por etapa */
+.eb .eb-frame{border:solid var(--eb-ink-2);border-width:var(--eb-frame);background:var(--eb-surface);}
+/* borde fino para medios secundarios */
+.eb .eb-thin{border:1px solid var(--eb-line-2);background:var(--eb-surface);}
 
-/* Comparar: antes y después, método y reglas */
-.eb .eb-antes-despues{margin:56px 0 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.3fr);gap:40px;align-items:start;}
-.eb .eb-ad{margin:0;display:flex;flex-direction:column;gap:12px;min-width:0;}
-.eb .eb-ad-moviles{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.eb .eb-ad-wide{display:grid;grid-template-columns:minmax(0,.4fr) minmax(0,1fr);gap:16px;align-items:start;}
-.eb .eb-ad-img{display:block;width:100%;height:auto;border:1px solid rgba(26,26,24,.2);}
-.eb .eb-ad figcaption{font-family:var(--eb-sans);font-size:13.5px;line-height:1.55;color:var(--eb-body);max-width:68ch;text-wrap:pretty;}
-.eb .eb-ad.antes .eb-shot-img{opacity:.9;}
-.eb .eb-pasos{margin:52px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;}
-.eb .eb-paso{border-top:1px solid var(--eb-ink);padding-top:14px;display:flex;flex-direction:column;gap:6px;min-width:0;}
-.eb .eb-paso-t{font-family:var(--eb-mono-med);font-size:15px;font-weight:500;letter-spacing:-.01em;color:#141412;}
-.eb .eb-paso p{margin:0;font-family:var(--eb-sans);font-size:14px;line-height:1.55;color:var(--eb-body);text-wrap:pretty;}
-.eb .eb-reglas{margin:44px 0 0;background:#f7f7f7;border-style:solid;border-color:var(--eb-ink);border-width:1px 4px 4px 1px;padding:24px 28px;}
-.eb .eb-reglas ul{margin:14px 0 0;padding-left:20px;display:grid;gap:10px;}
-.eb .eb-reglas li{font-family:var(--eb-sans);font-size:15px;line-height:1.55;color:var(--eb-ink);text-wrap:pretty;}
-.eb .eb-reglas strong{font-weight:600;}
+/* módulos de medio: definen proporción; la imagen se recorta con cover anclado arriba */
+.eb .eb-media{position:relative;overflow:hidden;background:var(--eb-surface-2);border:1px solid var(--eb-line-2);margin:0;}
+.eb .eb-media > img,.eb .eb-media > video{width:100%;height:100%;object-fit:cover;object-position:top center;}
+.eb .eb-media-desktop{aspect-ratio:var(--ar-desktop);}
+.eb .eb-media-phone{aspect-ratio:var(--ar-phone);border-radius:10px;}
+.eb .eb-media-wide{aspect-ratio:var(--ar-wide);}
+.eb .eb-media-wide-32{aspect-ratio:var(--ar-wide-32);}
+.eb .eb-media-square{aspect-ratio:var(--ar-square);}
+.eb .eb-media.is-contain > img,.eb .eb-media.is-contain > video{object-fit:contain;object-position:center;}
+.eb .eb-media.is-pad > img{padding:12%;}
+/* bitmaps de baja resolución (300×650): ancho máximo 150 px CSS */
+.eb .eb-media-phone.is-lowres{width:110px;flex:none;}
+.eb .eb-media-phone.is-lowres.is-150{width:150px;}
+.eb .eb-media-phone.is-lowres.is-140{width:140px;}
+.eb .eb-media.is-zoom{cursor:zoom-in;}
+.eb a.eb-media{display:block;}
+.eb a.eb-media:hover{border-color:var(--eb-ink-2);}
 
-/* cifras de sistema */
-.eb .eb-cifras{margin:48px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border-top:1px solid var(--eb-ink);border-bottom:1px solid var(--eb-line);}
-.eb .eb-cifra{padding:20px 22px 22px 0;display:flex;flex-direction:column;gap:8px;min-width:0;}
-.eb .eb-cifra-n{font-family:var(--eb-mono-med);font-weight:600;font-size:clamp(28px,3vw,40px);line-height:1.1;letter-spacing:-.02em;color:#141412;}
-.eb .eb-cifra p{margin:0;font-family:var(--eb-sans);font-size:13.5px;line-height:1.5;color:var(--eb-body);max-width:30ch;text-wrap:pretty;}
+/* fila de alto parejo: cada ítem crece según su proporción (--ar = ancho/alto),
+   así todos los medios de la fila quedan con la misma altura, sin alturas en px */
+.eb .eb-row{display:flex;gap:var(--eb-gap);align-items:flex-start;}
+.eb .eb-row > *{flex:var(--ar) 1 0;min-width:0;}
+.eb .eb-row.is-tight{gap:12px;}
+.eb .eb-row-cap{margin-top:8px;font:400 13px/1.45 var(--eb-sans);color:var(--eb-ink-2);text-wrap:pretty;}
+.eb .eb-row-head{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;min-height:38px;}
+.eb .eb-row-head b{font:500 13px/1.2 var(--eb-mono-med);letter-spacing:-.01em;}
 
-@media(max-width:900px){
-  .eb .eb-antes-despues{grid-template-columns:1fr;gap:32px;}
-  .eb .eb-ad-wide{grid-template-columns:1fr;}
-  .eb .eb-logo-pair{grid-template-columns:1fr;}
-  .eb .eb-carr-view{height:auto;padding:12px;}
-  .eb .eb-videos{grid-template-columns:1fr;gap:32px;}
-  .eb .eb-video-item.movil{max-width:280px;}
-  .eb .eb-carr-img img{max-height:72vh;}
-  .eb .eb-ad-wide .eb-shot-img.movil{max-width:240px;}
-  .eb .eb-shot{flex:1 1 140px;}
-  .eb .eb-shot.ancho{flex:1 1 100%;min-width:0;}
+/* placeholder: proporción exacta + etiqueta, nunca una imagen inventada */
+
+/* ── 5 · Plegables (patrón visible) ───────────────────────────────────── */
+.eb .eb-det{margin-top:var(--s-4);border:1px solid var(--eb-line-2);background:var(--eb-surface);}
+.eb .eb-det > summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;align-items:center;min-height:72px;padding:12px 20px 12px 14px;}
+.eb .eb-det > summary::-webkit-details-marker{display:none;}
+.eb .eb-det-ico{width:44px;height:44px;display:grid;place-items:center;border:solid var(--eb-ink-2);border-width:var(--eb-frame);font:500 20px/1 var(--eb-mono-med);transition:background .15s;}
+.eb .eb-det-ico::before{content:"+";}
+.eb .eb-det[open] .eb-det-ico::before{content:"−";}
+.eb .eb-det-t{display:grid;gap:4px;}
+.eb .eb-det-t b{font:500 15px/1.3 var(--eb-mono-med);letter-spacing:-.01em;color:var(--eb-ink);}
+.eb .eb-det-t small{font:400 13px/1.4 var(--eb-sans);color:var(--eb-mute-text);}
+.eb .eb-det-state{font:500 11px/1 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;color:var(--eb-mute-text);}
+.eb .eb-det-state::before{content:"Abrir";}
+.eb .eb-det[open] .eb-det-state::before{content:"Cerrar";}
+.eb .eb-det > summary:hover{background:var(--eb-surface-2);}
+.eb .eb-det > summary:hover .eb-det-ico{background:var(--eb-surface);}
+.eb .eb-det[open] > summary{border-bottom:1px solid var(--eb-line-2);}
+.eb .eb-det-body{padding:var(--s-4) var(--s-4) var(--s-4);display:grid;gap:var(--s-5);}
+.eb .eb-dets{display:grid;gap:12px;margin-top:var(--s-4);}
+.eb .eb-dets .eb-det{margin-top:0;}
+
+/* ── 6 · Botones, pestañas y chips ───────────────────────────────────── */
+.eb .eb-tabs{display:flex;flex-wrap:wrap;gap:8px;}
+.eb .eb-tab{min-height:44px;padding:8px 14px;display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;border:1px solid var(--eb-line-2);border-radius:2px;background:var(--eb-surface);color:var(--eb-ink);font:500 13px/1.2 var(--eb-mono-med);cursor:pointer;text-align:left;transition:border-color .15s,background .15s;}
+.eb .eb-tab small{font:400 10px/1 var(--eb-mono);letter-spacing:.12em;color:var(--eb-mute-text);}
+.eb .eb-tab:hover{border-color:var(--eb-ink-2);}
+.eb .eb-tab[aria-selected="true"]{background:var(--eb-ink);border-color:var(--eb-ink);color:var(--eb-bg);}
+.eb .eb-tab[aria-selected="true"] small{color:#c9c8c2;}
+.eb .eb-btn{min-height:44px;min-width:44px;padding:0 16px;display:inline-flex;align-items:center;gap:8px;border:solid var(--eb-ink-2);border-width:var(--eb-frame);background:var(--eb-surface);font:500 12px/1 var(--eb-mono-med);letter-spacing:.08em;text-transform:uppercase;color:var(--eb-ink);cursor:pointer;}
+.eb .eb-btn:hover{background:var(--eb-surface-2);}
+.eb .eb-btn:active{transform:translate(1px,1px);}
+.eb .eb-btn:disabled{opacity:.4;cursor:not-allowed;}
+.eb .eb-tag{display:inline-flex;align-items:center;gap:6px;font:500 10.5px/1 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink);border:1px solid var(--eb-line-2);border-radius:2px;padding:6px 8px;background:var(--eb-surface);white-space:nowrap;}
+
+/* ── 7 · Etapa 01 · Portada ───────────────────────────────────────────── */
+.eb .eb-hook{margin:0;font:400 clamp(18px,1.6vw,22px)/1.45 var(--eb-sans);color:var(--eb-ink-2);max-width:36ch;text-wrap:pretty;}
+.eb .eb-h1{margin:18px 0 0;font:600 clamp(36px,4vw,56px)/1.06 var(--eb-mono-med);letter-spacing:-.035em;max-width:15ch;text-wrap:balance;}
+.eb .eb-filete{margin-top:var(--s-4);max-width:560px;}
+.eb .eb-filete i{display:block;height:6px;background:var(--eb-filete);}
+.eb .eb-filete div{display:flex;justify-content:space-between;margin-top:7px;font:500 10.5px/1 var(--eb-mono-med);letter-spacing:.14em;text-transform:uppercase;color:var(--eb-mute-text);}
+.eb .eb-lead{margin:var(--s-4) 0 0;font:400 17px/1.6 var(--eb-sans);color:var(--eb-ink-2);max-width:54ch;text-wrap:pretty;}
+.eb .eb-ficha{margin:0;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--eb-ink);align-self:end;}
+.eb .eb-ficha > div{padding:12px 16px 12px 0;border-bottom:1px solid var(--eb-line-2);display:grid;gap:5px;align-content:start;}
+.eb .eb-ficha > div:nth-child(odd){padding-right:16px;border-right:1px solid var(--eb-line-2);}
+.eb .eb-ficha > div:nth-child(even){padding-left:16px;}
+.eb .eb-ficha dt{font:500 10px/1.2 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;color:var(--eb-mute-text);}
+.eb .eb-ficha dd{margin:0;font:400 14px/1.45 var(--eb-sans);color:var(--eb-ink);}
+.eb .eb-ficha dd .eb-mono{font-size:13px;}
+.eb .eb-ficha dd small{display:block;font-size:12px;color:var(--eb-mute-text);}
+.eb .eb-ficha .eb-link-ext{min-height:0;padding:2px 0;}
+.eb .eb-ficha .is-proto{background:linear-gradient(90deg,rgba(9,88,217,.05),transparent);}
+.eb .eb-cover-row{margin-top:var(--s-5);align-items:stretch;}
+.eb .eb-2min{padding:clamp(20px,2.2vw,28px);display:flex;flex-direction:column;gap:16px;background:var(--eb-surface);border:1px solid var(--eb-line-2);border-top:3px solid var(--eb-ink);}
+.eb .eb-2min dl{margin:0;display:grid;gap:14px;}
+.eb .eb-2min dt{font:500 11px/1.2 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink-2);}
+.eb .eb-2min dd{margin:4px 0 0;font:400 15px/1.55 var(--eb-sans);color:var(--eb-ink);text-wrap:pretty;}
+.eb .eb-2min nav{margin-top:auto;padding-top:14px;border-top:1px solid var(--eb-line-2);display:flex;flex-wrap:wrap;gap:0 16px;align-items:center;}
+.eb .eb-2min nav a{font:500 12.5px/1.2 var(--eb-mono-med);color:var(--eb-ink);text-decoration:underline;text-decoration-color:var(--eb-mute);text-underline-offset:3px;min-height:36px;display:inline-flex;align-items:center;}
+.eb .eb-2min nav a:hover{text-decoration-color:var(--eb-ink);}
+.eb .eb-hero{padding:0;}
+.eb .eb-hero .eb-media{border:0;}
+
+/* ── 8 · Etapa 02 · Diagrama y tarjeta reconstruida ───────────────────── */
+.eb .eb-diag{padding:clamp(20px,2.6vw,36px);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--eb-gap);align-items:center;}
+.eb .eb-src{grid-column:1/6;position:relative;}
+.eb .eb-src ol{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid var(--eb-line-2);}
+.eb .eb-src li{display:grid;grid-template-columns:22px minmax(0,1fr) 36px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--eb-line);}
+.eb .eb-src li > span:first-child{font:400 11px/1 var(--eb-mono);color:var(--eb-mute-text);}
+.eb .eb-src b{display:block;font:500 13.5px/1.3 var(--eb-mono-med);}
+.eb .eb-src small{display:block;font:400 12.5px/1.4 var(--eb-sans);color:var(--eb-mute-text);}
+.eb .eb-src li i{height:2px;display:block;}
+.eb .eb-node{grid-column:6/8;position:relative;display:flex;align-items:center;justify-content:center;align-self:stretch;}
+.eb .eb-node::before{content:"";position:absolute;left:-12px;right:-12px;top:50%;height:2px;background:linear-gradient(90deg,#4393c3,#f7f7f7 50%,#d6604d);}
+.eb .eb-node::after{content:"";position:absolute;left:-12px;top:calc(50% - 116px);height:232px;width:2px;background:linear-gradient(180deg,#053061,#4393c3,#92c5de);}
+.eb .eb-node img{position:relative;width:120px;height:auto;background:var(--eb-surface);padding:8px;}
+.eb .eb-out{grid-column:8/13;display:grid;gap:10px;justify-items:start;}
+.eb .eb-out > .eb-label + *{margin-top:2px;}
+/* TarjetaColegio en HTML (sustituye tarjeta-colegio.png, 350 px) */
+.eb .eb-colegio{width:100%;max-width:300px;background:#fff;border:2px solid #d6604d;border-radius:10px;padding:14px;display:grid;gap:10px;font-family:var(--eb-sans);color:#1f1f1f;box-shadow:0 2px 0 rgba(214,96,77,.18);}
+.eb .eb-colegio h4{margin:0;font:600 15px/1.3 var(--eb-sans);}
+.eb .eb-colegio .eb-media{border-radius:4px;}
+.eb .eb-colegio ul{list-style:none;margin:0;padding:0;display:grid;gap:5px;font-size:13.5px;}
+.eb .eb-colegio li{display:flex;gap:8px;align-items:center;}
+.eb .eb-colegio svg{width:14px;height:14px;flex:none;stroke:#1f1f1f;fill:none;stroke-width:1.5;}
+.eb .eb-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.eb .eb-chips span{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;border:1px solid #767676;border-radius:3px;padding:5px 7px;}
+.eb .eb-chips svg{width:11px;height:11px;}
+.eb .eb-colegio-cta{display:flex;gap:8px;}
+.eb .eb-colegio-cta span{flex:1;min-height:40px;display:flex;align-items:center;justify-content:center;font:600 13.5px/1 var(--eb-sans);border-radius:3px;}
+.eb .eb-colegio-cta span:first-child{background:#0958D9;color:#fff;}
+.eb .eb-colegio-cta span:last-child{border:2px solid #0958D9;color:#0958D9;}
+
+/* personas */
+.eb .eb-persona{padding:clamp(18px,2.2vw,28px);}
+.eb .eb-persona-tabs{padding-bottom:18px;margin-bottom:24px;border-bottom:1px solid var(--eb-line-2);}
+.eb .eb-persona-body{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--eb-gap);row-gap:24px;align-items:start;}
+.eb .eb-persona-id{grid-column:1/4;display:grid;gap:12px;}
+.eb .eb-persona-id .eb-media{max-width:200px;}
+.eb .eb-meta-list{margin:0;}
+.eb .eb-meta-list > div{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px solid var(--eb-line);}
+.eb .eb-meta-list dt{font:500 10px/1.5 var(--eb-mono-med);letter-spacing:.1em;text-transform:uppercase;color:var(--eb-mute-text);}
+.eb .eb-meta-list dd{margin:0;font:400 13px/1.45 var(--eb-sans);}
+.eb .eb-persona-main{grid-column:4/13;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));column-gap:var(--eb-gap);row-gap:22px;}
+.eb .eb-persona-main > header,.eb .eb-persona-main > blockquote{grid-column:1/-1;}
+.eb .eb-persona-main blockquote{margin:0;padding-left:16px;border-left:3px solid var(--eb-warm-2);font:italic 400 16px/1.55 var(--eb-sans);max-width:64ch;}
+.eb .eb-dolores{grid-column:1/7;}
+.eb .eb-implic{grid-column:7/10;display:grid;gap:10px;align-content:start;}
+.eb .eb-dol-h,.eb .eb-dol-r{display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:14px;}
+.eb .eb-dol-h{padding-bottom:8px;border-bottom:1px solid var(--eb-ink);font:500 10px/1 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;}
+.eb .eb-dol-r{padding:10px 0;border-bottom:1px solid var(--eb-line);align-items:baseline;}
+.eb .eb-dol-r > span:first-child{font:400 13.5px/1.5 var(--eb-sans);}
+.eb .eb-sev{display:grid;gap:2px;}
+.eb .eb-sev b{display:flex;align-items:center;gap:6px;font:500 11.5px/1.2 var(--eb-mono-med);}
+.eb .eb-sev b::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sev);}
+.eb .eb-sev small{font:400 12px/1.3 var(--eb-sans);color:var(--eb-mute-text);}
+.eb .eb-implic-i{display:grid;grid-template-columns:12px minmax(0,1fr);gap:10px;font:400 13.5px/1.5 var(--eb-sans);}
+.eb .eb-implic-i::before{content:"";width:6px;height:6px;margin-top:8px;background:var(--eb-cold-2);}
+
+/* ── 9 · Etapa 03 · tira de tres momentos ─────────────────────────────── */
+.eb .eb-beat-n{display:flex;gap:10px;align-items:baseline;margin:14px 0 6px;}
+.eb .eb-beat-n b{font:500 11px/1 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;}
+.eb .eb-beat p{margin:0;font:400 14px/1.55 var(--eb-sans);color:var(--eb-ink-2);text-wrap:pretty;}
+.eb .eb-beat .eb-media{background:var(--eb-surface);}
+.eb .eb-logo-cell{display:flex;align-items:center;justify-content:center;}
+.eb .eb-logo-cell img{width:78%;height:auto;}
+.eb .eb-beat-rail{height:6px;background:var(--eb-filete);margin-top:-1px;}
+/* cadenas (plegable) */
+.eb .eb-chain{display:grid;grid-template-columns:minmax(0,1fr) 120px minmax(0,1fr);gap:24px;align-items:center;padding:18px 0;border-bottom:1px solid var(--eb-line);}
+.eb .eb-chain.is-head{border-bottom:1px solid var(--eb-ink);padding-top:0;align-items:end;}
+.eb .eb-chain .k{display:grid;gap:5px;padding-left:14px;}
+.eb .eb-chain .k.c{border-left:3px solid var(--eb-cold-2);} .eb .eb-chain .k.w{border-left:3px solid var(--eb-warm-3);}
+.eb .eb-chain .k b{font:500 15px/1.2 var(--eb-mono-med);}
+.eb .eb-chain .k span{font:400 13.5px/1.5 var(--eb-sans);color:var(--eb-ink-2);}
+.eb .eb-chain .m{display:grid;gap:6px;justify-items:center;text-align:center;font:400 11px/1.3 var(--eb-sans);color:var(--eb-mute-text);}
+.eb .eb-chain .m i{height:2px;width:100%;background:linear-gradient(90deg,#2166ac,#f7f7f7 50%,#b2181f);}
+
+/* ── 10 · Etapa 04 · Tres decisiones ──────────────────────────────────── */
+.eb .eb-decs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto auto auto auto auto;}
+.eb .eb-dec{display:grid;grid-template-rows:subgrid;grid-row:span 5;padding:28px clamp(18px,2vw,28px) 28px;border-left:1px solid var(--eb-line-2);row-gap:16px;}
+.eb .eb-dec:first-child{border-left:0;}
+.eb .eb-dec-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.eb .eb-dec-n{font:500 56px/0.9 var(--eb-mono-med);letter-spacing:-.05em;color:var(--eb-ink);}
+.eb .eb-dec-n::after{content:"";display:block;height:4px;width:44px;margin-top:12px;background:var(--dec-c);}
+.eb .eb-dec h3{margin:0;font:500 clamp(19px,1.55vw,23px)/1.2 var(--eb-mono-med);letter-spacing:-.015em;text-wrap:balance;}
+.eb .eb-dec-row{display:grid;gap:6px;align-content:start;}
+.eb .eb-dec-row p{margin:0;font:400 14.5px/1.55 var(--eb-sans);color:var(--eb-ink-2);text-wrap:pretty;}
+.eb .eb-dec-row.is-dec p{color:var(--eb-ink);font-size:15.5px;}
+.eb .eb-dec-row.is-dec{padding-left:12px;border-left:3px solid var(--eb-ink);}
+.eb .eb-dec-row.is-cost{background:var(--eb-surface-2);padding:12px 14px;align-self:end;}
+.eb .eb-dec-row.is-cost .eb-label{color:var(--eb-warm-3);}
+/* decisiones extra (plegable) */
+.eb .eb-decs.is-2{grid-template-columns:repeat(2,minmax(0,1fr));}
+/* IDPS */
+.eb .eb-idps{padding:24px;}
+.eb .eb-idps-r{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:center;padding:12px 0;border-bottom:1px solid var(--eb-line);}
+.eb .eb-idps-r.is-h{border-bottom:1px solid var(--eb-ink);padding-top:0;}
+.eb .eb-idps-r.is-t{border-bottom:0;border-top:1px dashed var(--eb-mute);margin-top:6px;}
+.eb .eb-idps-r b{display:block;font:500 13px/1.3 var(--eb-mono-med);}
+.eb .eb-idps-r small{display:block;font:400 12px/1.4 var(--eb-sans);color:var(--eb-mute-text);}
+.eb .eb-bar{display:flex;align-items:center;gap:8px;font:400 12px/1 var(--eb-mono);}
+.eb .eb-bar i{height:10px;background:var(--eb-ink);flex:none;}
+.eb .eb-bar i.g{background:#b9b8b2;}
+.eb .eb-scale{display:grid;gap:6px;width:100%;}
+.eb .eb-scale > span:first-child{display:block;height:8px;background:var(--eb-line);}
+.eb .eb-scale i{display:block;height:8px;}
+.eb .eb-scale .eb-mono{font-size:11.5px;color:var(--eb-mute-text);}
+.eb .eb-bar i.track{flex:1;background:var(--eb-line);position:relative;height:10px;}
+
+/* ── 11 · Etapa 05 · videos, visor de flujos, capturas ────────────────── */
+.eb .eb-vid{position:relative;}
+.eb .eb-vid video{background:var(--eb-surface-2);}
+.eb .eb-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);min-height:48px;padding:0 18px;display:inline-flex;align-items:center;gap:10px;border:solid var(--eb-ink-2);border-width:var(--eb-frame);background:rgba(255,255,255,.94);font:500 12px/1 var(--eb-mono-med);letter-spacing:.1em;text-transform:uppercase;color:var(--eb-ink);cursor:pointer;}
+.eb .eb-play::before{content:"";width:0;height:0;border-left:10px solid var(--eb-ink);border-top:6px solid transparent;border-bottom:6px solid transparent;}
+.eb .eb-play:hover{background:#fff;}
+.eb .eb-vid.is-playing .eb-play{opacity:0;pointer-events:none;}
+.eb .eb-vid-state{position:absolute;left:10px;top:10px;font:500 10px/1 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.92);padding:5px 7px;border:1px solid var(--eb-line-2);}
+
+.eb .eb-viewer-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
+.eb .eb-viewer{align-items:start;}
+.eb .eb-viewer-rail{display:grid;gap:18px;align-content:start;}
+.eb .eb-tabs-v{flex-direction:column;flex-wrap:nowrap;}
+.eb .eb-tabs-v .eb-tab{width:100%;}
+.eb .eb-viewer-rail .eb-viewer-bar{margin-top:0;}
+.eb .eb-viewer-rail .eb-cap{margin-top:0;padding-top:14px;border-top:1px solid var(--eb-line-2);}
+.eb .eb-win-open{position:absolute;right:12px;top:12px;padding:0;justify-content:center;font-size:16px;text-decoration:none;}
+.eb .eb-win{position:relative;aspect-ratio:var(--ar-wide-32);overflow:hidden;background:var(--eb-surface);}
+.eb .eb-win-scroll{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;}
+.eb .eb-win[data-mode="fit"] .eb-win-scroll{overflow:hidden;}
+.eb .eb-win[data-mode="fit"] img{width:100%;height:100%;object-fit:contain;}
+.eb .eb-win[data-mode="scroll"] img{width:min(100%,760px);height:auto;margin:0 auto;}
+.eb .eb-win-hint{position:absolute;left:0;right:0;bottom:0;height:84px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,0),#fff 75%);font:500 11px/1 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;color:var(--eb-ink-2);transition:opacity .2s;}
+.eb .eb-win[data-mode="fit"] .eb-win-hint,.eb .eb-win.is-scrolled .eb-win-hint{opacity:0;}
+.eb .eb-viewer-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;}
+.eb .eb-viewer-bar output{font:400 12px/1 var(--eb-mono);color:var(--eb-mute-text);}
+
+.eb .eb-shots{margin-top:var(--s-6);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-5);}
+.eb .eb-ver-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:14px;padding-top:12px;border-top:1px solid var(--eb-line-2);}
+.eb .eb-ver-h b{font:500 16px/1.2 var(--eb-mono-med);letter-spacing:-.01em;}
+.eb .eb-ver-h .eb-mono{font-size:11px;color:var(--eb-mute-text);}
+.eb .eb-ver-h .eb-link-ext{margin-left:auto;}
+.eb .eb-p1-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--eb-gap);align-items:start;border-top:1px solid var(--eb-line-2);}
+.eb .eb-p1-wrap .eb-ver-h{border-top:0;flex-direction:column;align-items:flex-start;}
+.eb .eb-p1-wrap .eb-ver-h .eb-link-ext{margin-left:0;}
+.eb .eb-p1-wrap .eb-p1-strip{padding-top:12px;}
+.eb .eb-p1{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--eb-gap);align-items:end;}
+.eb .eb-p1-strip{display:flex;gap:12px;}
+.eb .eb-p1-strip figure{margin:0;width:110px;}
+.eb .eb-p1-note{font:400 13px/1.5 var(--eb-sans);color:var(--eb-mute-text);max-width:38ch;}
+
+/* ── 12 · Etapa 06 · Comparar ─────────────────────────────────────────── */
+.eb .eb-ad{--eb-lowres-h:calc(150px * 19.5 / 9);justify-content:start;grid-template-columns:auto auto;display:grid;gap:var(--eb-gap);align-items:stretch;}
+.eb .eb-ad-col{display:flex;flex-direction:column;}
+.eb .eb-ad-col > .eb-label{display:flex;align-items:center;gap:8px;min-height:34px;margin-bottom:10px;}
+.eb .eb-ad-col.is-after > .eb-label{color:var(--eb-ink);}
+.eb .eb-ad-col.is-after > .eb-label::before{content:"";width:8px;height:8px;background:var(--eb-ink);}
+.eb .eb-ad-col.is-before > .eb-label::before{content:"";width:8px;height:8px;border:1px solid var(--eb-mute);}
+.eb .eb-ad-before{display:flex;gap:12px;padding:16px;background:var(--eb-surface-2);border:1px solid var(--eb-line-2);}
+.eb .eb-ad-after{padding:16px;}
+.eb .eb-ad-after .eb-row{align-items:stretch;width:calc(var(--eb-lowres-h) * (0.4615 + 1.6) + 12px);}
+.eb .eb-ad-col figcaption{margin-top:10px;font:400 13.5px/1.5 var(--eb-sans);color:var(--eb-ink-2);max-width:56ch;}
+.eb .eb-ad-col.is-before figcaption{max-width:32ch;}
+.eb .eb-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--eb-gap);margin-top:var(--s-6);counter-reset:s;}
+.eb .eb-step{position:relative;padding-top:20px;border-top:1px solid var(--eb-ink);}
+.eb .eb-step::before{content:"";position:absolute;top:-5px;left:0;width:9px;height:9px;background:var(--eb-ink);}
+.eb .eb-step .eb-mono{font-size:11px;color:var(--eb-mute-text);}
+.eb .eb-step b{display:block;margin:6px 0 8px;font:500 17px/1.2 var(--eb-mono-med);}
+.eb .eb-step p{margin:0;font:400 14px/1.55 var(--eb-sans);color:var(--eb-ink-2);text-wrap:pretty;}
+.eb .eb-rules{margin-top:var(--s-6);}
+.eb .eb-rules-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--eb-gap);margin-top:14px;}
+.eb .eb-rule{padding:20px;display:grid;gap:16px;align-content:start;}
+.eb .eb-rule p{margin:0;font:400 14.5px/1.55 var(--eb-sans);color:var(--eb-ink-2);}
+.eb .eb-rule p strong{color:var(--eb-ink);font-weight:600;}
+.eb .eb-rule-vis{height:56px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--eb-line);padding-bottom:16px;}
+.eb .eb-pos{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font:600 12px/1 var(--eb-sans);}
+.eb .eb-simbar{position:relative;flex:1;height:12px;background:var(--eb-line);}
+.eb .eb-simbar i{position:absolute;left:0;top:0;bottom:0;width:62%;background:#007d79;}
+.eb .eb-simbar b{position:absolute;left:70%;top:-6px;bottom:-6px;width:3px;background:#1f1f1f;}
+.eb .eb-simbar + span{font:400 11px/1.2 var(--eb-sans);color:var(--eb-mute-text);white-space:nowrap;}
+.eb .eb-sig{font:500 12px/1 var(--eb-sans);padding:6px 8px;border:1px solid;border-radius:3px;white-space:nowrap;}
+
+/* ── 13 · Etapa 07 · video + tablero de métricas ──────────────────────── */
+.eb .eb-sys{align-items:start;}
+.eb .eb-kpis{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--eb-ink);}
+.eb .eb-kpi{padding:18px 16px 18px 0;border-bottom:1px solid var(--eb-line-2);display:grid;gap:8px;align-content:start;}
+.eb .eb-kpi:nth-child(odd){border-right:1px solid var(--eb-line-2);}
+.eb .eb-kpi:nth-child(even){padding-left:16px;}
+.eb .eb-kpi b{font:500 clamp(30px,2.8vw,44px)/1 var(--eb-mono-med);letter-spacing:-.04em;}
+.eb .eb-kpi p{margin:0;font:400 13.5px/1.5 var(--eb-sans);color:var(--eb-ink-2);text-wrap:pretty;}
+.eb .eb-kpi:nth-child(1) b::after,.eb .eb-kpi:nth-child(2) b::after{content:"";display:block;height:3px;width:32px;margin-top:10px;background:var(--eb-cold-2);}
+.eb .eb-kpi:nth-child(3) b::after,.eb .eb-kpi:nth-child(4) b::after{content:"";display:block;height:3px;width:32px;margin-top:10px;background:var(--eb-warm-2);}
+.eb .eb-kpi-cap{margin-top:12px;}
+/* tablas de plegables */
+.eb .eb-tbl{width:100%;border-collapse:collapse;font:400 13.5px/1.45 var(--eb-sans);}
+.eb .eb-tbl th{text-align:left;font:500 10px/1.2 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;padding:0 12px 8px 0;border-bottom:1px solid var(--eb-ink);}
+.eb .eb-tbl td{padding:10px 12px 10px 0;border-bottom:1px solid var(--eb-line);vertical-align:baseline;}
+.eb .eb-tbl .r{text-align:right;font-family:var(--eb-mono);}
+.eb .eb-sw{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:8px;border:1px solid rgba(0,0,0,.12);}
+.eb .eb-crit,.eb .eb-capa,.eb .eb-val{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:var(--eb-gap);padding:18px 0;border-bottom:1px solid var(--eb-line);}
+.eb .eb-crit:last-child,.eb .eb-capa:last-child,.eb .eb-val:last-child{border-bottom:0;}
+.eb .eb-crit-l,.eb .eb-capa-l,.eb .eb-val-l{display:grid;gap:8px;align-content:start;justify-items:start;}
+.eb .eb-crit-l b,.eb .eb-capa-l b,.eb .eb-val-l b{font:500 15px/1.25 var(--eb-mono-med);}
+.eb .eb-kv{display:grid;grid-template-columns:84px minmax(0,1fr);gap:14px;padding:5px 0;font:400 14px/1.55 var(--eb-sans);}
+.eb .eb-kv > span:first-child{font:500 10px/2 var(--eb-mono-med);letter-spacing:.1em;text-transform:uppercase;color:var(--eb-mute-text);}
+.eb .eb-pals{display:grid;grid-template-columns:1fr 1fr;gap:var(--eb-gap);}
+.eb .eb-pal-bar{height:14px;margin:10px 0 12px;}
+.eb .eb-pal-cat{display:flex;gap:3px;margin:10px 0 12px;}
+.eb .eb-pal-cat i{flex:1;height:14px;}
+.eb .eb-pal-r{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px solid var(--eb-line);font:400 13px/1.45 var(--eb-sans);}
+.eb .eb-pal-r i{width:14px;height:14px;margin-top:3px;}
+.eb .eb-pal-r span span{display:block;color:var(--eb-mute-text);}
+.eb .eb-pal-rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--eb-gap);padding-top:16px;border-top:1px solid var(--eb-line-2);}
+.eb .eb-pal-rules div{display:grid;gap:6px;font:400 13.5px/1.5 var(--eb-sans);}
+.eb .eb-temp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--eb-gap);}
+.eb .eb-temp > div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:14px;align-items:start;}
+.eb .eb-temp p{margin:6px 0 0;font:400 13px/1.5 var(--eb-sans);color:var(--eb-ink-2);}
+.eb .eb-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;}
+
+/* ── 14 · Etapa 08 · Línea de tiempo + cierre ─────────────────────────── */
+.eb .eb-tl{padding:28px clamp(18px,2.4vw,32px) 24px;}
+.eb .eb-tl-bar{height:6px;background:var(--eb-filete);}
+.eb .eb-tl ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--eb-gap);}
+.eb .eb-tl li{position:relative;padding-top:26px;display:grid;gap:8px;align-content:start;}
+.eb .eb-tl li::before{content:"";position:absolute;top:-8px;left:0;width:14px;height:14px;border-radius:50%;background:var(--tl);border:2px solid #fff;box-shadow:0 0 0 1px var(--eb-ink-2);}
+.eb .eb-tl li b{font:500 14px/1.3 var(--eb-mono-med);}
+.eb .eb-tl li p{margin:0;font:400 13.5px/1.5 var(--eb-sans);color:var(--eb-ink-2);}
+.eb .eb-st{justify-self:start;font:500 10px/1 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;padding:5px 7px;border:1px solid var(--eb-line-2);color:var(--eb-ink-2);}
+.eb .eb-st.is-now{background:var(--eb-ink);color:#fff;border-color:var(--eb-ink);}
+.eb .eb-st.is-next{border-style:dashed;}
+.eb .eb-tl li.is-now{background:linear-gradient(180deg,rgba(178,24,31,.06),transparent 70%);margin:-6px -10px 0;padding:32px 10px 10px;}
+.eb .eb-tl li.is-now::before{top:-2px;left:10px;width:18px;height:18px;}
+.eb .eb-close{margin:0;padding-top:var(--s-4);border-top:1px solid var(--eb-ink);font:500 clamp(26px,2.6vw,40px)/1.15 var(--eb-mono-med);letter-spacing:-.025em;max-width:24ch;text-wrap:balance;}
+
+/* ── 16 · Responsive ──────────────────────────────────────────────────── */
+@media (max-width:1080px){
+  .eb{--eb-indent:140px;--eb-side:40px;}
+  .eb .eb-decs{grid-template-columns:1fr;grid-template-rows:none;}
+  .eb .eb-dec{grid-row:auto;grid-template-rows:none;border-left:0;border-top:1px solid var(--eb-line-2);}
+  .eb .eb-dec:first-child{border-top:0;}
+  .eb .eb-dec-row.is-cost{align-self:start;}
+  .eb .eb-tl ol{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:28px;}
+}
+@media (max-width:900px){
+  .eb{--eb-indent:20px;--eb-side:20px;--eb-gap:16px;}
+  .eb .eb-content{padding:24px 20px 64px;}
+  .eb .eb-grid{grid-template-columns:minmax(0,1fr);}
+  .eb .eb-grid > *{grid-column:1/-1!important;}
+  .eb .eb-stage{padding-bottom:var(--s-6);}
+  .eb .eb-stagehead{margin-bottom:var(--s-4);}
+  .eb .eb-ficha{grid-template-columns:1fr;}
+  .eb .eb-ficha > div:nth-child(n){padding:10px 0;border-right:0;}
+  .eb .eb-diag{grid-template-columns:1fr;row-gap:24px;}
+  .eb .eb-src,.eb .eb-node,.eb .eb-out{grid-column:1/-1;}
+  .eb .eb-node{min-height:120px;}
+  .eb .eb-node::before{left:50%;right:auto;top:0;bottom:0;width:2px;height:auto;background:linear-gradient(180deg,#4393c3,#f7f7f7 50%,#d6604d);}
+  .eb .eb-node::after{display:none;}
+  .eb .eb-out{justify-items:center;}
+  .eb .eb-persona-body,.eb .eb-persona-main{grid-template-columns:1fr;}
+  .eb .eb-persona-id,.eb .eb-persona-main,.eb .eb-dolores,.eb .eb-implic{grid-column:1/-1;}
+  .eb .eb-persona-id{grid-template-columns:120px minmax(0,1fr);align-items:start;}
+  .eb .eb-persona-tabs{flex-wrap:nowrap;overflow-x:auto;}
+  .eb .eb-tab{flex:none;}
+  /* filas de alto parejo → apiladas o en tira con scroll horizontal controlado */
+  .eb .eb-row.is-stack{flex-direction:column;}
+  .eb .eb-row.is-stack > *{flex:none;width:100%;}
+  .eb .eb-row.is-stack .eb-media-phone{width:min(260px,70%);margin:0 auto;}
+  .eb .eb-row.is-scroll{overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px;margin-right:-20px;padding-right:20px;}
+  .eb .eb-row.is-scroll > *{flex:none;width:calc(300px * var(--ar));scroll-snap-align:start;}
+  .eb .eb-beats{overflow-x:auto;scroll-snap-type:x mandatory;margin-right:-20px;padding:0 20px 10px 0;}
+  .eb .eb-beats > *{flex:none;width:calc(200px * var(--ar));scroll-snap-align:start;}
+  .eb .eb-tabs-v{flex-direction:row;overflow-x:auto;}
+  .eb .eb-tabs-v .eb-tab{width:auto;flex:none;}
+  .eb .eb-viewer-rail{order:2;}
+  .eb .eb-win{aspect-ratio:var(--ar-phone);max-height:72vh;width:100%;}
+  .eb .eb-win[data-mode="fit"]{aspect-ratio:var(--ar-wide-32);}
+  .eb .eb-p1{grid-template-columns:1fr;}
+  .eb .eb-p1-wrap{grid-template-columns:1fr;}
+  .eb .eb-ver-h .eb-link-ext{margin-left:0;}
+  .eb .eb-tag{white-space:normal;}
+  .eb .eb-ad-before{padding:12px;}
+  .eb .eb-media-phone.is-lowres.is-150{width:min(150px,42vw);}
+  .eb .eb-p1-strip{overflow-x:auto;scroll-snap-type:x mandatory;}
+  .eb .eb-p1-strip figure{flex:none;scroll-snap-align:start;}
+  .eb .eb-ad{grid-template-columns:1fr;}
+  .eb .eb-ad-before{justify-content:center;}
+  .eb .eb-ad-after .eb-row{flex-direction:column;width:auto;}
+  .eb .eb-ad-after .eb-row > *{flex:none;width:100%;}
+  .eb .eb-ad-after .eb-media-phone{width:150px;margin:0 auto;}
+  .eb .eb-steps,.eb .eb-rules-g,.eb .eb-pals,.eb .eb-pal-rules,.eb .eb-temp,.eb .eb-decs.is-2{grid-template-columns:1fr;}
+  .eb .eb-crit,.eb .eb-capa,.eb .eb-val{grid-template-columns:1fr;gap:10px;}
+  .eb .eb-chain{grid-template-columns:1fr;gap:10px;}
+  .eb .eb-chain .m{justify-items:start;text-align:left;}
+  .eb .eb-tl ol{grid-template-columns:1fr;row-gap:22px;}
+  .eb .eb-tl li{padding:0 0 0 30px;}
+  .eb .eb-tl li::before{top:2px;left:0;}
+  .eb .eb-tl li.is-now{margin:0;padding:10px 10px 10px 40px;}
+  .eb .eb-tl li.is-now::before{top:10px;left:10px;}
+  .eb .eb-tl-bar{display:none;}
+  .eb .eb-idps-r{grid-template-columns:1fr;gap:8px;}
+  .eb .eb-det-body{padding:20px 16px;}
+  .eb .eb-tbl-wrap{overflow-x:auto;}
+}
+@media (prefers-reduced-motion:reduce){.eb *{transition:none!important;}}
+
+/* ── 17 · Ajustes del traspaso a React ────────────────────────────────── */
+.eb .eb-2min nav button{font:500 12.5px/1.2 var(--eb-mono-med);color:var(--eb-ink);text-decoration:underline;text-decoration-color:var(--eb-mute);text-underline-offset:3px;min-height:36px;display:inline-flex;align-items:center;background:none;border:0;padding:0;cursor:pointer;}
+.eb .eb-2min nav button:hover{text-decoration-color:var(--eb-ink);}
+.eb .eb-out-note{font:400 13px/1.4 var(--eb-sans);color:var(--eb-mute-text);}
+.eb .eb-tiny{font-size:11px;color:var(--eb-mute-text);}
+.eb .eb-soft{color:var(--eb-ink-2);}
+.eb .eb-tag.is-warm{color:#8a1a20;border-color:rgba(178,24,31,.44);}
+.eb .eb-steps{list-style:none;padding:0;margin-bottom:0;}
+.eb .eb-frame > .eb-media{border:0;}
+.eb .eb-stage.last{padding-bottom:0;}
+.eb .eb-close{margin-top:var(--s-6);}
+/* videos de los prototipos: maqueta de dispositivo sobre blanco, misma altura */
+.eb .eb-vids{padding:clamp(14px,2vw,24px);background:#fff;}
+.eb .eb-vids .eb-row-head{min-height:0;}
+.eb .eb-vbox{position:relative;overflow:hidden;background:#fff;}
+.eb .eb-vbox > video{width:100%;height:100%;object-fit:contain;background:#fff;}
+.eb .eb-vbox.is-phone{aspect-ratio:1/2;}
+.eb .eb-vbox.is-laptop{aspect-ratio:16/10;}
+.eb .eb-media-169{aspect-ratio:16/9;}
+@media (max-width:900px){
+  .eb .eb-vids .eb-row.is-stack{gap:28px;}
+  .eb .eb-vids .eb-row.is-stack .eb-vbox.is-phone{width:min(240px,64%);margin:0 auto;}
 }
 `;
