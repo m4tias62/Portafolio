@@ -564,7 +564,7 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
                 className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[#0f0f0e] leading-[1.55] m-0"
                 style={{ fontSize: 'clamp(15px, 1.1vw, 17px)' }}
               >
-                Busco un rol junior en UX/UI o Product Design, en Santiago (remoto o presencial) o remoto para equipos
+                Busco un rol en UX/UI o Product Design, en Santiago (remoto o presencial) o remoto para equipos
                 internacionales.
               </p>
               <p
