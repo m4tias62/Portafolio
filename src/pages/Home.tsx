@@ -548,7 +548,7 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
                 className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.18] tracking-[-0.4px] m-0"
                 style={{ fontSize: narrow ? 'clamp(24px, 6.6vw, 30px)' : 'clamp(22px, 2.2vw, 30px)' }}
               >
-                Diseñador. Para mí, diseñar es leer entre líneas: entender lo que las personas necesitan antes de decidir
+                Diseñar es leer entre líneas: entender lo que las personas necesitan antes de decidir
                 cómo se ve.
               </h1>
               <p
