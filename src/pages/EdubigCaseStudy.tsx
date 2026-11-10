@@ -19,7 +19,6 @@ import scShortlist from '@/assets/edubig/screen-shortlist.jpg';
 import scCompTop from '@/assets/edubig/screen-comparacion-top.jpg';
 import scCompCuerpo from '@/assets/edubig/screen-comparacion-cuerpo.jpg';
 
-import v2CompararEsc from '@/assets/edubig/v2-comparar-escritorio.jpg';
 import v2CompararDetalle from '@/assets/edubig/v2-comparar-detalle.jpg';
 import v2CompararMovil from '@/assets/edubig/v2-comparar-movil.jpg';
 import v2Home from '@/assets/edubig/v2-home-escritorio.jpg';
@@ -59,7 +58,9 @@ import v3Shortlist from '@/assets/edubig/v3-shortlist.jpg';
  * Ampliación 2026-11-10: etapa 08 nueva, «Prototipo 3: refinamiento» (rediseño
  * de nov-2026), y el cierre pasa a ser la etapa 09. Sus capturas son fotogramas
  * 16:9 de la grabación del recorrido (misma excepción que el video del
- * pipeline); la ficha informativa de eduBIG se reconstruye en HTML.
+ * pipeline); la ficha informativa de eduBIG se reconstruye en HTML. La portada
+ * (Fig. 01) pasa a ser el video del recorrido del prototipo 3, que empieza en
+ * el hero; la captura de Comparar del prototipo 2 sale de la página.
  *
  * Fuentes oficiales del portafolio: 'IBM Plex Mono:Regular' / 'IBM Plex Mono:Medium'
  * y 'IBM Plex Sans:Regular' (nombres registrados en index.css). Todo el CSS vive
@@ -469,11 +470,19 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             <div className="eb-grid eb-cover-row">
               <figure className="eb-fig c-1-8">
                 <div className="eb-frame eb-hero">
-                  <div className="eb-media eb-media-desktop">
-                    <img src={v2CompararEsc} alt="Comparar colegios en escritorio: cuatro colegios de Ñuñoa en columnas, cada uno con su color y número, y el bloque «Lo que más cambia entre estos colegios»" />
-                  </div>
+                  <VideoBox
+                    className="eb-vbox is-laptop"
+                    src="/edubig-navegacion-prototipo3.mp4"
+                    poster="/edubig-navegacion-prototipo3-poster.jpg"
+                    label="Recorrido del prototipo 3 en escritorio: Home, Comparar con cuatro colegios, Test de Calce y colegios que calzan"
+                    playLabel="Reproducir el recorrido del prototipo 3"
+                    boton="Ver recorrido"
+                  />
                 </div>
-                <figcaption className="eb-cap"><span className="eb-label">Fig. 01 · Comparar colegios, prototipo 2</span></figcaption>
+                <figcaption className="eb-cap">
+                  <span className="eb-label">Fig. 01 · El prototipo 3, en movimiento</span>
+                  <p>Home, Comparar, Test de Calce y colegios que calzan, en escritorio. La animación de fondo del hero es de KiraPixels (2021) y lleva su crédito en el sitio.</p>
+                </figcaption>
               </figure>
 
               <aside className="eb-2min c-9-12" aria-label="Resumen del caso en 2 minutos">
@@ -1034,33 +1043,13 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-08">Al ordenar lo que se ve, apareció lo que sobraba.</h2></div>
               <div className="eb-intro-t">
                 <p className="eb-p">Hasta el <strong>prototipo 2</strong>, el diseño estuvo al servicio de que el producto funcionara: que se pudiera recomendar, explorar y comparar entre 8.250 colegios, con la intervención visual mínima.</p>
-                <p className="eb-p">El <strong>prototipo 3</strong> es la primera vez que el diseño trabaja sobre un producto que ya funciona. Empezó como un ajuste visual y terminó cambiando el flujo: varias pantallas ofrecían lo mismo de distintas formas, y se pudieron simplificar.</p>
+                <p className="eb-p">El <strong>prototipo 3</strong> es la primera vez que el diseño trabaja sobre un producto que ya funciona. Empezó como un ajuste visual y terminó cambiando el flujo: varias pantallas ofrecían lo mismo de distintas formas, y se pudieron simplificar. El recorrido completo está en la portada (Fig. 01); se puede probar en la <a className="eb-link" href={URL_P3} target="_blank" rel="noopener noreferrer">vista previa ↗</a>.</p>
               </div>
             </div>
 
-            {/* Fig. 14 · video del prototipo 3: misma maqueta de dispositivo que el del prototipo 2 */}
-            <figure className="eb-fig eb-grid eb-side-cap">
-              <div className="eb-frame eb-vids c-1-9">
-                <div className="eb-row-head"><b>Prototipo 3 · escritorio</b><span className="eb-label">Rediseño, en curso</span></div>
-                <VideoBox
-                  className="eb-vbox is-laptop"
-                  src="/edubig-navegacion-prototipo3.mp4"
-                  poster="/edubig-navegacion-prototipo3-poster.jpg"
-                  label="Recorrido del prototipo 3 en escritorio: Test de Calce, colegios que calzan, Comparar con sus plegables y avisos, tabla de datos y el explorador de la Home"
-                  playLabel="Reproducir el recorrido del prototipo 3"
-                  boton="Ver recorrido"
-                />
-              </div>
-              <figcaption className="eb-cap c-10-12">
-                <span className="eb-label">Fig. 14 · El prototipo 3, en movimiento</span>
-                <p>El mismo camino del prototipo 2 —Test de Calce, colegios que calzan y Comparar— sobre el sistema nuevo. La animación de fondo del hero es de KiraPixels (2021) y lleva su crédito en el sitio.</p>
-                <p><a className="eb-link eb-link-ext" href={URL_P3} target="_blank" rel="noopener noreferrer">Abrir el prototipo 3 ↗</a></p>
-              </figcaption>
-            </figure>
-
             <h3 className="eb-sub">El flujo se acortó</h3>
 
-            {/* Fig. 15 · diagrama: tres entradas con diseño propio → un explorador */}
+            {/* Fig. 14 · diagrama: tres entradas con diseño propio → un explorador */}
             <figure className="eb-fig">
               <div className="eb-frame eb-unif">
                 <div className="eb-unif-col">
@@ -1084,12 +1073,12 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 </div>
               </div>
               <figcaption className="eb-cap">
-                <span className="eb-label">Fig. 15 · Tres entradas, un explorador</span>
+                <span className="eb-label">Fig. 14 · Tres entradas, un explorador</span>
                 <p>Buscar colegios era el mismo gesto en tres lugares, cada uno con su diseño. Ahora es un solo componente que aparece donde se necesita, y el Test de Calce queda solo como la acción principal del hero.</p>
               </figcaption>
             </figure>
 
-            {/* Fig. 16 · fotogramas 16:9 de la grabación (excepción documentada, igual que el video del pipeline) */}
+            {/* Fig. 15 · fotogramas 16:9 de la grabación (excepción documentada, igual que el video del pipeline) */}
             <figure className="eb-fig eb-v3">
               <div className="eb-v3-grid">
                 <Shot ar={1.7778} cls="eb-media-169" src={v3HomeExplorador} alt="Prototipo 3: panel de búsqueda en la Home, con región, comuna, nombre del establecimiento y más filtros, y una ficha informativa celeste que explica cómo buscar" pie="Home: el panel de búsqueda y su ficha de ayuda." />
@@ -1098,12 +1087,12 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 <Shot ar={1.7778} cls="eb-media-169" src={v3Shortlist} alt="Prototipo 3: colegios que calzan con la familia, con una ficha que resume las respuestas y tres tarjetas de colegio con el botón «Ver ficha»" pie="Colegios que calzan: las respuestas a la vista y tarjetas nuevas." />
               </div>
               <figcaption className="eb-cap">
-                <span className="eb-label">Fig. 16 · El prototipo 3, pantalla por pantalla</span>
+                <span className="eb-label">Fig. 15 · El prototipo 3, pantalla por pantalla</span>
                 <p>Fotogramas de la grabación del recorrido. Cada uno abre en tamaño completo.</p>
               </figcaption>
             </figure>
 
-            <Det title="Ver los siete cambios del flujo, uno por uno" sub="Fig. 17 · antes, lo que anoté sobre la captura y después">
+            <Det title="Ver los siete cambios del flujo, uno por uno" sub="Fig. 16 · antes, lo que anoté sobre la captura y después">
               <figure className="eb-fig">
                 <div className="eb-tbl-wrap" tabIndex={0} role="region" aria-label="Tabla de los siete cambios del flujo; se desplaza en horizontal en pantallas angostas">
                   <table className="eb-tbl eb-tbl-v3">
@@ -1116,7 +1105,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                   </table>
                 </div>
                 <figcaption className="eb-cap">
-                  <span className="eb-label">Fig. 17 · Siete cambios, siete anotaciones</span>
+                  <span className="eb-label">Fig. 16 · Siete cambios, siete anotaciones</span>
                   <p>Cada cambio parte de una anotación escrita sobre la captura del sitio en Figma.</p>
                 </figcaption>
               </figure>
@@ -1152,7 +1141,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               </div>
             </div>
 
-            <Det title="Ver los componentes nuevos y las fichas informativas" sub="Fig. 18 · ocho componentes del sistema · la ficha informativa en dos de sus usos">
+            <Det title="Ver los componentes nuevos y las fichas informativas" sub="Fig. 17 · ocho componentes del sistema · la ficha informativa en dos de sus usos">
               <figure className="eb-fig">
                 <div className="eb-avisos">
                   <div className="eb-aviso">
@@ -1177,7 +1166,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                   </table>
                 </div>
                 <figcaption className="eb-cap">
-                  <span className="eb-label">Fig. 18 · Un componente por problema</span>
+                  <span className="eb-label">Fig. 17 · Un componente por problema</span>
                   <p>Arriba, la ficha informativa en sus usos informativo y alerta, reconstruida en HTML con texto abreviado; el tercer uso, aviso, va en verde. Los componentes interactivos tienen sus estados de reposo, hover, presionado y foco.</p>
                 </figcaption>
               </figure>
@@ -1217,12 +1206,12 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 </div>
               </div>
               <figcaption className="eb-cap">
-                <span className="eb-label">Fig. 19 · Del prototipo 1 al testeo con usuarios</span>
+                <span className="eb-label">Fig. 18 · Del prototipo 1 al testeo con usuarios</span>
                 <p>La escala y la forma cambian; la traducción es la misma.</p>
               </figcaption>
             </figure>
 
-            <Det title="Ver el método de validación completo" sub="Fig. 20 · tres capas, de 3 familias a familias reales">
+            <Det title="Ver el método de validación completo" sub="Fig. 19 · tres capas, de 3 familias a familias reales">
               <figure className="eb-fig">
                 <div>
                   {VALIDACION.map((v) => (
@@ -1241,7 +1230,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                   ))}
                 </div>
                 <figcaption className="eb-cap">
-                  <span className="eb-label">Fig. 20 · Tres capas, muestra creciente</span>
+                  <span className="eb-label">Fig. 19 · Tres capas, muestra creciente</span>
                   <p>Las dos primeras capas existen para que la tercera no gaste su muestra en encontrar lo que un método conocido encuentra gratis.</p>
                 </figcaption>
               </figure>
