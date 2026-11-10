@@ -55,7 +55,10 @@ import sitemapTree from '@/assets/sitemap-ine/sitemap-tree.jpg';
 import sitemapBenchmark from '@/assets/sitemap-ine/benchmark.png';
 import sitemapMockup from '@/assets/sitemap-ine/mockup.png';
 
-import edubigThumb from '@/imports/edubig/portada.png';
+// Miniatura de Edubig (2026-11-10): la portada de Matías con el fondo animado
+// del hero (KiraPixels) compuesta en un video corto en bucle; el póster es su
+// primer cuadro. Reemplaza a @/imports/edubig/portada.png.
+import edubigThumb from '@/assets/edubig/portada-card.jpg';
 import tuxpanThumb from '@/assets/tuxpan/tuxpan-thumb.png';
 import enormeThumb from '@/assets/enorme/enorme-thumb.jpg';
 import maiaThumb from '@/assets/maia/hero-portada.jpg';
@@ -409,6 +412,7 @@ export const projects: Project[] = [
     featured: true,
     available: true,
     thumbnail: edubigThumb,
+    thumbnailVideo: '/edubig-portada-card.mp4',
     headerLabel: 'Proyecto 06',
     stages: [],
   },
