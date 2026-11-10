@@ -12,8 +12,6 @@ import personaMartin from '@/assets/edubig/persona-martin.png';
 import personaTomas from '@/assets/edubig/persona-tomas-francisca.png';
 
 import scHomeLista from '@/assets/edubig/screen-home-lista.jpg';
-import scFichaTop from '@/assets/edubig/screen-ficha-top.jpg';
-import scQ1 from '@/assets/edubig/screen-q1.jpg';
 import scLoading from '@/assets/edubig/screen-loading.jpg';
 import scShortlist from '@/assets/edubig/screen-shortlist.jpg';
 import scCompTop from '@/assets/edubig/screen-comparacion-top.jpg';
@@ -21,19 +19,15 @@ import scCompCuerpo from '@/assets/edubig/screen-comparacion-cuerpo.jpg';
 
 import v2CompararDetalle from '@/assets/edubig/v2-comparar-detalle.jpg';
 import v2CompararMovil from '@/assets/edubig/v2-comparar-movil.jpg';
-import v2Home from '@/assets/edubig/v2-home-escritorio.jpg';
-import v2Ficha from '@/assets/edubig/v2-ficha-escritorio.jpg';
-import v2Shortlist from '@/assets/edubig/v2-shortlist-movil.jpg';
-import v2Q5 from '@/assets/edubig/v2-test-q5-movil.jpg';
 import v2Flujo1 from '@/assets/edubig/v2-flujo-1-mapa.jpg';
 import v2Flujo2 from '@/assets/edubig/v2-flujo-2-test.jpg';
 import v2Flujo3 from '@/assets/edubig/v2-flujo-3-ficha.jpg';
 import v2Flujo4 from '@/assets/edubig/v2-flujo-4-comparar.jpg';
-// Prototipo 3 (rediseño, nov-2026): fotogramas 16:9 de la grabación del recorrido
-import v3HomeExplorador from '@/assets/edubig/v3-home-explorador.jpg';
-import v3CompararInicio from '@/assets/edubig/v3-comparar-inicio.jpg';
-import v3CompararPlegables from '@/assets/edubig/v3-comparar-plegables.jpg';
-import v3Shortlist from '@/assets/edubig/v3-shortlist.jpg';
+// Prototipo 3 (rediseño, nov-2026): flujos en FigJam; en azul, lo cambiado respecto del prototipo 2
+import v3Flujo1 from '@/assets/edubig/v3-flujo-1-mapa.jpg';
+import v3Flujo2 from '@/assets/edubig/v3-flujo-2-test.jpg';
+import v3Flujo3 from '@/assets/edubig/v3-flujo-3-ficha.jpg';
+import v3Flujo4 from '@/assets/edubig/v3-flujo-4-comparar.jpg';
 
 /**
  * EdubigCaseStudy — case study dedicado de Edubig.
@@ -61,6 +55,9 @@ import v3Shortlist from '@/assets/edubig/v3-shortlist.jpg';
  * pipeline); la ficha informativa de eduBIG se reconstruye en HTML. La portada
  * (Fig. 01) pasa a ser el video del recorrido del prototipo 3, que empieza en
  * el hero; la captura de Comparar del prototipo 2 sale de la página.
+ * Para bajar la carga: los enlaces a cada prototipo van junto a su video y
+ * salen las tiras de capturas (prototipos 1, 2 y 3). La etapa 08 usa el mismo
+ * visor de flujos que la 05 (FlujoVisor), con los diagramas del prototipo 3.
  *
  * Fuentes oficiales del portafolio: 'IBM Plex Mono:Regular' / 'IBM Plex Mono:Medium'
  * y 'IBM Plex Sans:Regular' (nombres registrados en index.css). Todo el CSS vive
@@ -343,7 +340,7 @@ const CAMBIOS_V3: CambioV3[] = [
   { antes: 'El hero repartía el peso entre el Test de Calce y la tarjeta «¿Dónde buscas colegio?».', problema: '«La card llama la atención primero; el Test de Calce debería ser el llamado principal.»', despues: 'El Test es la única acción principal del hero. La búsqueda baja a su propio panel.' },
   { antes: 'Explorar vivía en una página aparte, con su propia tarjeta de lugar, su lista y su mapa.', problema: '«Lo más útil es tener el explorador de colegios en un mismo sitio, en el home.»', despues: 'Un panel, «Filtra tu búsqueda», con lista y mapa en la misma sección. La página de exploración se retira.' },
   { antes: 'Comparar partía con título, bajada y una caja vacía con dos botones.', problema: '«Información repetitiva: se ofrecen las mismas opciones de distintas formas.»', despues: 'Una sola ficha informativa con los pasos y, debajo, el mismo explorador de la Home.' },
-  { antes: '«Agregar un colegio» llevaba a otra página.', problema: '«Cuando uno agrega un colegio desde aquí, debería llevarme a Comparar colegios.»', despues: 'Lleva al explorador de la misma página, sin salir de Comparar.' },
+  { antes: '«Agregar un colegio» llevaba a otra página.', problema: '«Cuando uno agrega un colegio desde aquí, debería llevarme a Comparar colegios.»', despues: 'Ofrece su buscador o «O búscalo más abajo», que lleva al explorador de la misma página.' },
   { antes: 'La ficha abría con el resumen «Lo esencial».', problema: '«Si entramos aquí es para ver en detalle, no lo general.»', despues: 'Ficha sin «Lo esencial»: el nombre primero y cada dato con su ícono.' },
   { antes: 'En escritorio, la pregunta más larga del Test pedía scroll: 971 px de alto.', problema: '«Que no se tenga que scrolear para ver el contenido completo.»', despues: 'Las 8 pantallas de preguntas caben sin scroll: la más larga mide 777 px.' },
   { antes: 'Los módulos de la ficha, los grupos de Comparar y la tabla de datos se plegaban con patrones distintos.', problema: '«Unificar dropdowns.»', despues: 'Un solo plegable, con la forma de la ficha y los mismos estados.' },
@@ -371,6 +368,14 @@ const FLUJOS: Flujo[] = [
   { id: 'test', titulo: '2 · Test de Calce', url: v2Flujo2, modo: 'scroll', alt: 'Diagrama 2 · Test de Calce: preguntas Q1 a Q5 y el motor con sus dos capas', nota: 'Las cinco preguntas y el motor: descarta, puntúa y ofrece ampliar la distancia si quedan menos de tres colegios.' },
   { id: 'ficha', titulo: '3 · Ficha', url: v2Flujo3, modo: 'scroll', alt: 'Diagrama 3 · Ficha del colegio: cabecera, Lo esencial y módulos en orden fijo', nota: 'Cabecera, «Lo esencial» y los módulos en orden fijo. En violeta, lo decidido que aún no está en el sitio.' },
   { id: 'comparar', titulo: '4 · Comparar', url: v2Flujo4, modo: 'scroll', alt: 'Diagrama 4 · Comparar colegios: entradas, cuántos colegios hay, agregar colegio y grupos en acordeón', nota: 'Cuántos colegios hay, cómo se agrega otro, escritorio o celular y los grupos en orden fijo.' },
+];
+
+// Flujos del prototipo 3: mismos cuatro diagramas, con lo cambiado respecto del prototipo 2 en azul
+const FLUJOS_V3: Flujo[] = [
+  { id: 'mapa', titulo: '1 · Mapa general', url: v3Flujo1, modo: 'fit', alt: 'Diagrama 1 del prototipo 3 · Mapa general del sitio: puntos de entrada, barra de navegación, Home con el hero y «¿Qué hacemos?», el explorador «Filtra tu búsqueda» y las conexiones con el Test, la ficha y Comparar', nota: 'La exploración vive en la Home («Filtra tu búsqueda») y la página de exploración se retira: sus enlaces llevan a la Home con los mismos filtros. El hero tiene dos acciones —el Test, principal, y Comparar, secundaria— y las tarjetas de colegio suman una entrada a Comparar. En azul, lo que cambió respecto del prototipo 2.' },
+  { id: 'test', titulo: '2 · Test de Calce', url: v3Flujo2, modo: 'scroll', alt: 'Diagrama 2 del prototipo 3 · Test de Calce: preguntas de nivel y distancia, y el motor con la ficha de aviso cuando quedan pocos colegios', nota: 'La pregunta de lugar (Q4a) usa el mismo desplegable de comuna que los filtros, y con pocos resultados aparece una ficha de aviso, de alerta si no queda ninguno. El motor no cambia.' },
+  { id: 'ficha', titulo: '3 · Ficha', url: v3Flujo3, modo: 'scroll', alt: 'Diagrama 3 del prototipo 3 · Ficha del colegio: cuatro entradas, la cabecera con datos e íconos, «Volver» y los módulos en orden fijo', nota: 'Sin «Lo esencial»: la cabecera reúne nombre, lugar y RBD, los datos con íconos, «Agregar a comparar» y, con 2 o más elegidos, «Ver comparación». «Volver» sin historial lleva a «Filtra tu búsqueda».' },
+  { id: 'comparar', titulo: '4 · Comparar', url: v3Flujo4, modo: 'scroll', alt: 'Diagrama 4 del prototipo 3 · Comparar colegios: seis entradas, la ficha «Compara colegios», cuántos colegios hay, agregar un colegio y el explorador al final de la página', nota: 'Arriba, siempre, la ficha «Compara colegios»: sin colegios ya no hay caja vacía. «Agregar un colegio» ofrece su buscador o «O búscalo más abajo», donde está el mismo explorador de la Home. «Lo que más cambia» y los avisos de dato faltante pasan a fichas.' },
 ];
 
 /** Variables CSS en línea (`--ar`, `--tl`, `--dec-c`…). */
@@ -481,7 +486,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 </div>
                 <figcaption className="eb-cap">
                   <span className="eb-label">Fig. 01 · El prototipo 3, en movimiento</span>
-                  <p>Home, Comparar, Test de Calce y colegios que calzan, en escritorio. La animación de fondo del hero es de KiraPixels (2021) y lleva su crédito en el sitio.</p>
+                  <p>Home, Comparar, Test de Calce y colegios que calzan, en escritorio. La animación de fondo del hero es de KiraPixels (2021) y lleva su crédito en el sitio. <a className="eb-link eb-link-ext" href={URL_P3} target="_blank" rel="noopener noreferrer">Abrir el prototipo 3 ↗</a></p>
                 </figcaption>
               </figure>
 
@@ -748,7 +753,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               <div className="eb-frame eb-vids">
                 <div className="eb-row is-stack">
                   <div style={cv({ '--ar': 0.5 })}>
-                    <div className="eb-row-head"><b>Prototipo 1 · celular</b><span className="eb-label">MVP Pudahuel</span></div>
+                    <div className="eb-row-head"><b>Prototipo 1 · celular</b><span className="eb-label">MVP Pudahuel · 57 colegios</span><a className="eb-link eb-link-ext" href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 1 ↗</a></div>
                     <VideoBox
                       className="eb-vbox is-phone"
                       src="/edubig-navegacion-mvp.mp4"
@@ -759,7 +764,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                     />
                   </div>
                   <div style={cv({ '--ar': 1.6 })}>
-                    <div className="eb-row-head"><b>Prototipo 2 · escritorio</b><span className="eb-label">Versión nacional</span></div>
+                    <div className="eb-row-head"><b>Prototipo 2 · escritorio</b><span className="eb-label">Versión nacional · 8.250 colegios</span><a className="eb-link eb-link-ext" href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 2 ↗</a></div>
                     <VideoBox
                       className="eb-vbox is-laptop"
                       src="/edubig-navegacion-prototipo2.mp4"
@@ -777,36 +782,8 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               </figcaption>
             </figure>
 
-            <FlujoVisor />
+            <FlujoVisor flujos={FLUJOS} pref="v2" etiqueta="Fig. 08 · Flujo del prototipo 2 en FigJam" />
 
-            {/* Capturas: P2 es la tira principal (alta resolución); P1 queda como registro pequeño (≤150 px) */}
-            <div className="eb-shots">
-              <div>
-                <div className="eb-ver-h">
-                  <span className="eb-mono">02</span><b>Prototipo 2 · versión nacional</b><span className="eb-tag">8.250 colegios · celular y escritorio</span>
-                  <a className="eb-link eb-link-ext" href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 2 ↗</a>
-                </div>
-                <div className="eb-row is-tight is-scroll">
-                  <Shot ar={1.6} cls="eb-media-desktop" src={v2Home} alt="Versión nacional en escritorio: Home con el Test de Calce y la tarjeta «¿Dónde buscas colegio?»" pie="Home: el Test y la búsqueda por comuna, nombre o ubicación." />
-                  <Shot ar={1.6} cls="eb-media-desktop" src={v2Ficha} alt="Versión nacional en escritorio: ficha del Liceo Augusto D Halmar en dos columnas" pie="Ficha en dos columnas: identidad fija, módulos a la derecha." />
-                  <Shot ar={0.4615} cls="eb-media-phone" src={v2Q5} alt="Versión nacional en el celular: quinta pregunta del Test de Calce" pie="Test de Calce, Q5." />
-                  <Shot ar={0.4615} cls="eb-media-phone" src={v2Shortlist} alt="Versión nacional en el celular: shortlist con tres colegios de Ñuñoa" pie="Shortlist con las razones del calce." />
-                </div>
-              </div>
-
-              <div className="eb-p1-wrap">
-                <div className="eb-ver-h">
-                  <span className="eb-mono">01</span><b>Prototipo 1 · MVP Pudahuel</b><span className="eb-tag">57 colegios · solo celular</span>
-                  <a className="eb-link eb-link-ext" href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 1 ↗</a>
-                </div>
-                <div className="eb-p1-strip">
-                  <LowShot src={scHomeLista} alt="MVP de Pudahuel en el celular: lista de colegios con chips de filtro" pie="Home con lista y mapa." />
-                  <LowShot src={scQ1} alt="MVP: primera pregunta del Test de Calce, sobre copago" pie="Test de Calce, Q1." />
-                  <LowShot src={scShortlist} alt="MVP: shortlist de colegios que calzan, en cards de borde cálido" pie="Shortlist de tres colegios." />
-                  <LowShot src={scFichaTop} alt="MVP: ficha de colegio con el resumen «Lo esencial»" pie="Ficha con «Lo esencial»." />
-                </div>
-              </div>
-            </div>
           </section>
 
           {/* ═══ 06 · CASO A FONDO: COMPARAR (protagonista) ════════════════ */}
@@ -1056,8 +1033,8 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                   <span className="eb-label">Prototipo 2 · tres entradas</span>
                   <ul className="eb-unif-old">
                     <li><b>Home</b><span>Tarjeta «¿Dónde buscas colegio?» en el hero, junto al Test.</span></li>
-                    <li><b>Página de exploración</b><span>Su propia tarjeta de lugar, su lista y su mapa.</span></li>
-                    <li><b>Comparar</b><span>Un buscador propio en «Agregar un colegio», que además mandaba a la página de exploración.</span></li>
+                    <li><b>Página de exploración</b><span>La misma pregunta otra vez, con su lista y su mapa.</span></li>
+                    <li><b>Comparar</b><span>Una caja vacía que mandaba a la página de exploración.</span></li>
                   </ul>
                 </div>
                 <div className="eb-unif-arrow" aria-hidden="true">→</div>
@@ -1068,29 +1045,17 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                     <div className="eb-unif-f"><span>Región</span><span>Comuna</span><span>Establecimiento</span></div>
                     <div className="eb-unif-f is-more"><span>Usar mi ubicación</span><span>Gratuito</span><span>Programa de integración escolar (PIE)</span><span>Nivel</span><span>Dependencia</span></div>
                     <p>Lista y mapa en la misma sección.</p>
-                    <div className="eb-unif-where"><span className="eb-tag">En la Home</span><span className="eb-tag">En Comparar</span></div>
+                    <div className="eb-unif-where"><span className="eb-tag">En la Home</span><span className="eb-tag">Al final de Comparar</span></div>
                   </div>
                 </div>
               </div>
               <figcaption className="eb-cap">
                 <span className="eb-label">Fig. 14 · Tres entradas, un explorador</span>
-                <p>Buscar colegios era el mismo gesto en tres lugares, cada uno con su diseño. Ahora es un solo componente que aparece donde se necesita, y el Test de Calce queda solo como la acción principal del hero.</p>
+                <p>La búsqueda empezaba en tres lugares y la pregunta de lugar se hacía dos veces. Ahora hay un solo explorador, en la Home y al final de Comparar, y el Test de Calce queda como la acción principal del hero.</p>
               </figcaption>
             </figure>
 
-            {/* Fig. 15 · fotogramas 16:9 de la grabación (excepción documentada, igual que el video del pipeline) */}
-            <figure className="eb-fig eb-v3">
-              <div className="eb-v3-grid">
-                <Shot ar={1.7778} cls="eb-media-169" src={v3HomeExplorador} alt="Prototipo 3: panel de búsqueda en la Home, con región, comuna, nombre del establecimiento y más filtros, y una ficha informativa celeste que explica cómo buscar" pie="Home: el panel de búsqueda y su ficha de ayuda." />
-                <Shot ar={1.7778} cls="eb-media-169" src={v3CompararInicio} alt="Prototipo 3: inicio de Comparar con la ficha informativa «Compara colegios», cuatro colegios con su color y número, y la ficha «Lo que más cambia entre estos colegios»" pie="Comparar: una ficha con los pasos, en vez de tres caminos." />
-                <Shot ar={1.7778} cls="eb-media-169" src={v3CompararPlegables} alt="Prototipo 3: Comparar con tres colegios, un aviso «Pocos casos» como ficha salmón con ícono de alerta, y los plegables de Bienestar, Académico e Ingreso a la universidad" pie="El plegable único y los avisos de dato faltante como fichas." />
-                <Shot ar={1.7778} cls="eb-media-169" src={v3Shortlist} alt="Prototipo 3: colegios que calzan con la familia, con una ficha que resume las respuestas y tres tarjetas de colegio con el botón «Ver ficha»" pie="Colegios que calzan: las respuestas a la vista y tarjetas nuevas." />
-              </div>
-              <figcaption className="eb-cap">
-                <span className="eb-label">Fig. 15 · El prototipo 3, pantalla por pantalla</span>
-                <p>Fotogramas de la grabación del recorrido. Cada uno abre en tamaño completo.</p>
-              </figcaption>
-            </figure>
+            <FlujoVisor flujos={FLUJOS_V3} pref="v3" etiqueta="Fig. 15 · Flujo del prototipo 3 en FigJam" />
 
             <Det title="Ver los siete cambios del flujo, uno por uno" sub="Fig. 16 · antes, lo que anoté sobre la captura y después">
               <figure className="eb-fig">
@@ -1133,7 +1098,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               <div className="c-7-12">
                 <h3 className="eb-h3">Cada cambio, medido</h3>
                 <div className="eb-kpis" role="list">
-                  <div className="eb-kpi" role="listitem"><b>3 → 1</b><p>entradas para buscar colegios. El mismo explorador en la Home y en Comparar.</p></div>
+                  <div className="eb-kpi" role="listitem"><b>3 → 1</b><p>lugares donde empezaba la búsqueda de colegios, reunidos en un solo explorador.</p></div>
                   <div className="eb-kpi" role="listitem"><b>777 px</b><p>alto de la pregunta más larga del Test (antes, 971). Las 8 caben sin scroll en escritorio.</p></div>
                   <div className="eb-kpi" role="listitem"><b>5,38:1</b><p>contraste de los enlaces sobre las fichas celestes. El celeste nuevo los había bajado a 4,39:1.</p></div>
                   <div className="eb-kpi" role="listitem"><b>0</b><p>violaciones de axe-core en 9 páginas, en escritorio y celular. Excepción conocida: pines del mapa superpuestos.</p></div>
@@ -1323,15 +1288,6 @@ function Shot({ ar, cls, src, alt, pie }: { ar: number; cls: string; src: string
 }
 
 /** Captura antigua de 300×650 px: nunca a más de 110 px de ancho. */
-function LowShot({ src, alt, pie }: { src: string; alt: string; pie: string }) {
-  return (
-    <figure>
-      <div className="eb-media eb-media-phone is-lowres"><img src={src} alt={alt} loading="lazy" /></div>
-      <figcaption className="eb-row-cap">{pie}</figcaption>
-    </figure>
-  );
-}
-
 /**
  * Video con poster y botón. Se reproduce silenciado y en bucle al entrar en
  * pantalla (50 %) y se pausa al salir; con «reducir movimiento» no hay autoplay.
@@ -1382,12 +1338,14 @@ function VideoBox(props: { className: string; src: string; poster: string; label
  * El mapa (apaisado) se ajusta entero; los flujos altos se recorren con scroll
  * interno a 760 px de ancho, legibles.
  */
-function FlujoVisor() {
+function FlujoVisor({ flujos, pref, etiqueta }: { flujos: Flujo[]; pref: string; etiqueta: string }) {
   const [i, setI] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const scRef = useRef<HTMLDivElement>(null);
-  const n = FLUJOS.length;
-  const f = FLUJOS[i];
+  const n = flujos.length;
+  const f = flujos[i];
+  const win = `eb-flow-win-${pref}`;
+  const tab = (id: string) => `eb-ftab-${pref}-${id}`;
 
   function ir(k: number) {
     const j = Math.max(0, Math.min(n - 1, k));
@@ -1397,21 +1355,21 @@ function FlujoVisor() {
   }
 
   return (
-    <figure className="eb-fig eb-grid eb-viewer" style={{ marginTop: 'var(--s-6)' }} aria-roledescription="carrusel" aria-label="Flujos del sitio en FigJam">
+    <figure className="eb-fig eb-grid eb-viewer" style={{ marginTop: 'var(--s-6)' }} aria-roledescription="carrusel" aria-label={etiqueta.replace(/^Fig\. \d+ · /, '')}>
       <div className="c-1-3 eb-viewer-rail">
         <div className="eb-tabs eb-tabs-v" role="tablist" aria-label="Diagramas" aria-orientation="vertical">
-          {FLUJOS.map((x, k) => (
+          {flujos.map((x, k) => (
             <button
               key={x.id}
               type="button"
               role="tab"
-              id={`eb-ftab-${x.id}`}
+              id={tab(x.id)}
               className="eb-tab"
               aria-selected={k === i}
-              aria-controls="eb-flow-win"
+              aria-controls={win}
               tabIndex={k === i ? 0 : -1}
               onClick={() => ir(k)}
-              onKeyDown={(e) => tabKeys(e, i, n, ir, (j) => `eb-ftab-${FLUJOS[j].id}`)}
+              onKeyDown={(e) => tabKeys(e, i, n, ir, (j) => tab(flujos[j].id))}
             >
               {x.titulo}
             </button>
@@ -1423,7 +1381,7 @@ function FlujoVisor() {
           <button type="button" className="eb-btn" onClick={() => ir(i + 1)} disabled={i === n - 1} aria-label="Diagrama siguiente"><span aria-hidden="true">→</span></button>
         </div>
         <figcaption className="eb-cap">
-          <span className="eb-label">Fig. 08 · Flujo del prototipo 2 en FigJam · {f.titulo}</span>
+          <span className="eb-label">{etiqueta} · {f.titulo}</span>
           <p>
             {f.nota}{' '}
             <a className="eb-link" href={f.url} target="_blank" rel="noopener noreferrer">Abrir en tamaño completo ↗</a>
@@ -1433,11 +1391,11 @@ function FlujoVisor() {
       <div className="c-4-12">
         <div
           className={'eb-win eb-thin' + (scrolled ? ' is-scrolled' : '')}
-          id="eb-flow-win"
+          id={win}
           data-mode={f.modo}
           role="tabpanel"
           aria-roledescription="slide"
-          aria-labelledby={`eb-ftab-${f.id}`}
+          aria-labelledby={tab(f.id)}
         >
           <div
             className="eb-win-scroll"
@@ -1772,19 +1730,6 @@ const CSS = `
 .eb .eb-viewer-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;}
 .eb .eb-viewer-bar output{font:400 12px/1 var(--eb-mono);color:var(--eb-mute-text);}
 
-.eb .eb-shots{margin-top:var(--s-6);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-5);}
-.eb .eb-ver-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:14px;padding-top:12px;border-top:1px solid var(--eb-line-2);}
-.eb .eb-ver-h b{font:500 16px/1.2 var(--eb-mono-med);letter-spacing:-.01em;}
-.eb .eb-ver-h .eb-mono{font-size:11px;color:var(--eb-mute-text);}
-.eb .eb-ver-h .eb-link-ext{margin-left:auto;}
-.eb .eb-p1-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--eb-gap);align-items:start;border-top:1px solid var(--eb-line-2);}
-.eb .eb-p1-wrap .eb-ver-h{border-top:0;flex-direction:column;align-items:flex-start;}
-.eb .eb-p1-wrap .eb-ver-h .eb-link-ext{margin-left:0;}
-.eb .eb-p1-wrap .eb-p1-strip{padding-top:12px;}
-.eb .eb-p1{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--eb-gap);align-items:end;}
-.eb .eb-p1-strip{display:flex;gap:12px;}
-.eb .eb-p1-strip figure{margin:0;width:110px;}
-.eb .eb-p1-note{font:400 13px/1.5 var(--eb-sans);color:var(--eb-mute-text);max-width:38ch;}
 
 /* ── 12 · Etapa 06 · Comparar ─────────────────────────────────────────── */
 .eb .eb-ad{--eb-lowres-h:calc(150px * 19.5 / 9);justify-content:start;grid-template-columns:auto auto;display:grid;gap:var(--eb-gap);align-items:stretch;}
@@ -1911,14 +1856,9 @@ const CSS = `
   .eb .eb-viewer-rail{order:2;}
   .eb .eb-win{aspect-ratio:var(--ar-phone);max-height:72vh;width:100%;}
   .eb .eb-win[data-mode="fit"]{aspect-ratio:var(--ar-wide-32);}
-  .eb .eb-p1{grid-template-columns:1fr;}
-  .eb .eb-p1-wrap{grid-template-columns:1fr;}
-  .eb .eb-ver-h .eb-link-ext{margin-left:0;}
   .eb .eb-tag{white-space:normal;}
   .eb .eb-ad-before{padding:12px;}
   .eb .eb-media-phone.is-lowres.is-150{width:min(150px,36vw);}
-  .eb .eb-p1-strip{overflow-x:auto;scroll-snap-type:x mandatory;}
-  .eb .eb-p1-strip figure{flex:none;scroll-snap-align:start;}
   .eb .eb-ad{grid-template-columns:minmax(0,1fr);}
   .eb .eb-ad-before{justify-content:center;}
   .eb .eb-ad-after .eb-row{flex-direction:column;width:auto;}
@@ -1982,8 +1922,6 @@ const CSS = `
 .eb .eb-unif-f.is-more span{border-color:var(--eb-ink-2);}
 .eb .eb-unif-new p{margin:0;font:400 13.5px/1.45 var(--eb-sans);color:var(--eb-ink-2);}
 .eb .eb-unif-where{display:flex;flex-wrap:wrap;gap:8px;}
-/* Fig. 16: fotogramas en 2 × 2 */
-.eb .eb-v3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-4) var(--eb-gap);}
 /* Fig. 17: tabla de cambios */
 .eb .eb-tbl-v3 td{width:33.33%;}
 .eb .eb-tbl-v3 em{font-family:'IBM Plex Sans:Italic',var(--eb-sans);font-style:normal;}
@@ -2011,7 +1949,7 @@ const CSS = `
 @media (max-width:900px){
   .eb .eb-unif{grid-template-columns:minmax(0,1fr);}
   .eb .eb-unif-arrow{transform:rotate(90deg);}
-  .eb .eb-v3-grid,.eb .eb-avisos,.eb .eb-steps.is-5{grid-template-columns:minmax(0,1fr);}
+  .eb .eb-avisos,.eb .eb-steps.is-5{grid-template-columns:minmax(0,1fr);}
   .eb .eb-tbl-v3{min-width:620px;}
   .eb .eb-det-body > .eb-fig{min-width:0;}
   .eb .eb-tbl-v3 td{width:auto;}
