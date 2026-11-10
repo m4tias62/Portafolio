@@ -56,8 +56,15 @@ import v3Flujo4 from '@/assets/edubig/v3-flujo-4-comparar.jpg';
  * (Fig. 01) pasa a ser el video del recorrido del prototipo 3, que empieza en
  * el hero; la captura de Comparar del prototipo 2 sale de la página.
  * Para bajar la carga: los enlaces a cada prototipo van junto a su video y
- * salen las tiras de capturas (prototipos 1, 2 y 3). La etapa 08 usa el mismo
- * visor de flujos que la 05 (FlujoVisor), con los diagramas del prototipo 3.
+ * salen las tiras de capturas (prototipos 1, 2 y 3).
+ *
+ * Cronología (2026-11-10, pedido de Matías): el caso sigue la línea de tiempo
+ * de la Fig. 18. 05 Prototipo 1 (jun–jul: pipeline + MVP, Fig. 07–08) ·
+ * 06 Análisis heurístico y sistema (sep–oct: auditoría y paletas, Fig. 09–11) ·
+ * 07 Prototipo 2 (oct: escala nacional y FigJam, Fig. 12–13) · 08 Comparar ·
+ * 09 Prototipo 3 (Fig. 14–17) · 10 Lo que falta (Fig. 18–19). El video del
+ * pipeline va junto al del prototipo 1, a la misma altura: el dato y la
+ * pantalla. Las etapas 07 y 09 usan el mismo visor de flujos (FlujoVisor).
  *
  * Fuentes oficiales del portafolio: 'IBM Plex Mono:Regular' / 'IBM Plex Mono:Medium'
  * y 'IBM Plex Sans:Regular' (nombres registrados en index.css). Todo el CSS vive
@@ -201,7 +208,7 @@ const CAPAS: Capa[] = [
 
 const USOS_EJE: { tono: string; estado: string; donde: string }[] = [
   { tono: '#2166ac', estado: 'Frío · dato sin traducir', donde: 'Card en estado default dentro de la lista general. Todavía no sabe nada de ti.' },
-  { tono: '#d6604d', estado: 'Cálido · en foco', donde: 'Hover sobre la card: cruza al lado cálido porque revela más información que la lista. Era #f4a582 hasta la auditoría de contraste de la etapa 08.2' },
+  { tono: '#d6604d', estado: 'Cálido · en foco', donde: 'Hover sobre la card: cruza al lado cálido porque revela más información que la lista. Era #f4a582 hasta la auditoría de contraste (etapa 06).' },
   { tono: '#d6604d', estado: 'Cálido · traducido', donde: 'Cards de la shortlist que devuelve el Test de Calce, armadas contra las necesidades declaradas.' },
   { tono: '#b2181f', estado: 'Cálido · extremo', donde: 'Isologo y marca. El punto de llegada de la traducción.' },
 ];
@@ -445,7 +452,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
         className="fixed left-[80px] top-[56px] z-10 flex items-center justify-center max-[900px]:hidden"
         style={{ height: 'calc(100vh - 56px)', width: 28 }}
       >
-        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(9)} />
+        <ProgressBar progress={scrollProgress} onSeek={handleSeek} vertical ticks={tickCount(10)} />
       </div>
 
       <div ref={contentRef} className="eb-content">
@@ -504,9 +511,10 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                 <nav aria-label="Ir a una etapa">
                   <span className="eb-label" style={{ marginRight: 2 }}>Ir a</span>
                   <button type="button" onClick={() => scrollToId('eb-stage-04')}>Tres decisiones</button>
-                  <button type="button" onClick={() => scrollToId('eb-stage-05')}>Del flujo a la pantalla</button>
-                  <button type="button" onClick={() => scrollToId('eb-stage-06')}>Comparar a fondo</button>
-                  <button type="button" onClick={() => scrollToId('eb-stage-08')}>Prototipo 3</button>
+                  <button type="button" onClick={() => scrollToId('eb-stage-05')}>Prototipo 1</button>
+                  <button type="button" onClick={() => scrollToId('eb-stage-07')}>Prototipo 2</button>
+                  <button type="button" onClick={() => scrollToId('eb-stage-08')}>Comparar a fondo</button>
+                  <button type="button" onClick={() => scrollToId('eb-stage-09')}>Prototipo 3</button>
                   <a href={URL_P3} target="_blank" rel="noopener noreferrer">Probar el prototipo 3 ↗</a>
                   <a href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">Ver el prototipo 2 ↗</a>
                 </nav>
@@ -740,24 +748,36 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             </Det>
           </section>
 
-          {/* ═══ 05 · DEL FLUJO A LA PANTALLA ══════════════════════════════ */}
+          {/* ═══ 05 · PROTOTIPO 1: DEL DATO A LA PANTALLA (jun–jul 2026) ══════ */}
           <section className="eb-stage" id="eb-stage-05" aria-labelledby="eb-h-05">
-            <StageHead n="05" title="Del flujo a la pantalla" />
+            <StageHead n="05" title="Prototipo 1: del dato a la pantalla" />
 
             <div className="eb-grid eb-intro">
-              <div className="eb-intro-h"><h2 className="eb-h2 is-long" id="eb-h-05">La escala nacional rompía supuestos del prototipo 1: sin ubicación por defecto, con colegios sin datos para comparar y con grupos de comparación que cambian según la prueba.</h2></div>
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-05">Co-work con IA</h2></div>
               <div className="eb-intro-t">
-                <p className="eb-p">El <strong>prototipo 1</strong> fue un MVP solo para celular con 57 colegios de Pudahuel, construido del cruce de datos a la última pantalla. Funcionó, y con Israel Rubilar decidimos llevarlo a todo Chile.</p>
-                <p className="eb-p">El <strong>prototipo 2</strong> salió de un análisis heurístico del primero y cambió en tres frentes: datos (de 57 a 8.250 colegios), flujo (rehecho en FigJam antes de programar) y diseño (celular y escritorio, Comparar completo y un sistema auditado).</p>
+                <p className="eb-p">El <strong>prototipo 1</strong> fue un MVP solo para celular con 57 colegios de Pudahuel. Lo construí entero, del cruce de los seis datasets oficiales a la última pantalla. Funcionó, y con Israel Rubilar decidimos llevarlo a todo Chile.</p>
+                <p className="eb-p">La IA trabaja como colaborador dirigido. Yo decido qué se cruza, qué se diseña y con qué criterio; la IA escribe y propone; yo valido contra la fuente oficial y el recorrido completo.</p>
               </div>
             </div>
 
-            {/* Fig. 07 · dos videos en un panel blanco, misma altura: celular 1:2 + escritorio 16:10 */}
+            {/* Fig. 07 · el dato y la pantalla en un panel blanco, misma altura:
+                pipeline 16:9 (grabación de pantalla) + celular 1:2 */}
             <figure className="eb-fig">
               <div className="eb-frame eb-vids">
                 <div className="eb-row is-stack">
+                  <div style={cv({ '--ar': 1.778 })}>
+                    <div className="eb-row-head"><b>El dato · pipeline de datos</b><span className="eb-label">Python · Pandas · seis datasets oficiales</span></div>
+                    <VideoBox
+                      className="eb-vbox is-169"
+                      src="/edubig-proceso-datos.mp4"
+                      poster="/edubig-proceso-datos-poster.jpg"
+                      label="Registro del co-work con la IA sobre el pipeline de datos"
+                      playLabel="Reproducir el registro del co-work sobre el pipeline"
+                      boton="Ver el pipeline"
+                    />
+                  </div>
                   <div style={cv({ '--ar': 0.5 })}>
-                    <div className="eb-row-head"><b>Prototipo 1 · celular</b><span className="eb-label">MVP Pudahuel · 57 colegios</span><a className="eb-link eb-link-ext" href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 1 ↗</a></div>
+                    <div className="eb-row-head"><b>La pantalla · prototipo 1 en el celular</b><span className="eb-label">MVP Pudahuel · 57 colegios</span><a className="eb-link eb-link-ext" href="https://edu-big.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 1 ↗</a></div>
                     <VideoBox
                       className="eb-vbox is-phone"
                       src="/edubig-navegacion-mvp.mp4"
@@ -767,35 +787,195 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
                       boton="Ver"
                     />
                   </div>
-                  <div style={cv({ '--ar': 1.6 })}>
-                    <div className="eb-row-head"><b>Prototipo 2 · escritorio</b><span className="eb-label">Versión nacional · 8.250 colegios</span><a className="eb-link eb-link-ext" href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 2 ↗</a></div>
-                    <VideoBox
-                      className="eb-vbox is-laptop"
-                      src="/edubig-navegacion-prototipo2.mp4"
-                      poster="/edubig-navegacion-prototipo2-poster.jpg"
-                      label="Recorrido del prototipo 2, versión nacional, en escritorio: Test de Calce, shortlist y Comparar"
-                      playLabel="Reproducir el recorrido del prototipo 2"
-                      boton="Ver recorrido"
-                    />
-                  </div>
                 </div>
               </div>
               <figcaption className="eb-cap">
-                <span className="eb-label">Fig. 07 · Los dos prototipos, en movimiento</span>
-                <p>El prototipo 1 recorre el Test de Calce en el celular, con 57 colegios de Pudahuel. El prototipo 2 hace el mismo camino en escritorio, con el dato nacional, y llega hasta Comparar.</p>
+                <span className="eb-label">Fig. 07 · El dato y la pantalla</span>
+                <p>El co-work sobre el pipeline: yo decido qué dato se cruza con qué y en qué orden, la IA escribe el código y yo reviso cada resultado contra la fuente oficial. Junto a él, lo que salió de ese cruce: el prototipo 1 recorre el Test de Calce con 57 colegios de Pudahuel. Si un campo queda mal cruzado, se nota enseguida en la ficha del colegio. Delego la escritura, no la decisión.</p>
               </figcaption>
             </figure>
 
-            <FlujoVisor flujos={FLUJOS} pref="v2" etiqueta="Fig. 08 · Flujo del prototipo 2 en FigJam" />
+            <div className="eb-dets">
+              <Det title="Ver qué dirigí, qué generó la IA y cómo validé, capa por capa" sub="Fig. 08 · pipeline, Figma, frontend y sistema de diseño">
+                <figure className="eb-fig">
+                  <div>
+                    {CAPAS.map((c) => (
+                      <div className="eb-capa" key={c.n}>
+                        <div className="eb-capa-l">
+                          <span className="eb-mono eb-tiny">{c.n}</span>
+                          <b>{c.capa}</b>
+                          <span className="eb-row-cap" style={{ margin: 0, color: 'var(--eb-mute-text)' }}>{c.stack}</span>
+                          <span className="eb-tag">{c.modo}</span>
+                        </div>
+                        <div>
+                          {c.registro.map(([k, v]) => (
+                            <div className="eb-kv" key={k}><span>{k}</span><span>{v}</span></div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <figcaption className="eb-cap">
+                    <span className="eb-label">Fig. 08 · Cuatro capas, cuatro modos de dirigir</span>
+                    <p>El modo lo fija cuánto costaría equivocarse en esa capa: un error en el pipeline ensucia el dato de miles de colegios; uno de frontend se ve y se corrige en el momento.</p>
+                  </figcaption>
+                </figure>
+              </Det>
+            </div>
+          </section>
+
+          {/* ═══ 06 · ANÁLISIS HEURÍSTICO Y SISTEMA (sep–oct 2026) ════════════ */}
+          <section className="eb-stage" id="eb-stage-06" aria-labelledby="eb-h-06">
+            <StageHead n="06" title="Análisis heurístico y sistema" />
+
+            <div className="eb-grid eb-intro">
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-06">Un contraste que falla no es una infracción formal: es un dato que no se lee.</h2></div>
+              <div className="eb-intro-t">
+                <p className="eb-p">El análisis heurístico dejó un sistema de diseño auditado contra WCAG 2.2 AA, una sola retícula para todo el sitio y los mismos estados en cada control: reposo, hover, foco, activo y deshabilitado.</p>
+                <p className="eb-p">Se hizo sobre el prototipo 1, mientras Israel armaba el dataset nacional: esa espera fue el momento de formalizar el sistema antes de escalarlo.</p>
+              </div>
+            </div>
+
+            <div className="eb-kpis is-4" role="list">
+              <div className="eb-kpi" role="listitem"><b>5,74:1</b><p>contraste del texto secundario. Antes daba 4,49:1 sobre los fondos grises.</p></div>
+              <div className="eb-kpi" role="listitem"><b>3,7:1</b><p>borde cálido en hover. Antes daba 2,0:1: el estado existía y no se veía.</p></div>
+              <div className="eb-kpi" role="listitem"><b>44 px</b><p>objetivo táctil mínimo en todo el sitio. WCAG 2.2 pide 24.</p></div>
+              <div className="eb-kpi" role="listitem"><b>0</b><p>errores de axe-core en la Home, la ficha y Comparar al cerrar el prototipo 2.</p></div>
+            </div>
+
+            <div className="eb-dets">
+              <Det title="Ver la auditoría de contraste y los criterios WCAG" sub="Fig. 09 · 8 tokens medidos · 3 criterios WCAG 2.2">
+                <figure className="eb-fig">
+                  <div className="eb-tbl-wrap">
+                    <table className="eb-tbl">
+                      <thead><tr><th>Token</th><th>Uso en el producto</th><th className="r">Ratio</th><th>Veredicto</th></tr></thead>
+                      <tbody>
+                        {CONTRASTE.map((t) => (
+                          <tr key={t.hex}>
+                            <td className="eb-mono"><i className="eb-sw" style={{ background: t.hex }} />{t.hex}</td>
+                            <td>{t.uso}</td>
+                            <td className="r">{t.ratio}</td>
+                            <td style={t.tintaVeredicto !== '#1a1a18' ? { color: t.tintaVeredicto } : undefined}><i className="eb-dot" style={{ background: t.marca }} />{t.veredicto}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="eb-row-cap" style={{ color: 'var(--eb-mute-text)' }}>Auditoría de sep-2026, ratios contra <span className="eb-mono">#FFFFFF</span>. En oct-2026 se midió todo el texto contra su fondo real y el texto secundario subió de negro al 54 % al 60 %.</p>
+                  <figcaption className="eb-cap">
+                    <span className="eb-label">Fig. 09 · Auditoría de contraste sobre los tokens</span>
+                    <p>El hallazgo incómodo: el lado cálido del eje era el más débil. <span className="eb-mono">#f4a582</span> era el borde en hover, el momento en que el dato cruza a cálido, y no llegaba ni al umbral no textual.</p>
+                  </figcaption>
+                </figure>
+                <div>
+                  {CRITERIOS.map((c) => (
+                    <div className="eb-crit" key={c.sc}>
+                      <div className="eb-crit-l"><span className="eb-mono eb-tiny">{c.sc}</span><b>{c.nombre}</b><span className={'eb-tag' + (c.tinta === '#8a1a20' ? ' is-warm' : '')}>{c.estado}</span></div>
+                      <div>
+                        <div className="eb-kv"><span>Riesgo</span><span className="eb-soft">{c.riesgo}</span></div>
+                        <div className="eb-kv"><span>Respuesta</span><span>{c.respuesta}</span></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Det>
+
+              <Det title="Ver las dos paletas y la card en dos temperaturas" sub="Fig. 10 · eje RdBu y paleta de posición · Fig. 11 · tres estados de la card">
+                <figure className="eb-fig">
+                  <div className="eb-pals">
+                    <div>
+                      <span className="eb-label" style={{ color: 'var(--eb-ink)' }}>Paleta 01 · Eje de traducción</span>
+                      <div className="eb-row-cap" style={{ marginTop: 4 }}>RdBu — ColorBrewer. Ordinal y con dirección.</div>
+                      <div className="eb-pal-bar" style={{ background: 'linear-gradient(90deg,#053061,#2166ac,#4393c3,#d1e5f0,#f7f7f7,#fddbc7,#f4a582,#d6604d,#b2181f)' }} />
+                      {USOS_EJE.map((r) => (
+                        <div className="eb-pal-r" key={r.estado}><i style={{ background: r.tono }} /><span>{r.estado}<span>{r.donde}</span></span></div>
+                      ))}
+                    </div>
+                    <div>
+                      <span className="eb-label" style={{ color: 'var(--eb-ink)' }}>Paleta 02 · Colegios en un gráfico</span>
+                      <div className="eb-row-cap" style={{ marginTop: 4 }}>Categórica, de la paleta de Carbon: un color por posición, sin orden ni juicio.</div>
+                      <div className="eb-pal-cat">{USOS_CUAL.map((r) => <i key={r.estado} style={{ background: r.tono }} />)}</div>
+                      {USOS_CUAL.map((r) => (
+                        <div className="eb-pal-r" key={r.estado}><i style={{ background: r.tono }} /><span>{r.estado}<span>{r.donde}</span></span></div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="eb-pal-rules" style={{ marginTop: 20 }}>
+                    <div><span className="eb-label">Regla única</span><span>Si el color responde «¿qué tan traducido está esto?», es RdBu. Si responde «¿cuál de estos colegios es?», es la paleta de posición.</span></div>
+                    <div><span className="eb-label">Interactivo</span><span><span className="eb-mono" style={{ color: '#0958D9' }}>#0958D9</span> queda fuera de ambas. Es affordance, no significado: botón, foco, enlace. En el prototipo 3 pasa a <span className="eb-mono" style={{ color: '#1D70B8' }}>#1D70B8</span> (etapa 09).</span></div>
+                    <div><span className="eb-label">Tercer encoding</span><span>Verde y mostaza dicen «sobre» o «bajo sus similares», y solo aparecen cuando la diferencia es significativa.</span></div>
+                  </div>
+                  <figcaption className="eb-cap">
+                    <span className="eb-label">Fig. 10 · Dos paletas, dos preguntas distintas</span>
+                    <p>Separarlas es lo que permite que el eje frío–cálido siga significando algo.</p>
+                  </figcaption>
+                </figure>
+
+                <figure className="eb-fig">
+                  <div className="eb-temp">
+                    {FRAMES_TRAD.map((t) => (
+                      <div key={t.estado}>
+                        <div className="eb-media eb-media-phone is-lowres is-140"><img src={t.url} alt={t.alt} loading="lazy" /></div>
+                        <div>
+                          <span className="eb-label" style={{ color: 'var(--eb-ink)' }}><i className="eb-dot" style={{ background: t.tono }} />{t.estado}</span>
+                          <p className="eb-label" style={{ marginTop: 8 }}>{t.recorte}</p>
+                          <p>{t.nota}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <figcaption className="eb-cap">
+                    <span className="eb-label">Fig. 11 · La misma card, dos temperaturas</span>
+                    <p>Fría cuando la encontraste tú en una lista; cálida cuando el sistema la trajo para tu familia. En el medio, la pantalla de espera dice <em>Traduciendo tus respuestas</em>.</p>
+                  </figcaption>
+                </figure>
+              </Det>
+
+            </div>
+          </section>
+
+          {/* ═══ 07 · PROTOTIPO 2: ESCALA NACIONAL (oct 2026) ════════════════ */}
+          <section className="eb-stage" id="eb-stage-07" aria-labelledby="eb-h-07">
+            <StageHead n="07" title="Prototipo 2: escala nacional" />
+
+            <div className="eb-grid eb-intro">
+              <div className="eb-intro-h"><h2 className="eb-h2 is-long" id="eb-h-07">La escala nacional rompía supuestos del prototipo 1: sin ubicación por defecto, con colegios sin datos para comparar y con grupos de comparación que cambian según la prueba.</h2></div>
+              <div className="eb-intro-t">
+                <p className="eb-p">El <strong>prototipo 2</strong> salió del análisis heurístico de la etapa 06 y cambió en tres frentes: datos (de 57 a 8.250 colegios), flujo (rehecho en FigJam antes de programar) y diseño (celular y escritorio, Comparar completo y el sistema auditado).</p>
+              </div>
+            </div>
+
+            {/* Fig. 12 · el prototipo 2 en escritorio (16:10), solo en el panel blanco */}
+            <figure className="eb-fig">
+              <div className="eb-frame eb-vids">
+                <div className="eb-vid-solo">
+                  <div className="eb-row-head"><b>Prototipo 2 · escritorio</b><span className="eb-label">Versión nacional · 8.250 colegios</span><a className="eb-link eb-link-ext" href="https://edubig-chile.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir el prototipo 2 ↗</a></div>
+                  <VideoBox
+                    className="eb-vbox is-laptop"
+                    src="/edubig-navegacion-prototipo2.mp4"
+                    poster="/edubig-navegacion-prototipo2-poster.jpg"
+                    label="Recorrido del prototipo 2, versión nacional, en escritorio: Test de Calce, shortlist y Comparar"
+                    playLabel="Reproducir el recorrido del prototipo 2"
+                    boton="Ver recorrido"
+                  />
+                </div>
+              </div>
+              <figcaption className="eb-cap">
+                <span className="eb-label">Fig. 12 · El prototipo 2, en movimiento</span>
+                <p>El prototipo 2 hace el camino del prototipo 1 en escritorio, con el dato nacional, y llega hasta Comparar.</p>
+              </figcaption>
+            </figure>
+
+            <FlujoVisor flujos={FLUJOS} pref="v2" etiqueta="Fig. 13 · Flujo del prototipo 2 en FigJam" />
 
           </section>
 
-          {/* ═══ 06 · CASO A FONDO: COMPARAR (protagonista) ════════════════ */}
-          <section className="eb-stage" id="eb-stage-06" aria-labelledby="eb-h-06">
-            <StageHead n="06" title="Caso a fondo: Comparar" />
+          {/* ═══ 08 · CASO A FONDO: COMPARAR (protagonista) ════════════════ */}
+          <section className="eb-stage" id="eb-stage-08" aria-labelledby="eb-h-08">
+            <StageHead n="08" title="Caso a fondo: Comparar" />
 
             <div className="eb-grid eb-intro is-wide">
-              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-06">Cada colegio se compara con colegios parecidos a él, no con los otros de la tabla.</h2></div>
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-08">Cada colegio se compara con colegios parecidos a él, no con los otros de la tabla.</h2></div>
               <div className="eb-intro-t">
                 <p className="eb-p">Comparar es la promesa más difícil del producto: poner colegios lado a lado <strong>sin declarar un ganador</strong>.</p>
                 <p className="eb-p">El diseño del prototipo 1 mostraba tres columnas con un resumen. Tomás y Francisca necesitaban más: ver cada dimensión y entender contra qué se mide cada colegio.</p>
@@ -860,168 +1040,12 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             </div>
           </section>
 
-          {/* ═══ 07 · SISTEMA Y FORMA DE TRABAJO ═══════════════════════════ */}
-          <section className="eb-stage" id="eb-stage-07" aria-labelledby="eb-h-07">
-            <StageHead n="07" title="Sistema y forma de trabajo" />
+          {/* ═══ 09 · PROTOTIPO 3: REFINAMIENTO (nov 2026) ══════════════════ */}
+          <section className="eb-stage" id="eb-stage-09" aria-labelledby="eb-h-09">
+            <StageHead n="09" title="Prototipo 3: refinamiento" />
 
             <div className="eb-grid eb-intro">
-              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-07">Un contraste que falla no es una infracción formal: es un dato que no se lee.</h2></div>
-              <div className="eb-intro-t">
-                <p className="eb-p">El análisis heurístico dejó un sistema de diseño auditado contra WCAG 2.2 AA, una sola retícula para todo el sitio y los mismos estados en cada control: reposo, hover, foco, activo y deshabilitado.</p>
-                <p className="eb-p">La IA trabaja como colaborador dirigido. Yo decido qué se cruza, qué se diseña y con qué criterio; la IA escribe y propone; yo valido contra la fuente oficial y el recorrido completo.</p>
-              </div>
-            </div>
-
-            <div className="eb-grid eb-sys">
-              <figure className="eb-fig c-1-7">
-                {/* Excepción documentada: 16:9 por ser una grabación de pantalla */}
-                <div className="eb-frame">
-                  <VideoBox
-                    className="eb-media eb-media-169"
-                    src="/edubig-proceso-datos.mp4"
-                    poster="/edubig-proceso-datos-poster.jpg"
-                    label="Registro del co-work con la IA sobre el pipeline de datos"
-                    playLabel="Reproducir el registro del co-work sobre el pipeline"
-                    boton="Ver el pipeline"
-                  />
-                </div>
-                <figcaption className="eb-cap">
-                  <span className="eb-label">Fig. 09 · El co-work sobre el pipeline</span>
-                  <p>El registro de cómo trabajo con la IA: yo decido qué dato se cruza con qué y en qué orden, la IA escribe el código y yo reviso cada resultado contra la fuente oficial. Si un campo queda mal cruzado, se nota enseguida en la ficha del colegio. Delego la escritura, no la decisión.</p>
-                </figcaption>
-              </figure>
-              <div className="c-8-12">
-                <div className="eb-kpis" role="list">
-                  <div className="eb-kpi" role="listitem"><b>5,74:1</b><p>contraste del texto secundario. Antes daba 4,49:1 sobre los fondos grises.</p></div>
-                  <div className="eb-kpi" role="listitem"><b>3,7:1</b><p>borde cálido en hover. Antes daba 2,0:1: el estado existía y no se veía.</p></div>
-                  <div className="eb-kpi" role="listitem"><b>44 px</b><p>objetivo táctil mínimo en todo el sitio. WCAG 2.2 pide 24.</p></div>
-                  <div className="eb-kpi" role="listitem"><b>0</b><p>errores de axe-core en Comparar, la ficha y la Home.</p></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="eb-dets">
-              <Det title="Ver la auditoría de contraste y los criterios WCAG" sub="Fig. 10 · 8 tokens medidos · 3 criterios WCAG 2.2">
-                <figure className="eb-fig">
-                  <div className="eb-tbl-wrap">
-                    <table className="eb-tbl">
-                      <thead><tr><th>Token</th><th>Uso en el producto</th><th className="r">Ratio</th><th>Veredicto</th></tr></thead>
-                      <tbody>
-                        {CONTRASTE.map((t) => (
-                          <tr key={t.hex}>
-                            <td className="eb-mono"><i className="eb-sw" style={{ background: t.hex }} />{t.hex}</td>
-                            <td>{t.uso}</td>
-                            <td className="r">{t.ratio}</td>
-                            <td style={t.tintaVeredicto !== '#1a1a18' ? { color: t.tintaVeredicto } : undefined}><i className="eb-dot" style={{ background: t.marca }} />{t.veredicto}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <p className="eb-row-cap" style={{ color: 'var(--eb-mute-text)' }}>Auditoría de sep-2026, ratios contra <span className="eb-mono">#FFFFFF</span>. En oct-2026 se midió todo el texto contra su fondo real y el texto secundario subió de negro al 54 % al 60 %.</p>
-                  <figcaption className="eb-cap">
-                    <span className="eb-label">Fig. 10 · Auditoría de contraste sobre los tokens</span>
-                    <p>El hallazgo incómodo: el lado cálido del eje era el más débil. <span className="eb-mono">#f4a582</span> era el borde en hover, el momento en que el dato cruza a cálido, y no llegaba ni al umbral no textual.</p>
-                  </figcaption>
-                </figure>
-                <div>
-                  {CRITERIOS.map((c) => (
-                    <div className="eb-crit" key={c.sc}>
-                      <div className="eb-crit-l"><span className="eb-mono eb-tiny">{c.sc}</span><b>{c.nombre}</b><span className={'eb-tag' + (c.tinta === '#8a1a20' ? ' is-warm' : '')}>{c.estado}</span></div>
-                      <div>
-                        <div className="eb-kv"><span>Riesgo</span><span className="eb-soft">{c.riesgo}</span></div>
-                        <div className="eb-kv"><span>Respuesta</span><span>{c.respuesta}</span></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Det>
-
-              <Det title="Ver las dos paletas y la card en dos temperaturas" sub="Fig. 11 · eje RdBu y paleta de posición · Fig. 12 · tres estados de la card">
-                <figure className="eb-fig">
-                  <div className="eb-pals">
-                    <div>
-                      <span className="eb-label" style={{ color: 'var(--eb-ink)' }}>Paleta 01 · Eje de traducción</span>
-                      <div className="eb-row-cap" style={{ marginTop: 4 }}>RdBu — ColorBrewer. Ordinal y con dirección.</div>
-                      <div className="eb-pal-bar" style={{ background: 'linear-gradient(90deg,#053061,#2166ac,#4393c3,#d1e5f0,#f7f7f7,#fddbc7,#f4a582,#d6604d,#b2181f)' }} />
-                      {USOS_EJE.map((r) => (
-                        <div className="eb-pal-r" key={r.estado}><i style={{ background: r.tono }} /><span>{r.estado}<span>{r.donde}</span></span></div>
-                      ))}
-                    </div>
-                    <div>
-                      <span className="eb-label" style={{ color: 'var(--eb-ink)' }}>Paleta 02 · Colegios en un gráfico</span>
-                      <div className="eb-row-cap" style={{ marginTop: 4 }}>Categórica, de la paleta de Carbon: un color por posición, sin orden ni juicio.</div>
-                      <div className="eb-pal-cat">{USOS_CUAL.map((r) => <i key={r.estado} style={{ background: r.tono }} />)}</div>
-                      {USOS_CUAL.map((r) => (
-                        <div className="eb-pal-r" key={r.estado}><i style={{ background: r.tono }} /><span>{r.estado}<span>{r.donde}</span></span></div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="eb-pal-rules" style={{ marginTop: 20 }}>
-                    <div><span className="eb-label">Regla única</span><span>Si el color responde «¿qué tan traducido está esto?», es RdBu. Si responde «¿cuál de estos colegios es?», es la paleta de posición.</span></div>
-                    <div><span className="eb-label">Interactivo</span><span><span className="eb-mono" style={{ color: '#0958D9' }}>#0958D9</span> queda fuera de ambas. Es affordance, no significado: botón, foco, enlace. En el prototipo 3 pasa a <span className="eb-mono" style={{ color: '#1D70B8' }}>#1D70B8</span> (etapa 08).</span></div>
-                    <div><span className="eb-label">Tercer encoding</span><span>Verde y mostaza dicen «sobre» o «bajo sus similares», y solo aparecen cuando la diferencia es significativa.</span></div>
-                  </div>
-                  <figcaption className="eb-cap">
-                    <span className="eb-label">Fig. 11 · Dos paletas, dos preguntas distintas</span>
-                    <p>Separarlas es lo que permite que el eje frío–cálido siga significando algo.</p>
-                  </figcaption>
-                </figure>
-
-                <figure className="eb-fig">
-                  <div className="eb-temp">
-                    {FRAMES_TRAD.map((t) => (
-                      <div key={t.estado}>
-                        <div className="eb-media eb-media-phone is-lowres is-140"><img src={t.url} alt={t.alt} loading="lazy" /></div>
-                        <div>
-                          <span className="eb-label" style={{ color: 'var(--eb-ink)' }}><i className="eb-dot" style={{ background: t.tono }} />{t.estado}</span>
-                          <p className="eb-label" style={{ marginTop: 8 }}>{t.recorte}</p>
-                          <p>{t.nota}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <figcaption className="eb-cap">
-                    <span className="eb-label">Fig. 12 · La misma card, dos temperaturas</span>
-                    <p>Fría cuando la encontraste tú en una lista; cálida cuando el sistema la trajo para tu familia. En el medio, la pantalla de espera dice <em>Traduciendo tus respuestas</em>.</p>
-                  </figcaption>
-                </figure>
-              </Det>
-
-              <Det title="Ver qué dirigí, qué generó la IA y cómo validé, capa por capa" sub="Fig. 13 · pipeline, Figma, frontend y sistema de diseño">
-                <figure className="eb-fig">
-                  <div>
-                    {CAPAS.map((c) => (
-                      <div className="eb-capa" key={c.n}>
-                        <div className="eb-capa-l">
-                          <span className="eb-mono eb-tiny">{c.n}</span>
-                          <b>{c.capa}</b>
-                          <span className="eb-row-cap" style={{ margin: 0, color: 'var(--eb-mute-text)' }}>{c.stack}</span>
-                          <span className="eb-tag">{c.modo}</span>
-                        </div>
-                        <div>
-                          {c.registro.map(([k, v]) => (
-                            <div className="eb-kv" key={k}><span>{k}</span><span>{v}</span></div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <figcaption className="eb-cap">
-                    <span className="eb-label">Fig. 13 · Cuatro capas, cuatro modos de dirigir</span>
-                    <p>El modo lo fija cuánto costaría equivocarse en esa capa: un error en el pipeline ensucia el dato de miles de colegios; uno de frontend se ve y se corrige en el momento.</p>
-                  </figcaption>
-                </figure>
-              </Det>
-            </div>
-          </section>
-
-          {/* ═══ 08 · PROTOTIPO 3: REFINAMIENTO ════════════════════════════ */}
-          <section className="eb-stage" id="eb-stage-08" aria-labelledby="eb-h-08">
-            <StageHead n="08" title="Prototipo 3: refinamiento" />
-
-            <div className="eb-grid eb-intro">
-              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-08">Al ordenar lo que se ve, apareció lo que sobraba.</h2></div>
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-09">Al ordenar lo que se ve, apareció lo que sobraba.</h2></div>
               <div className="eb-intro-t">
                 <p className="eb-p">Hasta el <strong>prototipo 2</strong>, el diseño estuvo al servicio de que el producto funcionara: que se pudiera recomendar, explorar y comparar entre 8.250 colegios, con la intervención visual mínima.</p>
                 <p className="eb-p">El <strong>prototipo 3</strong> es la primera vez que el diseño trabaja sobre un producto que ya funciona. Empezó como un ajuste visual y terminó cambiando el flujo: varias pantallas ofrecían lo mismo de distintas formas, y se pudieron simplificar. El recorrido completo está en la portada (Fig. 01); se puede probar en la <a className="eb-link" href={URL_P3} target="_blank" rel="noopener noreferrer">vista previa ↗</a>.</p>
@@ -1152,12 +1176,12 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
             </div>
           </section>
 
-          {/* ═══ 09 · LO QUE FALTA (cierre) ════════════════════════════════ */}
-          <section className="eb-stage last" id="eb-stage-09" aria-labelledby="eb-h-09">
-            <StageHead n="09" title="Lo que falta: testeo con usuarios" />
+          {/* ═══ 10 · LO QUE FALTA (cierre) ════════════════════════════════ */}
+          <section className="eb-stage last" id="eb-stage-10" aria-labelledby="eb-h-10">
+            <StageHead n="10" title="Lo que falta: testeo con usuarios" />
 
             <div className="eb-grid eb-intro">
-              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-09">Lo que un método conocido puede encontrar no se le pregunta a una familia.</h2></div>
+              <div className="eb-intro-h"><h2 className="eb-h2" id="eb-h-10">Lo que un método conocido puede encontrar no se le pregunta a una familia.</h2></div>
               <div className="eb-intro-t">
                 <p className="eb-p">Tres prototipos después, <strong>falta probar el producto con familias reales</strong>. El prototipo 3 se puede recorrer en su <a className="eb-link" href={URL_P3} target="_blank" rel="noopener noreferrer">vista previa ↗</a>; los prototipos 1 y 2 siguen en línea como registro.</p>
                 <p className="eb-p">La validación es una decisión de secuencia: primero el análisis heurístico y de accesibilidad, que dio forma a los prototipos 2 y 3; después, las familias.</p>
@@ -1223,7 +1247,7 @@ function StageHead({ n, title }: { n: string; title: string }) {
   return (
     <div className="eb-stagehead">
       <span>Etapa {n} · {title}</span>
-      <span>{n} / 09</span>
+      <span>{n} / 10</span>
     </div>
   );
 }
@@ -1781,6 +1805,17 @@ const CSS = `
 .eb .eb-kpi:nth-child(1) b::after,.eb .eb-kpi:nth-child(2) b::after{content:"";display:block;height:3px;width:32px;margin-top:10px;background:var(--eb-cold-2);}
 .eb .eb-kpi:nth-child(3) b::after,.eb .eb-kpi:nth-child(4) b::after{content:"";display:block;height:3px;width:32px;margin-top:10px;background:var(--eb-warm-2);}
 .eb .eb-kpi-cap{margin-top:12px;}
+/* etapa 06: las cuatro cifras en una fila a ancho completo */
+.eb .eb-kpis.is-4{grid-template-columns:repeat(4,minmax(0,1fr));}
+.eb .eb-kpis.is-4 .eb-kpi{padding:18px 16px;border-right:1px solid var(--eb-line-2);}
+.eb .eb-kpis.is-4 .eb-kpi:first-child{padding-left:0;}
+.eb .eb-kpis.is-4 .eb-kpi:last-child{border-right:0;}
+@media (max-width:900px){
+  .eb .eb-kpis.is-4{grid-template-columns:1fr 1fr;}
+  .eb .eb-kpis.is-4 .eb-kpi{padding:18px 16px 18px 0;border-right:0;}
+  .eb .eb-kpis.is-4 .eb-kpi:nth-child(odd){border-right:1px solid var(--eb-line-2);}
+  .eb .eb-kpis.is-4 .eb-kpi:nth-child(even){padding-left:16px;}
+}
 /* tablas de plegables */
 .eb .eb-tbl{width:100%;border-collapse:collapse;font:400 13.5px/1.45 var(--eb-sans);}
 .eb .eb-tbl th{text-align:left;font:500 10px/1.2 var(--eb-mono-med);letter-spacing:.12em;text-transform:uppercase;padding:0 12px 8px 0;border-bottom:1px solid var(--eb-ink);}
@@ -1906,6 +1941,8 @@ const CSS = `
 .eb .eb-vbox > video{width:100%;height:100%;object-fit:contain;background:#fff;}
 .eb .eb-vbox.is-phone{aspect-ratio:1/2;}
 .eb .eb-vbox.is-laptop{aspect-ratio:16/10;}
+.eb .eb-vbox.is-169{aspect-ratio:16/9;}
+.eb .eb-vid-solo{max-width:880px;margin:0 auto;}
 .eb .eb-media-169{aspect-ratio:16/9;}
 @media (max-width:900px){
   .eb .eb-vids .eb-row.is-stack{gap:28px;}
