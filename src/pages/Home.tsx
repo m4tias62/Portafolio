@@ -712,8 +712,9 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
                     diseñador ya no es un simple productor de piezas gráficas o interfaces bonitas:
                     la herramienta central, más allá del manejo técnico del software, es la
                     sensibilidad hacia las necesidades del usuario para el que se diseña — la
-                    capacidad de leer entre líneas para armar flujos lógicos y visualizaciones de
-                    información que realmente sirvan.
+                    capacidad de leer entre líneas para crear productos funcionales y acordes a las
+                    necesidades de las partes interesadas y, por supuesto y muy importante, de los
+                    usuarios.
                   </p>
                   <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[15px] leading-[1.65]">
                     Me considero capaz de adaptarme a cualquier proyecto donde el conocimiento de
