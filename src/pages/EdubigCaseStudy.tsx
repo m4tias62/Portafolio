@@ -332,6 +332,10 @@ const VALIDACION: CapaVal[] = [
 // Vista previa del prototipo 3 (rama de rediseño). Es la URL de un despliegue:
 // si cambia, se actualiza solo aquí.
 const URL_P3 = 'https://edu-8dnnhfddg-matiascmaureira3-3335s-projects.vercel.app/';
+// Archivo de Figma con el proceso del prototipo 3 (auditoría, referente,
+// anotaciones y propuestas por componente). Debe estar compartido como
+// «cualquiera con el enlace puede ver».
+const URL_FIGMA_PROCESO = 'https://www.figma.com/design/9vzSUhUpeHDxiGqkxS4iyW/Mvp?node-id=826-3972&t=vCzgLwur6nQejPqA-1';
 
 type CambioV3 = { antes: string; problema: string; despues: string };
 
@@ -1084,6 +1088,10 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               <li className="eb-step"><span className="eb-mono">04</span><b>Proponer</b><p>Una propuesta por componente, con todos sus estados: reposo, hover, presionado y foco.</p></li>
               <li className="eb-step"><span className="eb-mono">05</span><b>Implementar y verificar</b><p>La IA implementa la propuesta cerrada y la verifica con pruebas, axe-core y capturas en 1512 y 390 px. Yo reviso el resultado.</p></li>
             </ol>
+            <p className="eb-steps-src">
+              <a className="eb-link eb-link-ext" href={URL_FIGMA_PROCESO} target="_blank" rel="noopener noreferrer">Ver el proceso en Figma ↗</a>
+              <span>Los pasos 01 a 04, tal como quedaron en el archivo.</span>
+            </p>
 
             <div className="eb-grid eb-v3-sys">
               <div className="c-1-6">
@@ -1927,6 +1935,8 @@ const CSS = `
 .eb .eb-tbl-v3 em{font-family:'IBM Plex Sans:Italic',var(--eb-sans);font-style:normal;}
 /* método en cinco pasos */
 .eb .eb-steps.is-5{grid-template-columns:repeat(5,minmax(0,1fr));margin-top:0;}
+.eb .eb-steps-src{display:flex;flex-wrap:wrap;align-items:center;column-gap:16px;margin:var(--s-4) 0 0;}
+.eb .eb-steps-src span{font:400 14px/1.55 var(--eb-sans);color:var(--eb-ink-2);}
 /* criterio pixel art + medición */
 .eb .eb-v3-sys{margin-top:var(--s-6);align-items:start;}
 .eb .eb-v3-sys .eb-h3{margin-bottom:var(--s-3);}
