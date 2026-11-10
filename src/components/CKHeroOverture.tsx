@@ -15,6 +15,16 @@ import p5 from 'p5';
  * Emergencia por acumulación y superposición. Sin controles, sin dev panel —
  * el sistema respira solo. Adaptado desde ckhero.html estándalone al frame
  * del hero del site (no fullscreen), con fondo integrado al site (#fafaf7).
+ *
+ * Interacción (2026-11-10):
+ *   Obertura   — los ejes se trazan de izquierda a derecha, los anclajes
+ *                aparecen en barrido y la primera convergencia dorada llega
+ *                a los ~2 s (antes, a los 9 s).
+ *   Cursor     — con mouse o lápiz, los anclajes cercanos se encienden y los
+ *                tres más próximos tienden arcos hacia el cursor, que se
+ *                marca con un anillo dorado. El tacto no lo activa.
+ *   Pausa      — el sistema se detiene cuando el hero sale de pantalla.
+ *   Con prefers-reduced-motion queda un único cuadro estático, sin cursor.
  */
 
 type P5Instance = p5;
@@ -40,9 +50,9 @@ const DEFAULTS: Params = {
   marginBottom: 0.08,
   marginLeft: 0.04,
   marginRight: 0.04,
-  anchorInterval: [55, 130],
-  arcInterval: [45, 105],
-  convergenceInterval: [420, 780],
+  anchorInterval: [40, 95],
+  arcInterval: [35, 80],
+  convergenceInterval: [240, 420],
   maxAnchors: 95,
   maxArcs: 34,
   spreadBias: 0.55,
@@ -54,7 +64,7 @@ const NUM_AXES = 5;
 // Paleta editorial (alineada con la del site)
 const PAL = {
   bg: '#fafaf7',
-  axis: [15, 15, 14, 0.055] as [number, number, number, number],
+  axis: [15, 15, 14, 0.07] as [number, number, number, number],
   anchor: [15, 15, 14] as [number, number, number],
   arc: [15, 15, 14] as [number, number, number],
   gold: [201, 149, 91] as [number, number, number],
@@ -67,6 +77,13 @@ function rgba(
   const alpha = a !== undefined ? a : arr[3] !== undefined ? arr[3] : 1;
   return `rgba(${arr[0]}, ${arr[1]}, ${arr[2]}, ${alpha})`;
 }
+
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+// Cursor: radio en que los anclajes se encienden y radio en que tienden arcos.
+const NEAR_RADIUS = 170;
+const TETHER_RADIUS = 240;
+const TETHER_COUNT = 3;
 
 export default function CKHeroOverture({
   seed,
@@ -84,6 +101,12 @@ export default function CKHeroOverture({
     if (!containerRef.current) return;
     const host = containerRef.current;
     const params: Params = { ...DEFAULTS, seed: seed ?? DEFAULTS.seed };
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Último puntero (mouse/lápiz) en coordenadas de pantalla. Se cruza con el
+    // rect del host en cada cuadro, así sigue siendo correcto si el carrusel
+    // se mueve con el cursor quieto.
+    const pointer = { has: false, clientX: 0, clientY: 0 };
+    let onScreen = true;
 
     const sketch = (p: P5Instance) => {
       let axes: Axis[] = [];
@@ -94,6 +117,7 @@ export default function CKHeroOverture({
       let nextAnchorFrame = 0;
       let nextArcFrame = 0;
       let nextConvergenceFrame = 0;
+      let firstConvergence = true;
 
       // ══════════════════════════════════════════════════════
       // Axis — línea horizontal apenas visible
@@ -101,9 +125,13 @@ export default function CKHeroOverture({
       class Axis {
         y: number;
         idx: number;
+        reveal = 0; // 0..1 — trazo de entrada, escalonado por eje
         constructor(y: number, idx: number) {
           this.y = y;
           this.idx = idx;
+        }
+        update() {
+          if (this.reveal < 1 && localTime > this.idx * 6) this.reveal = Math.min(1, this.reveal + 1 / 36);
         }
         xStart() { return p.width * params.marginLeft; }
         xEnd() { return p.width * (1 - params.marginRight); }
@@ -115,7 +143,7 @@ export default function CKHeroOverture({
           ctx.lineWidth = 0.6;
           ctx.beginPath();
           ctx.moveTo(this.xStart(), this.y);
-          ctx.lineTo(this.xEnd(), this.y);
+          ctx.lineTo(this.xStart() + this.xRange() * easeOut(this.reveal), this.y);
           ctx.stroke();
         }
       }
@@ -130,14 +158,24 @@ export default function CKHeroOverture({
         birthAnim = 0;
         goldPhase = 0;
         baseRadius = 2.1;
+        birthDelay = 0; // cuadros antes de aparecer (barrido de la obertura)
+        near = 0; // 0..1 — cercanía suavizada al cursor
+        tether = 0; // 0..1 — progreso del arco tendido hacia el cursor
+        bend: number; // curvatura propia del arco al cursor (no tiembla)
 
         constructor(x: number, axisIdx: number) {
           this.x = x;
           this.axisIdx = axisIdx;
+          this.bend = p.random(-1, 1);
         }
         y() { return axes[this.axisIdx].y; }
+        visible() { return this.birthDelay <= 0; }
         update() {
           this.age++;
+          if (this.birthDelay > 0) {
+            this.birthDelay--;
+            return;
+          }
           if (this.birthAnim < 1) this.birthAnim = Math.min(1, this.birthAnim + 0.045);
           if (this.goldPhase > 0) this.goldPhase = Math.max(0, this.goldPhase - 0.008);
         }
@@ -149,9 +187,17 @@ export default function CKHeroOverture({
           return 1 - t * 0.55;
         }
         draw() {
-          const alpha = this.birthAnim * this.ageAlpha();
+          if (!this.visible()) return;
+          const alpha = Math.min(1, this.birthAnim * this.ageAlpha() + this.near * 0.4);
           const y = this.y();
           const ctx = p.drawingContext as CanvasRenderingContext2D;
+          if (this.near > 0.02) {
+            ctx.strokeStyle = rgba(PAL.anchor, 0.2 * this.near);
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.arc(this.x, y, this.baseRadius + 4 + this.near * 5, 0, Math.PI * 2);
+            ctx.stroke();
+          }
           if (this.goldPhase > 0.01) {
             for (let i = 5; i >= 1; i--) {
               ctx.fillStyle = rgba(PAL.gold, (0.12 * this.goldPhase) / i);
@@ -163,7 +209,7 @@ export default function CKHeroOverture({
           const col = this.goldPhase > 0.01 ? PAL.gold : PAL.anchor;
           ctx.fillStyle = rgba(col, alpha * (0.85 + this.goldPhase * 0.15));
           ctx.beginPath();
-          ctx.arc(this.x, y, this.baseRadius + this.goldPhase * 0.8, 0, Math.PI * 2);
+          ctx.arc(this.x, y, this.baseRadius + this.goldPhase * 0.8 + this.near * 2.2, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -175,7 +221,8 @@ export default function CKHeroOverture({
         origin: Anchor | FocalAnchor;
         target: Anchor | FocalAnchor;
         age = 0;
-        emergenceDuration = 85;
+        delay = 0; // cuadros antes de empezar a trazarse (obertura)
+        emergenceDuration = 70;
         holdDuration = 460;
         fadeDuration = 320;
         maxAge = this.emergenceDuration + this.holdDuration + this.fadeDuration;
@@ -212,7 +259,13 @@ export default function CKHeroOverture({
             y: it * it * this.origin.y() + 2 * it * t * this.cy + t * t * this.target.y(),
           };
         }
-        update() { this.age++; }
+        update() {
+          if (this.delay > 0) {
+            this.delay--;
+            return;
+          }
+          this.age++;
+        }
         phaseAlpha() {
           if (this.age < this.emergenceDuration) return this.age / this.emergenceDuration;
           if (this.age < this.emergenceDuration + this.holdDuration) return 1;
@@ -227,14 +280,15 @@ export default function CKHeroOverture({
           return 1;
         }
         draw() {
+          if (this.delay > 0) return;
           const alpha = this.phaseAlpha();
           if (alpha <= 0.005) return;
           const progress = this.drawProgress();
           const segments = 48;
           const endSeg = Math.floor(segments * progress);
           const ctx = p.drawingContext as CanvasRenderingContext2D;
-          ctx.strokeStyle = rgba(PAL.arc, alpha * 0.32);
-          ctx.lineWidth = 0.65;
+          ctx.strokeStyle = rgba(PAL.arc, alpha * 0.42);
+          ctx.lineWidth = 0.8;
           ctx.beginPath();
           const p0 = this.pointAt(0);
           ctx.moveTo(p0.x, p0.y);
@@ -271,7 +325,9 @@ export default function CKHeroOverture({
         flashDuration = 90;
         arcs: Arc[] = [];
 
-        constructor(originAnchors: Anchor[], focalX: number, focalAxisIdx: number) {
+        constructor(originAnchors: Anchor[], focalX: number, focalAxisIdx: number, fast = false) {
+          // La primera convergencia de la obertura es más corta (~2 s en total).
+          if (fast) this.waitDuration = 72;
           this.focalX = focalX;
           this.focalAxisIdx = focalAxisIdx;
           this.focalY = axes[focalAxisIdx].y;
@@ -293,7 +349,7 @@ export default function CKHeroOverture({
             const bulge = (p.random() - 0.5) * 30;
             arc.cx = midX + (perpX / perpMag) * bulge;
             arc.cy = midY + (perpY / perpMag) * bulge;
-            arc.emergenceDuration = 95;
+            arc.emergenceDuration = fast ? 64 : 95;
             arcs.push(arc);
             this.arcs.push(arc);
           }
@@ -377,11 +433,13 @@ export default function CKHeroOverture({
         if (localTime < nextArcFrame) return;
         nextArcFrame = localTime + Math.floor(p.random(params.arcInterval[0], params.arcInterval[1]));
         if (anchors.length < 2) return;
-        const recent = anchors.slice(-Math.min(40, anchors.length));
+        const shown = anchors.filter(a => a.visible());
+        if (shown.length < 2) return;
+        const recent = shown.slice(-Math.min(40, shown.length));
         const origin = recent[Math.floor(p.random(recent.length))];
         let target: Anchor | undefined;
         if (p.random() < params.neighborBias) {
-          const candidates = anchors.filter(a =>
+          const candidates = shown.filter(a =>
             a !== origin && a.axisIdx !== origin.axisIdx && Math.abs(a.x - origin.x) < 300,
           );
           if (candidates.length > 0) {
@@ -391,7 +449,7 @@ export default function CKHeroOverture({
           }
         }
         if (!target) {
-          const otherAxis = anchors.filter(a => a !== origin && a.axisIdx !== origin.axisIdx);
+          const otherAxis = shown.filter(a => a !== origin && a.axisIdx !== origin.axisIdx);
           if (otherAxis.length === 0) return;
           target = otherAxis[Math.floor(p.random(otherAxis.length))];
         }
@@ -401,11 +459,20 @@ export default function CKHeroOverture({
 
       function tryConvergence() {
         if (localTime < nextConvergenceFrame) return;
-        nextConvergenceFrame = localTime + Math.floor(p.random(params.convergenceInterval[0], params.convergenceInterval[1]));
-        if (anchors.length < 10) return;
-        const usedAxes = new Set<number>();
+        // La primera reintenta pronto si aún no hay suficientes anclajes visibles.
+        nextConvergenceFrame = firstConvergence
+          ? localTime + 12
+          : localTime + Math.floor(p.random(params.convergenceInterval[0], params.convergenceInterval[1]));
+        // La primera ocurre donde se ve: en escritorio el texto vela la mitad
+        // izquierda (foco en el ~40 % derecho); en celular, solo la franja
+        // superior queda despejada (foco en el primer eje).
+        const wide = p.width > 820;
+        const pool = anchors
+          .filter(a => a.visible() && (!firstConvergence || !wide || a.x > p.width * 0.45))
+          .slice(-50);
+        if (pool.length < (firstConvergence ? 6 : 10)) return;
+        const usedAxes = new Set<number>(firstConvergence && !wide ? [0] : []);
         const chosen: Anchor[] = [];
-        const pool = anchors.slice(-50);
         for (let attempt = 0; attempt < 40 && chosen.length < 4; attempt++) {
           const cand = pool[Math.floor(p.random(pool.length))];
           if (!usedAxes.has(cand.axisIdx)) {
@@ -414,18 +481,100 @@ export default function CKHeroOverture({
           }
         }
         if (chosen.length < 3) return;
+        if (firstConvergence && !wide) usedAxes.delete(0);
         const avail = axes.map((_, i) => i).filter(i => !usedAxes.has(i));
         if (avail.length === 0) return;
-        const focalAxisIdx = avail[Math.floor(p.random(avail.length))];
+        const focalAxisIdx = firstConvergence && !wide ? 0 : avail[Math.floor(p.random(avail.length))];
         let avgX = 0;
         for (const c of chosen) avgX += c.x;
         avgX /= chosen.length;
         const focalX = p.constrain(
           avgX + (p.random() - 0.5) * 80,
-          axes[focalAxisIdx].xStart() + 50,
+          firstConvergence && wide ? p.width * 0.6 : axes[focalAxisIdx].xStart() + 50,
           axes[focalAxisIdx].xEnd() - 50,
         );
-        convergences.push(new ConvergenceEvent(chosen, focalX, focalAxisIdx));
+        convergences.push(new ConvergenceEvent(chosen, focalX, focalAxisIdx, firstConvergence));
+        if (firstConvergence) {
+          firstConvergence = false;
+          nextConvergenceFrame = localTime + Math.floor(p.random(params.convergenceInterval[0], params.convergenceInterval[1]));
+        }
+      }
+
+      // ─────────────────────────────────────────
+      // Cursor: cercanía de anclajes + arcos tendidos hacia el cursor
+      // ─────────────────────────────────────────
+      const cur = { x: 0, y: 0, s: 0 };
+      function updateCursor() {
+        let inside = false;
+        let tx = cur.x;
+        let ty = cur.y;
+        if (pointer.has) {
+          const r = host.getBoundingClientRect();
+          tx = pointer.clientX - r.left;
+          ty = pointer.clientY - r.top;
+          inside = tx >= 0 && ty >= 0 && tx <= r.width && ty <= r.height;
+        }
+        if (inside && cur.s < 0.02) {
+          cur.x = tx;
+          cur.y = ty;
+        } else if (inside) {
+          cur.x += (tx - cur.x) * 0.22;
+          cur.y += (ty - cur.y) * 0.22;
+        }
+        cur.s += ((inside ? 1 : 0) - cur.s) * 0.08;
+
+        // Los TETHER_COUNT anclajes visibles más cercanos dentro del radio.
+        const ranked: { a: Anchor; d: number }[] = [];
+        for (const a of anchors) {
+          if (!a.visible()) continue;
+          const d = Math.hypot(a.x - cur.x, a.y() - cur.y);
+          const nearTarget = cur.s * Math.pow(Math.max(0, 1 - d / NEAR_RADIUS), 2);
+          a.near += (nearTarget - a.near) * 0.12;
+          if (d < TETHER_RADIUS) ranked.push({ a, d });
+        }
+        ranked.sort((m, n) => m.d - n.d);
+        const tethered = new Set(cur.s > 0.05 ? ranked.slice(0, TETHER_COUNT).map(r => r.a) : []);
+        for (const a of anchors) {
+          const target = tethered.has(a) ? 1 : 0;
+          a.tether += (target - a.tether) * (target > a.tether ? 0.07 : 0.12);
+          if (a.tether < 0.002) a.tether = 0;
+        }
+      }
+
+      function drawCursor() {
+        if (cur.s < 0.01) return;
+        const ctx = p.drawingContext as CanvasRenderingContext2D;
+        let maxT = 0;
+        for (const a of anchors) {
+          if (a.tether <= 0.01) continue;
+          maxT = Math.max(maxT, a.tether);
+          const ox = a.x;
+          const oy = a.y();
+          const dx = cur.x - ox;
+          const dy = cur.y - oy;
+          const len = Math.hypot(dx, dy) || 1;
+          const cx = (ox + cur.x) / 2 + (-dy / len) * a.bend * len * 0.25;
+          const cy = (oy + cur.y) / 2 + (dx / len) * a.bend * len * 0.25;
+          const prog = easeOut(a.tether);
+          const segs = 32;
+          const end = Math.max(1, Math.floor(segs * prog));
+          ctx.strokeStyle = rgba(PAL.arc, 0.4 * a.tether * cur.s);
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(ox, oy);
+          for (let i = 1; i <= end; i++) {
+            const t = (i / segs);
+            const it = 1 - t;
+            ctx.lineTo(it * it * ox + 2 * it * t * cx + t * t * cur.x, it * it * oy + 2 * it * t * cy + t * t * cur.y);
+          }
+          ctx.stroke();
+        }
+        // Anillo dorado en el cursor: el foco que «propone» el visitante.
+        ctx.strokeStyle = rgba(PAL.gold, 0.6 * cur.s * (0.35 + 0.65 * maxT));
+        ctx.lineWidth = 0.9;
+        ctx.beginPath();
+        ctx.arc(cur.x, cur.y, 6 + maxT * 3, 0, Math.PI * 2);
+        ctx.stroke();
       }
 
       // ─────────────────────────────────────────
@@ -449,15 +598,18 @@ export default function CKHeroOverture({
         arcs = [];
         convergences = [];
         localTime = 0;
-        nextAnchorFrame = 40;
-        nextArcFrame = 90;
-        nextConvergenceFrame = 550;
+        nextAnchorFrame = 100;
+        nextArcFrame = 190;
+        nextConvergenceFrame = 70;
+        firstConvergence = true;
 
-        // Pre-poblar composición inicial
+        // Obertura: los anclajes iniciales aparecen en barrido de izquierda a
+        // derecha (~1 s) mientras se trazan los ejes.
         for (let i = 0; i < 32; i++) {
           const pos = pickSpreadPosition();
           const a = new Anchor(pos.x, pos.axisIdx);
-          a.birthAnim = 1;
+          const ax = axes[pos.axisIdx];
+          a.birthDelay = Math.floor(6 + ((pos.x - ax.xStart()) / ax.xRange()) * 48 + p.random(0, 10));
           a.age = Math.floor(p.random(150, 600));
           anchors.push(a);
         }
@@ -469,10 +621,12 @@ export default function CKHeroOverture({
           const pool = nearby.length > 0 ? nearby : others;
           const target = pool[Math.floor(p.random(pool.length))];
           const arc = new Arc(origin, target);
-          arc.age = Math.floor(p.random(arc.emergenceDuration + 20, arc.emergenceDuration + arc.holdDuration * 0.6));
+          // Se trazan uno tras otro durante la obertura (~1–2,5 s).
+          arc.delay = 60 + i * 14;
           arcs.push(arc);
         }
-        p.loop();
+        if (onScreen && !reducedMotion) p.loop();
+        else p.noLoop();
       }
 
       p.setup = () => {
@@ -484,9 +638,11 @@ export default function CKHeroOverture({
         initializeSystem();
         // prefers-reduced-motion: se simula el sistema fuera de pantalla hasta
         // una composición madura y se deja un único cuadro estático.
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (reducedMotion) {
           for (let i = 0; i < 420; i++) p.draw();
           p.noLoop();
+        } else if (!onScreen) {
+          p.draw();
         }
       };
 
@@ -500,11 +656,14 @@ export default function CKHeroOverture({
         tryArc();
         tryConvergence();
 
-        for (const ax of axes) ax.draw();
+        if (!reducedMotion) updateCursor();
+
+        for (const ax of axes) { ax.update(); ax.draw(); }
         for (const a of arcs) { a.update(); a.draw(); }
         arcs = arcs.filter(a => a.isAlive());
         for (const c of convergences) { c.update(); c.draw(); }
         convergences = convergences.filter(c => c.isAlive());
+        if (!reducedMotion) drawCursor();
         for (const a of anchors) { a.update(); a.draw(); }
       };
     };
@@ -527,7 +686,32 @@ export default function CKHeroOverture({
     });
     ro.observe(host);
 
+    // Puntero: solo mouse o lápiz (el tacto se usa para desplazarse).
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
+      pointer.has = true;
+      pointer.clientX = e.clientX;
+      pointer.clientY = e.clientY;
+    };
+    const onPointerOut = () => { pointer.has = false; };
+    if (!reducedMotion) {
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+      document.documentElement.addEventListener('pointerleave', onPointerOut);
+    }
+
+    // Pausa cuando el hero sale de pantalla (carrusel o scroll en celular).
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      if (reducedMotion) return;
+      if (onScreen) inst.loop();
+      else inst.noLoop();
+    });
+    io.observe(host);
+
     return () => {
+      io.disconnect();
+      window.removeEventListener('pointermove', onPointerMove);
+      document.documentElement.removeEventListener('pointerleave', onPointerOut);
       ro.disconnect();
       inst.remove();
       instanceRef.current = null;
