@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import ProgressBar, { tickCount } from '@/components/ProgressBar';
 import BackButton from '@/components/BackButton';
 
@@ -6,7 +6,16 @@ import logo from '@/assets/edubig/logo.png';
 import portadaMaquetas from '@/assets/edubig/portada-maquetas.webp';
 import bocetoToggle from '@/assets/edubig/boceto-toggle.jpg';
 import formalizacionLogo from '@/assets/edubig/formalizacion-logo.png';
-import fotoColegio from '@/assets/edubig/colegio-graham-bell-foto.jpg';
+import fotoColegio from '@/assets/edubig/tarjeta-colegio-foto.jpg';
+import icSostenedor from '@/assets/edubig/iconos/meta-sostenedor.svg';
+import icNiveles from '@/assets/edubig/iconos/meta-niveles.svg';
+import icDistancia from '@/assets/edubig/iconos/meta-distancia.svg';
+import icGratuito from '@/assets/edubig/iconos/badge-gratuito.svg';
+import icPie from '@/assets/edubig/iconos/badge-pie.svg';
+import icSimce from '@/assets/edubig/iconos/badge-simce.svg';
+import icConvivencia from '@/assets/edubig/iconos/badge-convivencia.svg';
+import icDenuncias from '@/assets/edubig/iconos/badge-denuncias.svg';
+import icComparar from '@/assets/edubig/iconos/cta-comparar.svg';
 
 import personaCarolina from '@/assets/edubig/persona-carolina.png';
 import personaMartin from '@/assets/edubig/persona-martin.png';
@@ -553,7 +562,7 @@ export default function EdubigCaseStudy({ onBack }: { onBack: () => void }) {
               </div>
               <figcaption className="eb-cap">
                 <span className="eb-label">Fig. 02 · Seis entradas, una salida</span>
-                <p>Las fuentes no se suman en un puntaje: se cruzan y salen como frases que una familia puede usar.</p>
+                <p>Las fuentes no se suman en un puntaje: se cruzan y salen como frases que una familia puede usar. La tarjeta es el componente del sistema con sus cuatro estados: pasa el cursor, presiónala o llega a ella con Tab.</p>
               </figcaption>
             </figure>
 
@@ -1343,22 +1352,90 @@ function IdpsRow({ nombre, det, sim, col }: { nombre: string; det: string; sim: 
   );
 }
 
-/** Tarjeta del colegio reconstruida en HTML (antes: tarjeta-colegio.png, 350×469 px). */
+/** Estados del componente «Tarjeta colegio» (Figma, Wireframes Edubig · 39:54) y el color de borde de cada uno. */
+const ESTADOS_TARJETA = [
+  ['Default', '#2166ac'],
+  ['Hover', '#d6604d'],
+  ['Pressed', '#b2181f'],
+  ['Focus', '#67001f'],
+] as const;
+type EstadoTarjeta = (typeof ESTADOS_TARJETA)[number][0];
+
+const META_TARJETA: [string, string][] = [
+  [icSostenedor, 'Particular subvencionado'],
+  [icNiveles, 'Básica y Media'],
+  [icDistancia, 'A 850 m de tu casa'],
+];
+const BADGES_TARJETA: [string, string][] = [
+  [icGratuito, 'Gratuito'],
+  [icPie, 'Con programa PIE'],
+  [icSimce, 'SIMCE sobre su GSE'],
+  [icConvivencia, 'Convivencia alta'],
+  [icDenuncias, 'Sin denuncias'],
+];
+
+/**
+ * Tarjeta del colegio: el componente del sistema eduBIG con sus cuatro estados
+ * (Default, Hover, Pressed, Focus). Es una demostración: responde al cursor, al
+ * toque y al teclado, pero no navega. El foco usa :focus-visible; hover y
+ * pressed se controlan con data-s para que el indicador de estado y la tarjeta
+ * digan siempre lo mismo (y para que el hover no quede pegado en pantallas táctiles).
+ */
 function TarjetaColegio() {
+  const hintId = useId();
+  const [hover, setHover] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const [foco, setFoco] = useState(false);
+  const estado: EstadoTarjeta = pressed ? 'Pressed' : foco ? 'Focus' : hover ? 'Hover' : 'Default';
+  const soltar = () => setPressed(false);
   return (
-    <article className="eb-colegio" aria-label="Tarjeta de colegio de eduBIG: Colegio Alexander Graham Bell">
-      <h4>Colegio Alexander Graham Bell</h4>
-      <div className="eb-media eb-media-wide"><img src={fotoColegio} alt="Fachada del Colegio Alexander Graham Bell" /></div>
-      <ul>
-        <li><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" /><path d="M10 5.5H7.2a1.3 1.3 0 0 0 0 2.6h1.6a1.3 1.3 0 0 1 0 2.6H6M8 4v1.5M8 10.7V12" /></svg>Educación pública</li>
-        <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8M2.5 3v2.5M2 12.5h1.6L2 10.4a.8.8 0 1 1 1.5-.5" /></svg>Básica</li>
-        <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5 5.5 2l5 1.8 4-1.3v10l-4 1.5-5-1.8-4 1.3zM5.5 2v10M10.5 3.8v10" /></svg>A 850 m de tu casa</li>
-      </ul>
-      <div className="eb-chips">
-        <span>Gratuito</span><span>Con programa PIE</span><span>SIMCE sobre su GSE</span><span>Convivencia alta</span><span>Sin denuncias</span>
+    <>
+      <button
+        type="button"
+        className="eb-colegio"
+        data-s={estado.toLowerCase()}
+        aria-label="Tarjeta de colegio de eduBIG: Colegio Alexander Graham Bell. Particular subvencionado, básica y media, a 850 m de tu casa. Gratuito, con programa PIE, SIMCE sobre su GSE, convivencia alta, sin denuncias."
+        aria-describedby={hintId}
+        onPointerEnter={(e) => { if (e.pointerType !== 'touch') setHover(true); }}
+        onPointerLeave={() => { setHover(false); soltar(); }}
+        onPointerDown={(e) => { if (e.button === 0) setPressed(true); }}
+        onPointerUp={soltar}
+        onPointerCancel={soltar}
+        onKeyDown={(e) => {
+          setFoco(e.currentTarget.matches(':focus-visible'));
+          if (e.key === ' ' || e.key === 'Enter') setPressed(true);
+        }}
+        onKeyUp={soltar}
+        onFocus={(e) => setFoco(e.currentTarget.matches(':focus-visible'))}
+        onBlur={() => { setFoco(false); soltar(); }}
+      >
+        <span className="eb-colegio-h">Colegio Alexander Graham Bell</span>
+        <span className="eb-colegio-img"><img src={fotoColegio} alt="" width={502} height={251} loading="lazy" decoding="async" draggable={false} /></span>
+        <span className="eb-colegio-meta">
+          {META_TARJETA.map(([ic, t]) => (
+            <span key={t}><img src={ic} alt="" width={16} height={16} />{t}</span>
+          ))}
+        </span>
+        <span className="eb-colegio-badges">
+          {BADGES_TARJETA.map(([ic, t]) => (
+            <span key={t}><img src={ic} alt="" width={12} height={12} />{t}</span>
+          ))}
+        </span>
+        <span className="eb-colegio-cta">
+          <span>Ver ficha</span>
+          <span>Comparar<img src={icComparar} alt="" width={24} height={24} /></span>
+        </span>
+      </button>
+      <span id={hintId} className="sr-only">Demostración de los estados del componente; no abre ninguna ficha.</span>
+      <div className="eb-cstates" aria-hidden="true">
+        <span className="eb-label">Estado</span>
+        {ESTADOS_TARJETA.map(([nombre, color]) => (
+          <span key={nombre} className={nombre === estado ? 'is-on' : undefined}>
+            <i style={{ background: color }} />{nombre}
+          </span>
+        ))}
       </div>
-      <div className="eb-colegio-cta" aria-hidden="true"><span>Ver ficha</span><span>Comparar</span></div>
-    </article>
+    </>
   );
 }
 
@@ -1504,6 +1581,8 @@ function FlujoVisor({ flujos, pref, etiqueta }: { flujos: Flujo[]; pref: string;
 // ─── ESTILOS ──────────────────────────────────────────────────────────────
 
 const CSS = `
+/* Tipografías del producto para la tarjeta de la Fig. 02 (subconjunto: solo los glifos que usa) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Work+Sans:wght@600&text=%20058ABCEGIMPSVabcdefghilmnoprstuvxy%C3%A1&display=swap');
 /* ── 0 · Tokens (":root" del scope) ───────────────────────────────────── */
 .eb{
   /* superficies y tinta del portafolio */
@@ -1701,20 +1780,34 @@ const CSS = `
 .eb .eb-node img{position:relative;width:120px;height:auto;background:var(--eb-surface);padding:8px;}
 .eb .eb-out{grid-column:8/13;display:grid;gap:10px;justify-items:start;}
 .eb .eb-out > .eb-label + *{margin-top:2px;}
-/* TarjetaColegio en HTML (sustituye tarjeta-colegio.png, 350 px) */
-.eb .eb-colegio{width:100%;max-width:300px;background:#fff;border:2px solid #d6604d;border-radius:10px;padding:14px;display:grid;gap:10px;font-family:var(--eb-sans);color:#1f1f1f;box-shadow:0 2px 0 rgba(214,96,77,.18);}
-.eb .eb-colegio h4{margin:0;font:600 15px/1.3 var(--eb-sans);}
-.eb .eb-colegio .eb-media{border-radius:4px;}
-.eb .eb-colegio ul{list-style:none;margin:0;padding:0;display:grid;gap:5px;font-size:13.5px;}
-.eb .eb-colegio li{display:flex;gap:8px;align-items:center;}
-.eb .eb-colegio svg{width:14px;height:14px;flex:none;stroke:#1f1f1f;fill:none;stroke-width:1.5;}
-.eb .eb-chips{display:flex;flex-wrap:wrap;gap:5px;}
-.eb .eb-chips span{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;border:1px solid #767676;border-radius:3px;padding:5px 7px;}
-.eb .eb-chips svg{width:11px;height:11px;}
+/* Tarjeta colegio · componente de Figma con cuatro estados.
+   Los trazos de Figma son interiores y no ocupan layout: el padding de 24 px se
+   mide desde el borde exterior, por eso aquí es 24 px menos el grosor de cada lado. */
+.eb .eb-colegio{box-sizing:border-box;width:100%;max-width:328px;display:flex;flex-direction:column;align-items:stretch;gap:16px;margin:0;padding:22px 20px 20px 22px;border:solid #2166ac;border-width:2px 4px 4px 2px;border-radius:8px;background:#fff;color:#373737;text-align:left;font:400 14px/16px 'Roboto',var(--eb-sans);cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;box-shadow:0 .47px .94px rgba(0,0,0,.3),0 .94px 2.83px .94px rgba(0,0,0,.15);transition:background-color .12s ease,border-color .12s ease;}
+.eb .eb-colegio[data-s="hover"]{background:#e6e6e6;border-color:#d6604d;}
+.eb .eb-colegio:focus-visible{outline:4px solid #67001f;outline-offset:3px;border-color:#67001f;background:#fff;}
+.eb .eb-colegio[data-s="pressed"]{border-color:#b2181f;border-width:4px;padding:20px;background:#fff;}
+.eb .eb-colegio-h{display:block;font:600 16px/1.2 'Work Sans',var(--eb-sans);letter-spacing:.24px;color:#373737;}
+.eb .eb-colegio[data-s="pressed"] .eb-colegio-h{text-decoration:underline;text-underline-offset:2px;}
+/* foto: trazo exterior de 1/2/2/1 px, que en Figma tampoco ocupa layout */
+.eb .eb-colegio-img{display:block;box-sizing:content-box;margin:-1px -2px -2px -1px;border:solid #666;border-width:1px 2px 2px 1px;background:#e6e6e6;}
+.eb .eb-colegio-img img{display:block;width:100%;height:auto;aspect-ratio:2/1;object-fit:cover;}
+.eb .eb-colegio-meta{display:flex;flex-direction:column;gap:8px;}
+.eb .eb-colegio-meta > span{display:flex;align-items:center;gap:8px;letter-spacing:.21px;}
+.eb .eb-colegio-meta img,.eb .eb-colegio-badges img,.eb .eb-colegio-cta img{display:block;flex:none;}
+.eb .eb-colegio-badges{display:flex;flex-wrap:wrap;gap:8px;}
+.eb .eb-colegio-badges > span{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border:1px solid #666;background:#fff;font-size:12px;line-height:14px;letter-spacing:.18px;}
 .eb .eb-colegio-cta{display:flex;gap:8px;}
-.eb .eb-colegio-cta span{flex:1;min-height:40px;display:flex;align-items:center;justify-content:center;font:600 13.5px/1 var(--eb-sans);border-radius:3px;}
-.eb .eb-colegio-cta span:first-child{background:#0958D9;color:#fff;}
-.eb .eb-colegio-cta span:last-child{border:2px solid #0958D9;color:#0958D9;}
+.eb .eb-colegio-cta > span{box-sizing:border-box;height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;font:700 16px/1.5 'Roboto',var(--eb-sans);}
+.eb .eb-colegio-cta > span:first-child{background:#0051a8;color:#fff;}
+.eb .eb-colegio-cta > span:last-child{flex:1;padding:7px 15px;border:1px solid #0051a8;background:#fff;color:#0051a8;}
+/* indicador del estado activo (decorativo; el color es el borde de cada estado) */
+.eb .eb-cstates{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.eb .eb-cstates > .eb-label{margin-right:4px;}
+.eb .eb-cstates > span:not(.eb-label){display:inline-flex;align-items:center;gap:6px;padding:5px 7px;border:1px solid var(--eb-line-2);border-radius:2px;background:var(--eb-surface);font:500 10px/1 var(--eb-mono-med);letter-spacing:.1em;text-transform:uppercase;color:var(--eb-mute-text);transition:color .12s ease,background-color .12s ease,border-color .12s ease;}
+.eb .eb-cstates i{width:8px;height:8px;flex:none;}
+.eb .eb-cstates > span.is-on{background:var(--eb-ink);border-color:var(--eb-ink);color:#fff;}
+@media (prefers-reduced-motion: reduce){.eb .eb-colegio,.eb .eb-cstates > span{transition:none;}}
 
 /* personas */
 .eb .eb-persona{padding:clamp(18px,2.2vw,28px);}
@@ -1939,6 +2032,9 @@ const CSS = `
   .eb .eb-node::before{left:50%;right:auto;top:0;bottom:0;width:2px;height:auto;background:linear-gradient(180deg,#4393c3,#f7f7f7 50%,#d6604d);}
   .eb .eb-node::after{display:none;}
   .eb .eb-out{justify-items:center;}
+  .eb .eb-cstates{justify-content:center;gap:4px;}
+  .eb .eb-cstates > .eb-label{flex-basis:100%;text-align:center;margin:0 0 4px;}
+  .eb .eb-cstates > span:not(.eb-label){padding:5px 6px;letter-spacing:.06em;}
   .eb .eb-persona-body,.eb .eb-persona-main{grid-template-columns:1fr;}
   .eb .eb-persona-id,.eb .eb-persona-main,.eb .eb-dolores,.eb .eb-implic{grid-column:1/-1;}
   .eb .eb-persona-id{grid-template-columns:120px minmax(0,1fr);align-items:start;}
