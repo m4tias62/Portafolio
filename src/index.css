@@ -35,3 +35,222 @@ html, body, #root {
 * {
   box-sizing: border-box;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Home · interacción (a prueba en local, 2026-11-10)
+   · .hm-cat-x   categorías en el carrusel de escritorio: escala y opacidad
+                 ligadas al scroll horizontal (view(inline)): la del centro
+                 queda a tamaño completo y las vecinas, chicas y atenuadas.
+                 Hover/foco marcado: sube, crece y se tiñe del acento; las
+                 otras categorías se achican y pierden color.
+   · .hm-rise    celular: tarjetas (destacados y categorías) que crecen al
+                 entrar al viewport y se achican al salir (view(block)).
+   · .hm-feat    cards de proyecto en escritorio (destacados de la Home y
+                 carrusel de cada categoría): entran y salen con el scroll
+                 del carrusel (view(inline)). Hover/foco: la card crece completa
+                 (ancho y alto, la imagen no se recorta) y las otras se
+                 achican y pierden color. El hover es una transición CSS: las
+                 animaciones ligadas al scroll no reaccionan al cursor.
+   · .hm-disc-m  celular: el disco de la categoría acompaña con su recorrido.
+   Sin soporte de animation-timeline, o con movimiento reducido, todo queda
+   estático como antes.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --hm-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hm-feat-grid {
+  --hm-gap: clamp(20px, 2.4vw, 40px);
+}
+
+/* Sin movimiento: con «reducir movimiento» el hover solo oscurece el borde. */
+@media (hover: hover) {
+  .hm-feat:not(:disabled):hover .hm-feat-thumb {
+    border-color: #0f0f0e;
+  }
+}
+
+.hm-cat-halo {
+  border: 1.5px solid var(--acc);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes hm-cat-x {
+  0% { scale: 0.84; opacity: 0.42; }
+  50% { scale: 1; opacity: 1; }
+  100% { scale: 0.84; opacity: 0.42; }
+}
+
+@keyframes hm-rise {
+  0% { scale: 0.86; opacity: 0.4; }
+  32% { scale: 1; opacity: 1; }
+  68% { scale: 1; opacity: 1; }
+  100% { scale: 0.86; opacity: 0.4; }
+}
+
+/* Meseta ancha: con el slide centrado las tres cards quedan a tamaño completo;
+   solo cambian al entrar o salir por los bordes. */
+@keyframes hm-rise-x {
+  0% { scale: 0.82; opacity: 0.35; }
+  20% { scale: 1; opacity: 1; }
+  80% { scale: 1; opacity: 1; }
+  100% { scale: 0.82; opacity: 0.35; }
+}
+
+@keyframes hm-disc-m {
+  0% { scale: 0.55; translate: 0 22%; }
+  50% { scale: 1; translate: 0 0; }
+  100% { scale: 0.8; translate: 0 -16%; }
+}
+
+@keyframes hm-halo {
+  0% { scale: 1; opacity: 0.6; }
+  100% { scale: 1.34; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .hm-cat-x,
+    .hm-feat,
+    .hm-rise,
+    .hm-disc-m {
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-range: cover;
+    }
+    .hm-cat-x {
+      animation-name: hm-cat-x;
+      animation-timeline: view(inline);
+    }
+    .hm-feat {
+      animation-name: hm-rise-x;
+      animation-timeline: view(inline);
+    }
+    .hm-rise {
+      animation-name: hm-rise;
+      animation-timeline: view(block);
+    }
+    .hm-disc-m {
+      animation-name: hm-disc-m;
+      animation-timeline: view(block);
+    }
+  }
+
+  /* El scroll anima `scale`; el hover usa `transform`, así ambos se suman. */
+  .hm-cat-x {
+    transition:
+      transform 0.7s var(--hm-ease),
+      box-shadow 0.7s var(--hm-ease),
+      border-color 0.4s var(--hm-ease),
+      filter 0.6s var(--hm-ease);
+  }
+  .hm-cat-x .hm-cat-title {
+    transition: translate 0.7s var(--hm-ease);
+  }
+
+  .hm-cat-x:focus-visible {
+    outline: 2px solid #0f0f0e;
+    outline-offset: 4px;
+    transform: translateY(-8px) scale(1.035);
+    border-color: #0f0f0e;
+  }
+  .hm-cat-x:focus-visible .hm-cat-title {
+    translate: 12px 0;
+  }
+
+  @media (hover: hover) {
+    .hm-cat-x:hover {
+      transform: translateY(-8px) scale(1.035);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.14);
+      border-color: #0f0f0e;
+    }
+    .hm-cat-x:hover .hm-cat-title {
+      translate: 12px 0;
+    }
+    .hm-cat-x:hover .hm-cat-halo {
+      animation: hm-halo 1.6s var(--hm-ease) infinite;
+    }
+    .hm-track:has(> .hm-cat-x:hover) > .hm-cat-x:not(:hover) {
+      transform: scale(0.95);
+      filter: grayscale(0.8);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Destacados (escritorio). El scroll anima `scale`; el hover usa
+     `transform`, así ambos se suman. */
+  .hm-feat {
+    position: relative;
+    /* Crece más hacia abajo que hacia arriba: no choca con el título. */
+    transform-origin: 50% 30%;
+    transition: transform 0.7s var(--hm-ease);
+  }
+  /* Extiende el área de hover hasta la mitad del espacio entre cards: al
+     pasar de una a otra no se suelta el estado. */
+  .hm-feat::after {
+    content: '';
+    position: absolute;
+    inset: 0 calc(var(--hm-gap) / -2);
+  }
+  .hm-feat .hm-feat-thumb {
+    transition:
+      opacity 0.6s var(--hm-ease),
+      filter 0.6s var(--hm-ease),
+      border-color 0.4s var(--hm-ease),
+      box-shadow 0.7s var(--hm-ease);
+  }
+  .hm-feat .hm-feat-text {
+    transition: opacity 0.6s var(--hm-ease);
+  }
+  .hm-feat .hm-feat-arrow {
+    transition: translate 0.6s var(--hm-ease);
+  }
+
+  .hm-feat:focus-visible {
+    z-index: 1;
+    transform: scale(1.07);
+  }
+  .hm-feat:focus-visible .hm-feat-thumb {
+    border-color: #0f0f0e;
+  }
+  .hm-feat:focus-visible .hm-feat-arrow {
+    translate: 10px 0;
+  }
+  .hm-feat-grid:has(> .hm-feat:focus-visible) > .hm-feat:not(:focus-visible) {
+    transform: scale(0.93);
+  }
+  .hm-feat-grid:has(> .hm-feat:focus-visible) > .hm-feat:not(:focus-visible) .hm-feat-thumb {
+    opacity: 0.5;
+    filter: grayscale(0.85);
+  }
+  .hm-feat-grid:has(> .hm-feat:focus-visible) > .hm-feat:not(:focus-visible) .hm-feat-text {
+    opacity: 0.72;
+  }
+
+  @media (hover: hover) {
+    .hm-feat:not(:disabled):hover {
+      z-index: 1;
+      transform: scale(1.07);
+    }
+    .hm-feat:not(:disabled):hover .hm-feat-thumb {
+      border-color: #0f0f0e;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16);
+    }
+    .hm-feat:not(:disabled):hover .hm-feat-arrow {
+      translate: 10px 0;
+    }
+    .hm-feat-grid:has(> .hm-feat:not(:disabled):hover) > .hm-feat:not(:hover) {
+      transform: scale(0.93);
+    }
+    .hm-feat-grid:has(> .hm-feat:not(:disabled):hover) > .hm-feat:not(:hover) .hm-feat-thumb {
+      opacity: 0.5;
+      filter: grayscale(0.85);
+    }
+    .hm-feat-grid:has(> .hm-feat:not(:disabled):hover) > .hm-feat:not(:hover) .hm-feat-text {
+      opacity: 0.72;
+    }
+  }
+}

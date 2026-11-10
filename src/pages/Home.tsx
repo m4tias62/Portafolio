@@ -59,13 +59,20 @@ function CategoryCard({
     const mx = (e.clientX - r.left) / r.width - 0.5;
     const my = (e.clientY - r.top) / r.height - 0.5;
     if (discRef.current) {
-      discRef.current.style.transform = `translate(${mx * 34}px, ${my * 34}px) scale(1.06)`;
+      discRef.current.style.transform = `translate(${mx * 72}px, ${my * 56}px) scale(1.16)`;
     }
   }
   function onLeave() {
     if (discRef.current) discRef.current.style.transform = '';
   }
 
+  // Interacción (ver «Home · interacción» en index.css):
+  // · escritorio (.hm-cat-x): escala y opacidad ligadas al scroll horizontal
+  //   del carrusel + hover marcado (sube, crece, se tiñe del acento; las otras
+  //   categorías se achican y pierden color).
+  // · celular (.hm-rise): la card crece al entrar al viewport y se achica al
+  //   salir; el disco (.hm-disc-m) acompaña con su propio recorrido.
+  const ix = reduced ? '' : narrow ? 'hm-rise' : 'hm-cat-x';
   return (
     <button
       data-slide
@@ -73,38 +80,45 @@ function CategoryCard({
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       aria-label={`Ver proyectos de ${category.label}`}
-      className={`group relative shrink-0 self-center text-left cursor-pointer bg-white border border-[#dcdbd5] overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] ${
-        !narrow && !reduced
-          ? 'transition-[transform,box-shadow,border-color] duration-500 ease-out hover:scale-[1.02] hover:shadow-[0_18px_60px_rgba(0,0,0,0.13)] hover:border-[#8a8a85] focus-visible:shadow-[0_18px_60px_rgba(0,0,0,0.13)]'
-          : ''
-      } ${narrow ? 'w-full h-[62vh] min-h-[400px]' : ''}`}
-      style={narrow ? undefined : { width: 'min(760px, 64vw)', height: 'min(62vh, 520px)' }}
+      className={`${ix} group relative shrink-0 self-center text-left cursor-pointer bg-white border border-[#dcdbd5] overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] ${
+        narrow ? 'w-full h-[62vh] min-h-[400px]' : ''
+      }`}
+      style={
+        {
+          ...(narrow ? {} : { width: 'min(760px, 64vw)', height: 'min(62vh, 520px)' }),
+          '--acc': category.accentColor,
+        } as React.CSSProperties
+      }
     >
       <div className="absolute right-0 top-0 bottom-0 w-[62%] flex items-center justify-center pointer-events-none">
         <div
           ref={discRef}
-          className="rounded-full transition-transform duration-500 ease-out"
+          className={`relative rounded-full transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)] ${
+            narrow && !reduced ? 'hm-disc-m' : ''
+          }`}
           style={{
             width: narrow ? 'min(48vw, 190px)' : 'min(38vh, 300px)',
             height: narrow ? 'min(48vw, 190px)' : 'min(38vh, 300px)',
             background: category.accentColor,
           }}
-        />
+        >
+          <span aria-hidden="true" className="hm-cat-halo absolute inset-0 rounded-full" />
+        </div>
       </div>
       <div className="absolute left-[clamp(28px,4vw,56px)] inset-y-0 flex flex-col justify-center gap-[14px] max-w-[52%] z-10 pointer-events-none">
         <h2
-          className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.02] tracking-[-1px]"
+          className="hm-cat-title font-['IBM_Plex_Mono:Medium',sans-serif] text-[#0f0f0e] leading-[1.02] tracking-[-1px]"
           style={{ fontSize: 'clamp(34px, 4.4vw, 60px)' }}
         >
           {category.label}
         </h2>
         <p
-          className={`font-['IBM_Plex_Mono:Regular',sans-serif] text-[13px] tracking-[0.4px] text-[#0f0f0e] inline-flex items-center gap-2 transition-all duration-300 ${
-            narrow ? '' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0'
+          className={`font-['IBM_Plex_Mono:Regular',sans-serif] text-[13px] tracking-[0.4px] text-[#0f0f0e] inline-flex items-center gap-2 transition-all duration-500 ease-[cubic-bezier(.2,.8,.2,1)] ${
+            narrow ? '' : 'opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0'
           }`}
         >
           Ver proyectos
-          <span className="transition-transform duration-300 group-hover:translate-x-[5px]">→</span>
+          <span className="transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:translate-x-[8px]">→</span>
         </p>
       </div>
     </button>
@@ -118,15 +132,21 @@ function CategoryCard({
  */
 function FeaturedCard({ project, onClick, narrow, reduced }: { project: Project; onClick: () => void; narrow: boolean; reduced: boolean }) {
   const fitClass = project.thumbnailFit === 'contain' ? 'object-contain bg-white' : 'object-cover';
+  // Interacción (ver «Home · interacción» en index.css):
+  // · escritorio (.hm-feat): entra y sale con el scroll horizontal del carrusel
+  //   y, en hover o con foco, la card crece completa (ancho y alto, sin recortar
+  //   la imagen) mientras las otras se achican y pierden color. Solo CSS.
+  // · celular (.hm-rise): crece al entrar al viewport y se achica al salir.
+  const ix = reduced ? '' : narrow ? 'hm-rise' : 'hm-feat';
   return (
     <button
       onClick={onClick}
       aria-label={`Ver caso: ${project.title}`}
-      className="group flex flex-col text-left cursor-pointer min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fafaf7]"
+      className={`${ix} group flex flex-col text-left cursor-pointer min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fafaf7]`}
     >
       <div
-        className={`w-full relative overflow-hidden bg-[#ebeae4] border border-[#dcdbd5] ${
-          !reduced ? 'transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]' : ''
+        className={`hm-feat-thumb w-full relative overflow-hidden bg-[#ebeae4] border border-[#dcdbd5] ${
+          narrow && !reduced ? 'transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]' : ''
         }`}
         style={narrow ? { aspectRatio: '4 / 3' } : { height: 'min(30vh, 280px)' }}
       >
@@ -146,21 +166,28 @@ function FeaturedCard({ project, onClick, narrow, reduced }: { project: Project;
           <img src={project.thumbnail} alt="" draggable={false} className={`absolute inset-0 w-full h-full ${fitClass}`} />
         ) : null}
       </div>
-      <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.43px] leading-[1.47] uppercase text-[#8a8a85] pt-3">
-        {project.category} — {project.year}
-      </p>
-      <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[20px] leading-[1.2] tracking-[-0.2px] mt-1 text-[#0f0f0e]">
-        {project.title}
-        <span className="inline-block ml-2 transition-transform duration-300 group-hover:translate-x-[5px]" aria-hidden="true">→</span>
-      </p>
-      <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[14px] leading-[1.5] mt-1 text-[#3a3a38]">
-        {project.description}
-      </p>
-      {(project.role || project.status) && (
-        <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] leading-[1.5] text-[#3a3a38] mt-2">
-          {[project.role, project.status].filter(Boolean).join(' · ')}
+      <div className="hm-feat-text flex flex-col">
+        <p className="font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.43px] leading-[1.47] uppercase text-[#8a8a85] pt-3">
+          {project.category} — {project.year}
         </p>
-      )}
+        <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[20px] leading-[1.2] tracking-[-0.2px] mt-1 text-[#0f0f0e]">
+          {project.title}
+          <span
+            className={`hm-feat-arrow inline-block ml-2 ${narrow ? 'transition-transform duration-300 group-hover:translate-x-[5px]' : ''}`}
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </p>
+        <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[14px] leading-[1.5] mt-1 text-[#3a3a38]">
+          {project.description}
+        </p>
+        {(project.role || project.status) && (
+          <p className="font-['IBM_Plex_Mono:Regular',sans-serif] text-[12px] leading-[1.5] text-[#3a3a38] mt-2">
+            {[project.role, project.status].filter(Boolean).join(' · ')}
+          </p>
+        )}
+      </div>
     </button>
   );
 }
@@ -498,8 +525,8 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
         aria-label={narrow ? undefined : 'Portafolio — usa las flechas ← → para avanzar entre secciones'}
         className={
           narrow
-            ? 'flex flex-col gap-[28px] px-5 pt-[24px] pb-[60px]'
-            : 'flex-1 flex items-stretch overflow-x-auto overflow-y-hidden select-none cursor-grab'
+            ? 'hm-track flex flex-col gap-[28px] px-5 pt-[24px] pb-[60px]'
+            : 'hm-track flex-1 flex items-stretch overflow-x-auto overflow-y-hidden select-none cursor-grab'
         }
         style={
           narrow
@@ -598,11 +625,12 @@ export default function Home({ onCategoryClick, onProjectClick, scrollTo }: Home
             >
               Proyectos destacados
             </h2>
+            {/* Foco y contexto (escritorio): ver .hm-feat en index.css. */}
             <div
-              className="grid"
+              className="hm-feat-grid grid"
               style={{
                 gridTemplateColumns: narrow ? '1fr' : `repeat(${featured.length}, minmax(0, 1fr))`,
-                gap: narrow ? 36 : 'clamp(20px, 2.4vw, 40px)',
+                gap: narrow ? 36 : 'var(--hm-gap)',
               }}
             >
               {featured.map(p => (

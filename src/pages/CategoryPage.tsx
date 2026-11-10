@@ -26,22 +26,26 @@ function ProjectCard({ project, onClick, narrow }: { project: Project; onClick: 
       onClick={onClick}
       disabled={disabled}
       aria-disabled={disabled}
-      className={`flex flex-col items-start shrink-0 group text-left ${narrow ? 'w-full' : ''} ${
+      className={`${narrow ? 'hm-rise' : 'hm-feat'} flex flex-col items-start shrink-0 group text-left ${narrow ? 'w-full' : ''} ${
         disabled ? 'cursor-default' : 'cursor-pointer'
-      }`}
+      } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f0f0e] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fafaf7]`}
       style={{ width: narrow ? '100%' : 520 }}
     >
       {/*
-        Interactividad hover — misma lógica que las cards de categoría del home:
-        micro-escala + sombra pronunciada + borde que se oscurece. Solo se aplica
-        cuando el proyecto está disponible; los "En preparación" quedan inertes.
+        Interactividad — la misma de los destacados de la Home (ver «Home ·
+        interacción» en index.css):
+        · escritorio (.hm-feat): la card entra y sale con el scroll del carrusel;
+          en hover o con foco crece completa (ancho y alto, sin recortar la
+          imagen) y las otras se achican y pierden color. Los «En preparación»
+          no crecen, pero sí se atenúan cuando otra está activa.
+        · celular (.hm-rise): crece al entrar al viewport y se achica al salir.
       */}
       <div
-        className={
-          disabled
-            ? `w-full relative overflow-hidden ${boxBg} border border-[#dcdbd5]`
-            : `w-full relative overflow-hidden ${boxBg} border border-[#dcdbd5] transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]`
-        }
+        className={`hm-feat-thumb w-full relative overflow-hidden ${boxBg} border border-[#dcdbd5] ${
+          narrow && !disabled
+            ? 'transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_16px_60px_rgba(0,0,0,0.14)] group-hover:border-[#8a8a85]'
+            : ''
+        }`}
         style={narrow ? { aspectRatio: '520 / 420' } : { height: 420 }}
       >
         {hasVideo && !disabled && (
@@ -72,7 +76,7 @@ function ProjectCard({ project, onClick, narrow }: { project: Project; onClick: 
           </div>
         ) : null}
       </div>
-      <div className="pt-3">
+      <div className="hm-feat-text pt-3">
         <p
           className={`font-['IBM_Plex_Mono:Medium',sans-serif] text-[11px] tracking-[1.43px] leading-[1.47] uppercase ${
             disabled ? 'text-[#b6b5b0]' : 'text-[#8a8a85]'
@@ -87,6 +91,14 @@ function ProjectCard({ project, onClick, narrow }: { project: Project; onClick: 
           style={{ fontVariationSettings: '"wdth" 100' }}
         >
           {project.title}
+          {!disabled && (
+            <span
+              className={`hm-feat-arrow inline-block ml-2 ${narrow ? 'transition-transform duration-300 group-hover:translate-x-[5px]' : ''}`}
+              aria-hidden="true"
+            >
+              →
+            </span>
+          )}
         </p>
         <p
           className={`font-['IBM_Plex_Sans:Regular',sans-serif] text-[14px] leading-[1.5] mt-1 max-w-[420px] ${
@@ -274,14 +286,26 @@ export default function CategoryPage({ categoryId, onProjectClick, onBack }: Cat
               <ProgressBar progress={scrollProgress} onSeek={handleSeek} ticks={tickCount(projects.length)} />
             </div>
           )}
+          {/* Escritorio: el carrusel recorta lo que sobresale (overflow-x),
+              así que lleva un margen interno (compensado con margen negativo)
+              para que la card que crece en hover y su sombra no se corten. */}
           <div
             ref={carouselRef}
             className={
               narrow
                 ? 'flex flex-col gap-[28px]'
-                : 'flex gap-[96px] overflow-x-auto pb-4 select-none cursor-grab'
+                : 'hm-feat-grid flex gap-[96px] overflow-x-auto select-none cursor-grab'
             }
-            style={narrow ? undefined : { scrollbarWidth: 'none' }}
+            style={
+              narrow
+                ? undefined
+                : ({
+                    scrollbarWidth: 'none',
+                    '--hm-gap': '96px',
+                    padding: '32px 40px 48px',
+                    margin: '-32px -40px -32px',
+                  } as React.CSSProperties)
+            }
           >
             {projects.length === 0 ? (
               <p className="font-['IBM_Plex_Sans:Regular',sans-serif] text-[17px] text-[#8a8a85] italic">
